@@ -1,0 +1,27 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage[nographic]{easyfloats}
+
+\ExpectingPackageError{pgfkeys}{I do not know the key '/object/graphic width', to which you passed '.8\linewidth ', and I am going to ignore it. Perhaps you misspelled it}
+\objectset{graphic width=.8\linewidth}
+
+\ExpectingPackageError{easyfloats}{I do not know the key 'graphic width' and I am going to ignore it. Perhaps you misspelled it}
+\objectset[table]{graphic width=.8\linewidth}
+
+% figureobject is still defined, e.g. for tikz
+\objectset[figure]{placement=htbp}
+
+% avoid "Missing $ inserted" which would be caused because \includegraphicobject is undefined with nographic
+\catcode`_=11
+
+\begin{document}
+	\ExpectingError{Undefined control sequence}
+	\includegraphicobject{graphics/ctan_lion}
+
+	\begin{figureobject}{caption=1em by 1em, warn no label=false}
+		\rule{1em}{1em}
+	\end{figureobject}
+\end{document}

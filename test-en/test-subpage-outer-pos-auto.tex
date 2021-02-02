@@ -1,0 +1,37 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+\graphicspath{{graphics/}}
+\objectset{%
+	subobject warn no caption = false,
+	warn no label = false,
+	graphic width = .8\linewidth,
+	graphic auto caption=false,
+	graphic auto label=false,
+}
+
+\begin{document}
+\begin{figureobject}{caption=Two lions}
+	\includegraphicsubobject[width=.6\linewidth]{ctan_lion}
+	\includegraphicsubobject{ctan_lion}
+\end{figureobject}
+\begin{tableobject}{caption=Two cats}
+	\includegraphicsubobject[width=.6\linewidth]{catcodes}
+	\includegraphicsubobject{catcodes}
+\end{tableobject}
+
+\clearpage
+
+\objectset{subpage outer pos=Auto}
+\begin{figureobject}{caption=Two lions}
+	\includegraphicsubobject[width=.6\linewidth]{ctan_lion}
+	\includegraphicsubobject{ctan_lion}
+\end{figureobject}
+\begin{tableobject}{caption=Two cats}
+	\includegraphicsubobject[width=.6\linewidth]{catcodes}
+	\includegraphicsubobject{catcodes}
+\end{tableobject}
+\end{document}

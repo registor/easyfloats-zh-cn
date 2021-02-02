@@ -1,0 +1,754 @@
+% !TeX root = ../easyfloats.tex
+
+% Copyright © 2020 E. Zöllner
+% Alternatively to the terms of the LPPL, at your choice,
+% you can redistribute and/or modify this file under the
+% terms of the Do What The Fuck You Want To Public License, Version 2,
+% as published by Sam Hocevar. See http://www.wtfpl.net/about/.
+
+\usepackage{etoolbox}
+\usepackage{pgfkeys}
+
+% Defines a macro to document a macro or environment key:
+%     \keydoc{<keyname> = <allowedvalues>}{<keytype>}
+%     \keydoc[<options>]{<keyname> = <allowedvalues>}{<keytype>}
+% Following text is assumed to be a description of the key.
+% If it is instead followed by another \keydoc it is assumed
+% that this key has no description.
+% If a description applies to two keys separate the \keydocs
+% by a slash.
+% Do *not* put an empty line between a \keydoc and it's description.
+% Spaces after (the second argument of) \keydoc are ignored.
+% <options> is a comma separated list of the following possible key=value pairs:
+% - target = the full key to another key.
+%   The name of this key is made into a link to target.
+%   This is used by \forwardingkeydoc.
+% - initial value
+% - default value
+% Values are separated by pipes.
+% Wildcards are put in angular brackets.
+%
+% The description of a \keydoc is assumed to reach up to the
+% next \keydoc, \section, \subsection or \subsubsection.
+% If that is not the case you must explicitly end it with
+%     \endkeydoc
+% If the description of a \keydoc is ended by a \*section macro
+% there must be a \par (aka an empty line) before that \*section.
+% Otherwise \keydoc@descriptionsep will be inserted.
+%
+% There is a special macro for forwarding keys:
+%     \forwardingkeydoc[<options>]{<keyname>}
+% In contrast to \keydoc, the target option can be a path, name or full key.
+% If target is not given it is tried to generate it by expanding
+%     \TargetKey{<keypath>}{<keyname>}
+% This macro is given the path (without trailing slash) and name
+% of the key to be described and is expected to expand to a full key.
+% You must define it yourself if you want to leave out the optional argument.
+%
+% \forwardingkeydoc uses internally a more generalized macro:
+%     \correspondingkeydoc[<options>]{<keyname>}{<keytype>}
+% target is as flexible as for \forwardingkeydoc
+% but it also takes a <keytype> like \keydoc.
+%
+% Examples for a key pattern can be specified with
+%     \keylinktarget{<keyexample>}
+% It must be specified directly following the \keydoc it refers to.
+%
+% \key is redefined to link to \keydoc.
+% However, different environments can have different keys
+% with the same name. In that case a path must be set to
+% distinguish these keys:
+%     \keydocpath{<path>}
+% Sets the path for all following \keydoc in the same group.
+% Unambiguous keys can be referenced without a path:
+%     \key{sub}
+% For ambiguous keys the path must given as an optional argument:
+%     \key[/object]{label}
+% Paths may *not* include a trailing slash.
+%
+% Internals:
+% \begin@keydoc is put before the first \keydoc.
+% \endkeydoc is put after the last description of a \keydoc.
+% \keydoc@beforekey is put before each \keydoc but only once
+%                   for \keydocs which belong together.
+% \keydoc@keysep is put between \keydocs which belong together.
+% \keydoc@descriptionsep is put between a \keydoc and it's description.
+% If a \keydoc is followed by a \par neither \keydoc@keysep
+% nor \keydoc@descriptionsep is inserted.
+
+
+\makeatletter
+
+% ---------- \keydoc settings ---------
+
+\newcommand{\begin@keydoc}{\begin{itemize}}
+\def        \endkeydoc    {\end{itemize}}
+
+\newcommand{\keydoc@beforekey}{\item}
+\newcommand{\keydoc@keysep}{~/ }
+\newcommand{\keydoc@descriptionsep}{\nopagebreak\par}
+
+\newcommand{\keydoc@mandatoryvalueformat}[1]{#1}
+\newcommand{\keydoc@optionalvalueformat}{\textcolor{gray}}
+
+\newcommand{\keydoc@keytype}[1]{\,\ensuremath{^{\pgfmanualcslinkpreskip=.33em\pgfmanualcslinkpostskip=\pgfmanualcslinkpreskip\LinkUnformattedKeyword{keytype}{#1}{\keytypesymbol{#1}}}}}
+\newcommand{\keytypedoc@keytype}[1]{\raisebox{.2ex}{\bfseries\keytypesymbol{#1}}}
+
+% ---------- key type symbols ---------
+
+\newcommand{\keytypesymbolformat}[1]{\hbox{\scriptsize(#1)}}
+\newcommand{\newkeytypesymbol}[2]{% #1: key type, #2: symbol
+	\expandafter\newcommand\csname keytypesymbol@#1\endcsname{#2}%
+}
+\newcommand{\keytypesymbol}[1]{% #1: key type
+	\@ifundefined{keytypesymbol@#1}%
+		{\PackageError{keydoc}{undefined keytype `#1'}{}}%
+		{\keytypesymbolformat{\csname keytypesymbol@#1\endcsname}}%
+}
+
+\newkeytypesymbol{storing key}{sto}
+\newkeytypesymbol{executed key}{exe}
+\newkeytypesymbol{boolean key}{bool}
+\newkeytypesymbol{forwarding key}{fwd}
+\newkeytypesymbol{handler}{hdl}
+\newkeytypesymbol{unknown key handler}{unk}
+
+
+% ---------- optional dependencies ---------
+
+\providecommand{\key}[2][]{% #1: key path/group, #2: key name
+	\texttt{#2}%
+}
+
+
+% ---------- auxiliary macros ---------
+
+% \ifendsonspace{<text>}{<then>}{<else>}
+% Checks if the last token of <text> is a space.
+% If it is it expands to <then>{<text-without-last-space>}.
+% If it is not it expands to <else>{<text>}.
+% <text> may not contain \relax.
+\newcommand\ifendsonspace{\ifendson{ }}
+\newcommand\ifendson[2]{%
+	\def\endson@check##1#1\relax.##2\relax\relax##3##4{%
+		\if \relax\detokenize{##2}\relax
+			\def\endson@do{##4}%
+			\endson@stripandappto##1%
+		\else
+			\def\endson@do{##3{##1}}%
+		\fi
+		\endson@do
+	}%
+	\def\endson@stripandappto##1\relax.{\appto\endson@do{{##1}}}%
+	\endson@check#2\relax.#1\relax.\relax\relax
+}
+
+% \newstripoptend{<cs>}{<suffix>}
+% Defines a new control sequence <cs> which checks if it's argument ends on <suffix>.
+% If the argument of <cs> ends on <suffix> it is stripped.
+% If the argument of <cs> does not end on <suffix> <cs> expands to the argument.
+% <cs> is expandable.
+% The number of required expansion steps depends on whether the argument ends on <suffix> or not.
+\newcommand\newstripoptend[2]{% #1: cs, #2: end
+	\expandafter\def\csname\string#1@do\endcsname##1#2\relax.##2\relax\relax{%
+		\if \relax\detokenize{##2}\relax
+			\expandafter\@firstoftwo
+		\else
+			\expandafter\@secondoftwo
+		\fi
+			{\csname\string#1@strip\endcsname##1}%
+			{##1}%
+	}%
+	\expandafter\def\csname\string#1@strip\endcsname##1\relax.{##1}%
+	\newcommand#1[1]{\csname\string#1@do\endcsname##1\relax.#2\relax.\relax\relax}%
+}
+\newstripoptend\stripoptplus{ (+)}
+
+
+% ---------- \FormatKey ---------
+
+\newcommand{\FormatKey}[1]{%
+	\def\FormatKeyText{}%
+	\FormatKey@lookahead#1\pgfeov
+	\let\FormatKey@original=\FormatKey
+	\let\FormatKey=\@firstofone
+	\KeyFormat@original@key{\FormatKeyText}%
+	\let\FormatKey=\FormatKey@original
+}
+\newcommand{\FormatKey@lookahead}{%
+	\futurelet \FormatKey@nexttoken \FormatKey@check
+}
+\newcommand{\FormatKey@check}{%
+	\ifx \FormatKey@nexttoken (%
+		\def\FormatKey@do{\FormatKey@optional}%
+	\else\ifx \FormatKey@nexttoken <%
+		\def\FormatKey@do{\FormatKey@var}%
+	\else\ifcat \noexpand\FormatKey@nexttoken \space
+		\def\FormatKey@do{\FormatKey@space}%
+	\else\ifx \FormatKey@nexttoken \pgfeov
+		\def\FormatKey@do{\FormatKey@endofloop}%
+	\else\ifx \FormatKey@nexttoken \bgroup
+		\def\FormatKey@do{\FormatKey@arg}%
+	\else
+		\def\FormatKey@do{\FormatKey@normaltoken}%
+	\fi \fi \fi \fi \fi
+	\FormatKey@do
+}
+\def\FormatKey@normaltoken#1{%
+	\appto\FormatKeyText{#1}%
+	\FormatKey@lookahead
+}
+\def\FormatKey@arg#1{%
+	\let\FormatKey@text@backup=\FormatKeyText
+	\def\FormatKeyText{}%
+	\FormatKey@lookahead#1\pgfeov
+	\eappto\FormatKey@text@backup{{\expandonce{\FormatKeyText}}}%
+	\let\FormatKeyText=\FormatKey@text@backup
+	\FormatKey@lookahead
+}
+\def\FormatKey@optional(#1){%
+	\appto\FormatKeyText{{\normalfont\color{gray}(}}%
+	\FormatKey@lookahead#1\pgfeov
+	\appto\FormatKeyText{{\normalfont\color{gray})}}%
+	\FormatKey@lookahead
+}
+\providecommand{\meta@nolink}{\meta}
+\def\FormatKey@var<#1>{%
+	\appto\FormatKeyText{{\normalfont\meta@nolink{#1}}}%
+	\FormatKey@lookahead
+}
+\@firstofone{\def\FormatKey@space} {%
+	\appto\FormatKeyText{ }%
+	\FormatKey@lookahead
+}
+\def\FormatKey@endofloop\pgfeov{%
+}
+
+\providecommand{\pgfeov}{\textcolor{red}{\textbf{eov, this should never be expanded}}}
+
+\let\KeyFormat@original@key=\key
+\renewcommand{\key}{\FormatKey}
+
+
+% ---------- format allowed values ---------
+
+\def\FormatVal@var#1{{\normalfont\meta{#1}}}
+\def\FormatVal@or{\unskip\,\ensuremath{|}\,\ignorespaces}
+
+\newcommand{\FormatValue}[1]{%
+	\def\FormatValue@val{}%
+	\expandafter\FormatValue@loop#1\pgfeov
+	\FormatValue@val
+}
+\newcommand{\FormatValue@loop}{%
+	\futurelet \FormatValue@nexttoken \FormatValue@check
+}
+\newcommand{\FormatValue@check}{%
+	\ifx \FormatValue@nexttoken \pgfeov
+		\def\FormatValue@do##1{}%
+	\else\ifcat \noexpand\FormatValue@nexttoken \space
+		\appto\FormatValue@val{ }%
+		\def\FormatValue@do##1{\FormatValue@loop##1}%
+	\else
+		\def\FormatValue@do{\FormatValue@check@ii}%
+	\fi \fi
+	\FormatValue@do
+}
+\newcommand{\FormatValue@check@ii}[1]{%
+	\if|\noexpand#1%
+		\appto\FormatValue@val{\FormatVal@or}%
+		\def\FormatValue@do{\FormatValue@loop}%
+	\else\if<\noexpand#1%
+		\def\FormatValue@do##1>{\appto\FormatValue@val{\FormatVal@var{##1}}\FormatValue@loop}%
+	\else
+		\appto\FormatValue@val{#1}%
+		\def\FormatValue@do{\FormatValue@loop}%
+	\fi \fi
+	\FormatValue@do
+}
+
+
+% ---------- keyword ---------
+% This is a generalized api to link certain keywords.
+% Use the following macro in a description:
+%     \NewKeyword[\unexpanded]{<keywordtype>}{<keyword>}{<formatmacro-bg>}{<formatmacro-fg>}{<text>}
+% Use the following macro in references:
+%     \LinkKeyword{<keywordtype>}{<keyword>}<formatmacro-bg><formatmacro-fg>{<text>}
+% <keywordtype> and <keyword> are used to generate/
+% link to a hyper link target. They are not visible
+% in the resulting document.
+% <formatmacro-bg/fg>: TeX code which takes one mandatory argument
+% and formats it as desired. Usually those passed to \NewKeyword are used
+% for both the description and the link.
+% Those passed to \LinkKeyword are used only if the link is undefined.
+% <formatmacro-bg> is applied before \FormatLink.
+% <formatmacro-fg> is applied inside of \FormatLink.
+% Setting a background color must happen in <formatmacro-bg>
+% otherwise it will cover the underline produced by \FormatLink.
+% Using \detokenize must happen in <formatmacro-fg>
+% otherwise \FormatLink will not be executed but printed to the pdf.
+% Changing the font can happen in either one.
+% <text>: TeX code to produce the displayed text.
+% The optional argument of \NewKeyword is a macro which
+% takes the <keyword> as argument and can protect it
+% from expansion when writing it to an auxiliary file.
+% If you try to link an undefined keyword you will
+% get a warning.
+%
+% You can define abbreviations so you do not always
+% need to type out the full name:
+%     \AbbrevKeyword[\unexpanded]{<abbrevtype>}{<abbrevname>}{<fulltype>}{<fullname>}
+% If two abbreviations are ambiguous they will not
+% cause an error where they are defined but where
+% they are referenced so you can create abbreviations
+% automatically without trouble.
+%
+% In order to avoid warnings for undescribed keywords
+%     \NoKeyword[\unexpanded]{<keywordtype>}{<keyword>}{<formatmacro-bg>}{<formatmacro-fg>}
+% can be used. It is used similar to \NewKeyword but
+% does not display any text and \LinkKeyword to this keyword
+% will not result in a link and will not give a warning.
+% The separation in <formatmacro-bg> and <formatmacro-fg>
+% is only for compatability with \NewKeyword.
+%
+% Links are defined in a temporary file which is loaded in the
+% preamble so that \LinkKeyword can be used before \NewKeyword.
+% I am not using the aux file for that because
+% (a) the aux file is loaded twice (once in \begin{document}
+% and once in \end{document}) and
+% (b) the aux file is loaded in a group so all definitions need
+% to be global but \newcommand can't do that and \gdef does not
+% check if a macro is already defined.
+
+
+% https://github.com/pgf-tikz/pgf/blob/master/tex/latex/pgf/doc/pgfmanual-en-macros.tex
+\colorlet{linkcolor}{black!8}
+\newdimen\pgfmanualcslinkpreskip
+\newdimen\pgfmanualcslinkpostskip
+\ifunderlinelinks
+\newcommand{\FormatLink}[1]{%
+	\begingroup
+	\setbox0=\hbox{#1}%
+	\rlap{{%
+		\keyword@original@color{linkcolor}%
+		\dimen0\wd0
+		\advance\dimen0by-\pgfmanualcslinkpreskip
+		\advance\dimen0by-\pgfmanualcslinkpostskip
+		\hskip\pgfmanualcslinkpreskip
+		\vrule width\dimen0 height-1pt depth1.6pt
+	}}%
+	\box0%
+	\endgroup
+}
+\else
+\newcommand{\FormatLink}[1]{#1}
+\fi
+
+
+% is used in the first run when the keyword is not yet defined
+% or if an abbreviation is ambiguous
+\newcommand{\keyword@placeholder}[1]{%
+	{\keyword@original@color{yellow}%
+		#1%
+	}%
+}
+\let\keyword@original@color=\color
+
+\newcommand{\keyword@targetname}[2]{% #1: keyword type, #2: name
+	keyword:#1:#2%
+}
+\newcommand{\keyword@csname}[2]{% #1: keyword type, #2: name
+	keyword@#1@#2%
+}
+\newcommand{\keyword@link}[3]{% #1: keyword type, #2: name, #3: text
+	\hyperlink{\keyword@targetname{#1}{#2}}{#3}%
+}
+\newcommand{\DisableLinks}{%
+	\let\keyword@link=\@thirdofthree
+	\let\FormatLink=\@firstofone
+}
+\let\keyword@formatenable=\@firstofone
+\newrobustcmd{\keyword@new}[4]{% #1: keyword type, #2: name, #3: format macro bg, #4: format macro fg
+	\expandafter\newcommand\csname\keyword@csname{#1}{#2}\endcsname[1]{\keyword@link{#1}{#2}{\keyword@formatenable{#3}{\FormatLink{\keyword@formatenable{#4}{##1}}}}}%
+}
+\newrobustcmd{\keyword@no}[4]{% #1: keyword type, #2: name, #3: format macro bg, #4: format macro fg
+	\expandafter\newcommand\csname\keyword@csname{#1}{#2}\endcsname[1]{\keyword@formatenable{#3}{\keyword@formatenable{#4}{##1}}}%
+}
+\newrobustcmd{\keyword@abbrev}[4]{% #1: abbrev keyword type, #2: abbrev name, #3: full keyword type, #4: full name
+	\IfKeywordUndefined{#3}{#4}{%
+		\PackageError{keyword}{#3 `#4' (for which you wanted to add the abbreviation `#1@#2') is undefined}{}%
+	}{\IfKeywordUndefined{#1}{#2}{%
+		\expandafter\let \csname\keyword@csname{#1}{#2}\expandafter\endcsname \csname\keyword@csname{#3}{#4}\endcsname
+	}{%
+		\expandafter\def \csname\keyword@csname{#1}{#2}\endcsname ##1{\PackageWarning{keyword}{The abbreviation #1 `#2' is ambiguous. Please specify the full name for ##1}{}\keyword@placeholder{##1}}%
+	}}%
+}
+\newcommand{\IfKeywordIsAbbrev}[4]{% key to be tested, reference key
+	\expandafter\ifx \csname\keyword@csname{#1}{#2}\expandafter\endcsname \csname\keyword@csname{#3}{#4}\endcsname
+		\expandafter \@firstoftwo
+	\else
+		\expandafter \@secondoftwo
+	\fi
+}
+
+\newcommand{\LinkKeyword}[5]{% #1: keyword type, #2: name, #3: formatmacro bg, #4: formatmacro fg, #5: displayed text
+	\IfKeywordUndefined{#1}{#2}{%
+		\edef\do{\noexpand\PackageWarning{keydoc}{Either #1 `#2' is undefined or you need to rerun LaTeX}}%
+		\do
+		\keyword@placeholder{#3{#4{#5}}}%
+	}{%
+		\csname \keyword@csname{#1}{#2}\endcsname{#5}%
+	}%
+}
+\newcommand{\LinkUnformattedKeyword}[3]{% #1: keyword type, #2: name, #3 displayed text
+	\begingroup
+		\let\keyword@formatenable=\@gobble
+		\LinkKeyword{#1}{#2}\@firstofone\@firstofone{#3}%
+	\endgroup
+}
+\newcommand{\IfKeywordUndefined}[2]{% #1: keyword type, #2: name, #3: then, #4: else
+	\expandafter \ifx \csname\keyword@csname{#1}{#2}\endcsname \relax
+		\expandafter\@firstoftwo
+	\else
+		\expandafter\@secondoftwo
+	\fi
+}
+
+
+\newcommand\keyword@filename{\jobname.kw}
+
+\AtBeginDocument{%
+	\IfFileExists{\keyword@filename}{%
+		\makeatletter
+		\input{\keyword@filename}%
+		\makeatother
+	}{}
+	\newwrite\keyword@file
+	\immediate\openout\keyword@file=\keyword@filename\relax
+}
+
+\newcommand{\NewKeyword}[6][\@firstofone]{% [#1: name protection], #2: type, #3: name, #4: format macro bg, #5: format macro fg, #6: text
+	%https://tex.stackexchange.com/a/17138
+	\Hy@raisedlink{\hypertarget{\keyword@targetname{#2}{#3}}{}}%
+	\if\relax\detokenize{#6}\relax
+	\else
+		#4{#5{#6}}%
+	\fi
+	\immediate\write\keyword@file{\keyword@new{#2}{#1{#3}}{\unexpanded{#4}}{\unexpanded{#5}}}%
+}
+\newcommand{\AbbrevKeyword}[5][\@firstofone]{% abbrev = full
+	\immediate\write\keyword@file{\keyword@abbrev{#2}{#1{#3}} {#1{#4}}{#1{#5}}}%
+}
+\newrobustcmd{\NoKeyword}[5][\@firstofone]{% #2: keyword type, #3: name, #4: format macro bg, #5: format macro fg
+	\immediate\write\keyword@file{\keyword@no{#2}{#1{#3}}{\unexpanded{#4}}{\unexpanded{#5}}}%
+}
+
+
+% ---------- \keydoc ---------
+
+\newif\if@inkeydoc
+\newif\ifkeydoc@isrelated
+
+\newcommand\keydoc@keypath{}
+\newcommand{\keydocpath}[1]{\def\keydoc@keypath{#1}}
+
+\pgfqkeys{/keydoc}{%
+	target/.initial,
+	target/.value required,
+	%
+	initial value/.initial,
+	initial value/.value required,
+	%
+	default value/.initial,
+	default value/.value required,
+}
+
+\newcommand{\keydoc@printvalues}{%
+	\pgfkeysgetvalue{/keydoc/initial value}{\keydoc@initialvalue}%
+	\pgfkeysgetvalue{/keydoc/default value}{\keydoc@defaultvalue}%
+	\let\keydoc@initdefault=\@empty
+	%
+	\unless\ifx \keydoc@defaultvalue \pgfkeysnovalue@text
+		\appto\keydoc@initdefault{\hyperref[initial-vs-default-values]{默认值}: \keydoc@defaultvalue.}%
+	\fi
+	\unless\ifx \keydoc@initialvalue \pgfkeysnovalue@text
+		\unless\ifx \keydoc@initdefault \@empty
+			\appto\keydoc@initdefault{ }%
+		\fi
+		\appto\keydoc@initdefault{\hyperref[initial-vs-default-values]{初值}: \keydoc@initialvalue.}%
+	\fi
+	\unless\ifx \keydoc@initdefault \@empty
+		\\%
+		{\MaxFontSize\footnotesize\keydoc@initdefault}%
+	\fi
+	\pgfkeyssetvalue{/keydoc/initial value}{\pgfkeysnovalue}%
+	\pgfkeyssetvalue{/keydoc/default value}{\pgfkeysnovalue}%
+}
+\newcommand{\MaxFontSize}[1]{%
+	#1%
+	\def\MaxFontSize@do##1#1##2\relax{%
+		\@tfor\MaxFontSize@fontsize:=##1\do{%
+			\expandafter\let\MaxFontSize@fontsize=\relax
+		}%
+	}%
+	\MaxFontSize@do\Huge\huge\LARGE\Large\large\normalsize\small\footnotesize\scriptsize\tiny\relax
+}
+
+\newcommand{\keydoc}[3][]{%  [#1: options], #2: key name, #3: key type
+	\unless \if@inkeydoc
+		\begin@keydoc
+		\keydoc@registerend
+		\@inkeydoctrue
+	\fi
+	\pgfkeyssetvalue{/keydoc/target}{\pgfkeysnovalue}%
+	\pgfqkeys{/keydoc}{#1}%
+	\keydoc@parsekey#2=\relax%
+	\def\keydoc@abbrev{%
+		\AbbrevKeyword{key}{\keydoc@keypattern} {key}{\keydoc@keypath/\keydoc@keypattern}%
+		\AbbrevKeyword{}{\keydoc@keypattern} {key}{\keydoc@keypath/\keydoc@keypattern}%
+	}%
+	\pgfkeysgetvalue{/keydoc/target}{\keydoc@targetkey}%
+	\ifx \keydoc@targetkey \pgfkeysnovalue@text
+		\let\keydoc@link=\@firstofone
+	\else
+		\def\keydoc@link{\LinkKeyword{key}{\keydoc@targetkey}\keydoc@key@bg\keydoc@original@key}%
+		\IfKeywordUndefined{}{\keydoc@keypattern}{%
+			% keep \keydoc@abbrev
+		}{\IfKeywordIsAbbrev{}{\keydoc@keypattern} {key}{\keydoc@keypath/\keydoc@keypattern}{%
+			% keep \keydoc@abbrev
+		}{%
+			\let\keydoc@abbrev=\relax
+		}}%
+	\fi
+	\ifkeydoc@isrelated
+		\keydoc@keysep
+	\else
+		\keydoc@beforekey
+	\fi
+	\edef\keydoc@do{%
+		\noexpand\NewKeyword{key}{\keydoc@keypath/\keydoc@keypattern}{\noexpand\keydoc@key@bg}{\noexpand\keydoc@original@key}{\noexpand\keydoc@link{\keydoc@keypattern}%
+			\noexpand\keydoc@valueformat{\keydoc@keyvalsep\noexpand\FormatValue\noexpand\keydoc@keyval}}%
+	}%
+	\keydoc@do
+	\keydoc@abbrev
+	\keydoc@keytype{#3}%
+	\keydoc@isrelatedfalse
+	\keydoc@lookahead
+}
+\def\keydoc@parsekey#1=#2\relax{%
+	\if \relax\detokenize{#2}\relax
+		\def\keydoc@keypattern{#1}%
+		\def\keydoc@keyval{}%
+		\def\keydoc@keyvalsep{}%
+		\let\keydoc@valueformat=\@firstofone
+	\else
+		\expandafter\def\expandafter\keydoc@keyval\expandafter{\keydoc@stripeq#2\relax}%
+		\expandafter\keydoc@checkifvalueisoptional\keydoc@keyval\relax
+		\ifendsonspace{#1}{%
+			\def\keydoc@keyvalsep{\ =}%
+			\def\keydoc@keypattern%{#1 without space}
+		}{%
+			\def\keydoc@keyvalsep{=}%
+			\def\keydoc@keypattern%{#1}
+		}%
+	\fi
+}
+\def\keydoc@stripeq#1=\relax{#1}
+\def\keydoc@checkifvalueisoptional#1#2\relax{%
+	\pgfkeysgetvalue{/keydoc/default value}{\keydoc@defaultvalue}%
+	\ifx?#1%
+		\ifx \keydoc@defaultvalue \pgfkeysnovalue@text
+			\ifx \keydoc@link \@firstofone
+			\PackageWarning{keydoc}{keydoc with optional value but default value is not given}{}%
+			\fi
+		\fi
+		\def\keydoc@keyval{#2}%
+		\let\keydoc@valueformat=\keydoc@optionalvalueformat
+	\else
+		\unless\ifx \keydoc@defaultvalue \pgfkeysnovalue@text
+			\PackageWarning{keydoc}{keydoc with default value but value is not optional}{}%
+		\fi
+		\let\keydoc@valueformat=\keydoc@mandatoryvalueformat
+	\fi
+}
+
+
+
+\newcommand{\keydoc@lookahead}{%
+	\futurelet \keydoc@nexttoken \keydoc@lookahead@check
+}
+\newcommand{\keydoc@lookahead@check}{%
+	\ifcat \noexpand\keydoc@nexttoken \space
+		\let\keydoc@lookahead@do=\keydoc@lookahead
+		\let\keydoc@lookahead@gobble=\@firstofone
+	\else\ifx \keydoc@nexttoken \par
+		\let\keydoc@lookahead@do=\keydoc@afterlookahead
+		\let\keydoc@lookahead@gobble=\@empty
+	\else\ifx \keydoc@nexttoken /%
+		\keydoc@isrelatedtrue
+		\let\keydoc@lookahead@do=\keydoc@lookahead
+		\let\keydoc@lookahead@gobble=\@gobble
+	\else\ifx \keydoc@nexttoken \keydoc
+		\let\keydoc@lookahead@do=\keydoc@afterlookahead
+		\let\keydoc@lookahead@gobble=\@empty
+	\else\ifx \keydoc@nexttoken \forwardingkeydoc
+		\let\keydoc@lookahead@do=\keydoc@afterlookahead
+		\let\keydoc@lookahead@gobble=\@empty
+	\else\ifx \keydoc@nexttoken \correspondingkeydoc
+		\let\keydoc@lookahead@do=\keydoc@afterlookahead
+		\let\keydoc@lookahead@gobble=\@empty
+	\else\ifx \keydoc@nexttoken \endkeydoc
+		\let\keydoc@lookahead@do=\keydoc@afterlookahead
+		\let\keydoc@lookahead@gobble=\@empty
+	\else
+		\ifkeydoc@isrelated
+			\PackageError{keydoc}{expexcted another keydoc command after /}{}%
+		\fi
+		\keydoc@printvalues
+		\keydoc@descriptionsep
+		\let\keydoc@lookahead@do=\relax
+		\let\keydoc@lookahead@gobble=\@empty
+	\fi \fi \fi \fi \fi \fi \fi
+	\expandafter \keydoc@lookahead@do \keydoc@lookahead@gobble
+}
+\newcommand{\keydoc@afterlookahead}{%
+	\unless\ifkeydoc@isrelated
+		\keydoc@printvalues
+	\fi
+}
+\newcommand{\RegisterEnd}[1]{%
+	\@tfor \@sec@cmd :=\section\subsection\subsubsection \do{%
+		\expandafter\appto\csname My\expandafter\string\@sec@cmd Hook\endcsname{#1}%
+	}%
+}
+\newcommand{\keydoc@registerend}{\RegisterEnd\endkeydoc}
+
+\newcommand{\keylinktarget}[1]{%
+	\AbbrevKeyword{key}{\keydoc@keypath/#1} {key}{\keydoc@keypath/\keydoc@keypattern}%
+	\AbbrevKeyword{key}{#1} {key}{\keydoc@keypath/\keydoc@keypattern}%
+	\AbbrevKeyword{}{#1} {key}{\keydoc@keypath/\keydoc@keypattern}%
+	\ignorespaces
+}
+
+\let\keydoc@original@key=\key
+\newcommand{\keydoc@key@bg}{\formatcode}
+% I cannot say \renewcommand{\key}[1][] because that would break \keydoc@original@key
+\renewcommand{\key}{%
+	\@ifnextchar [
+		\key@withopt
+		\key@withoutopt
+}
+\newcommand{\key@withopt}{}
+\def\key@withopt[#1]#2{%
+	\ifx\relax#1\relax
+		\LinkKeyword{key}{#2}\keydoc@key@bg\keydoc@original@key{#2}%
+	\else
+		\LinkKeyword{key}{#1/#2}\keydoc@key@bg\keydoc@original@key{#2}%
+	\fi
+}
+\newcommand{\key@withoutopt}[1]{%
+	\LinkKeyword{key}{#1}\keydoc@key@bg\keydoc@original@key{#1}%
+}
+
+\def\key@withopt@unformatted[#1]#2{%
+	\ifx\relax#1\relax
+		\LinkUnformattedKeyword{key}{#2}{#2}%
+	\else
+		\LinkUnformattedKeyword{key}{#1/#2}{#2}%
+	\fi
+}
+
+
+% ---------- \forwardingkeydoc ---------
+
+\newcommand{\forwardingkeydoc}[2][]{% [#1: name, path or full key of target], #2: name
+	\correspondingkeydoc[#1]{#2}{forwarding key}%
+}
+\newcommand{\correspondingkeydoc}[3][]{% [#1: options], #2: name, #3: key type
+	\keydoc[#1, /utils/exec=\forwardingkeydoc@parsetarget{#2}]{#2}{#3}%
+}
+\newcommand{\forwardingkeydoc@parsetarget}[1]{% #1: this key name
+	% parse target which may be a name, path or full key of corresponding key
+	\pgfkeysgetvalue{/keydoc/target}{\forwardingkeydoc@targetkey}%
+	\ifx\forwardingkeydoc@targetkey\pgfkeysnovalue@text
+		\ifundef\TargetKey{%
+			\PackageError{keydoc}
+				{\string\TargetKey{<keypath>}{<keyname>} must be defined if the the optional argument of \forwardingkeydoc\space is not passed}
+				{\string\TargetKey\space shall expand to path/name of the linked key given the path (without trailing slash) and name of the forwarding key.}%
+		}{%
+			\def\forwardingkeydoc@targetkey{\TargetKey{\keydoc@keypath}}%
+			\edef\forwardingkeydoc@targetkey{\expandafter\forwardingkeydoc@targetkey\expandafter{\forwardingkeydoc@stripval#1=\relax}}%
+			\expandafter\ifendsonspace\expandafter{\forwardingkeydoc@targetkey}%
+				{\def\forwardingkeydoc@targetkey}%
+				{\def\forwardingkeydoc@targetkey}%
+			\pgfkeyslet{/keydoc/target}{\forwardingkeydoc@targetkey}%
+		}%
+	\else
+		\forwardingkeydoc@parse{\forwardingkeydoc@targetkey}{\keydoc@keypath}{#1}%
+		\pgfkeyslet{/keydoc/target}{\forwardingkeydoc@targetkey}%
+	\fi
+}
+\newcommand\forwardingkeydoc@parse[3]{% #1: key name, key path or full key of target, #2: path of source, #3: name of source
+	\IfStartsWithSlash{#1}{%
+		\edef\forwardingkeydoc@targetkey@original{#1}%
+		\edef\forwardingkeydoc@targetkey{#1/\forwardingkeydoc@stripval#3=\relax}%
+		\expandafter\ifendsonspace\expandafter{\forwardingkeydoc@targetkey}%
+			{\def\forwardingkeydoc@targetkey}%
+			{\def\forwardingkeydoc@targetkey}%
+		\IfKeywordUndefined{key}{\forwardingkeydoc@targetkey}{%
+			\let\forwardingkeydoc@targetkey=\forwardingkeydoc@targetkey@original
+		}{}%
+	}{%
+		\def\forwardingkeydoc@targetkey{#2/#1}%
+	}%
+}
+\def\forwardingkeydoc@stripval#1=#2\relax{#1}
+
+\newcommand{\IfStartsWithSlash}[1]{%
+	\expandafter\IfStartsWithSlash@do#1\relax
+}
+\def\IfStartsWithSlash@do#1#2\relax{%
+	\ifx/#1%
+		\expandafter\@firstoftwo
+	\else
+		\expandafter\@secondoftwo
+	\fi
+}
+
+
+% ---------- \keytypedoc ---------
+
+\newcommand{\begin@keytypedoc}{\begin{itemize}}
+\def        \endkeytypedoc    {\end{itemize}}
+
+\newcommand{\keytypedoc@beforekeytype}{\item}
+\newcommand{\keytypedoc@format}[1]{\emph{#1}}
+\newcommand{\keytypedoc@descriptionsep}{:}
+
+\newif\if@inkeytypedoc
+
+\newcommand{\keytypeRAW}[1]{#1}
+\newcommand{\keytype@bg}[1]{#1}
+\newcommand{\keytype}{% [#1: type name], #2: displayed text (usually the type name, but can be another grammatic form)
+	\@ifnextchar [
+		{\@keytype@do}
+		{\@dblarg\@keytype@do}%
+}
+\def\@keytype@do[#1]#2{%
+	\LinkKeyword{keytype}{#1}\keytype@bg\keytypeRAW{#2}%
+}
+
+\newcommand{\keytypedoc}[1]{% #1 key type name
+	\unless \if@inkeytypedoc
+		\begin@keytypedoc
+		\keytypedoc@registerend
+		\@inkeytypedoctrue
+	\fi
+	\keytypedoc@beforekeytype[\keytypedoc@keytype{#1}]
+	\NewKeyword{keytype}{#1}{\keytype@bg}{\keytypeRAW}{\keytypedoc@format{#1}}%
+	\keytypedoc@descriptionsep
+}
+
+\newcommand{\keytypedoc@registerend}{\RegisterEnd\endkeytypedoc}
+
+\makeatother

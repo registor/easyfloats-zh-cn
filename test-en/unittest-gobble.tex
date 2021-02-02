@@ -1,0 +1,37 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\newcommand\AssertEqualAfterExpansion[2]{% #1: value to be expanded, #2: expected result
+	\edef\tmpIs{#1}%
+	\def\tmpExpected{#2}%
+	\ifx\tmpIs\tmpExpected
+		\success
+	\else
+		\fail
+		\PackageError{test}{"\tmpIs" != "\tmpExpected"}{}%
+	\fi
+	\ignorespaces
+}
+
+\begin{document}
+	\makeatletter
+	\verb|\@gobblespace|
+	\edef\test{\space\space abc}
+	\AssertEqualAfterExpansion{\expandafter\@gobblespace\test}{ abc}
+	\ExpectingError{Use of \string\@gobblespace\space doesn't match its definition}
+	\@gobblespace a
+
+	\verb|\strippath|
+	\AssertEqualAfterExpansion{\strippath{key}}{key}
+	\AssertEqualAfterExpansion{\strippath{path/key}}{key}
+	\AssertEqualAfterExpansion{\strippath{/key}}{key}
+	\AssertEqualAfterExpansion{\strippath{/path/key}}{key}
+	\AssertEqualAfterExpansion{\strippath{/some/long path/to/key}}{key}
+	\def\test{/path/key}%
+	\AssertEqualAfterExpansion{\strippath\test}{key}
+	\AssertEqualAfterExpansion{\strippath{path/\relax key}}{\relax key}
+\end{document}

@@ -1,0 +1,28 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+\usepackage[table]{xcolor}
+
+\objectset{warn no label=false}
+
+\begin{document}
+\begin{tableobject}{%
+	caption = test for alternating background colors,
+	exec = \rowcolors{1}{gray!50}{},
+	env = tabular,
+	arg = c,
+}
+	abc \\
+	def \\
+	ghi \\
+	jkl \\
+	mno \\
+	pqr \\
+	stu \\
+	vw  \\
+	xyz \\
+\end{tableobject}
+\end{document}

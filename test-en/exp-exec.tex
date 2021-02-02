@@ -1,0 +1,54 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+\usepackage[table]{xcolor}
+
+% avoid Warning: Font shape `OMS/cmtt/m/n' undefined
+\usepackage[T1]{fontenc}
+% fontenc T1 causes unclean/pixelated font on some systems
+% and trouble with copying ligatures from pdf => change font
+% lmodern is relatively close to the default font but unmaintained
+\usepackage{lmodern}
+
+\colorlet{rowbg}{gray!50}
+
+\newcommand\charsym[1]{\texttt{#1}}
+\newcommand\charname[1]{$\langle$#1$\rangle$}
+
+\begin{document}
+\begin{tableobject}{%
+	caption = Category Codes,
+	details = Highlighted catcodes have no tokens.,
+	label = catcodes,
+	env = tabular,
+	arg = cll,
+	table head = Catcode & Meaning & Characters,
+	exec = {%
+		\catcode`* = \active
+		\scantokens{\def*{\rowcolor{rowbg}}}%
+		\catcode`= = \the\catcode`&%
+		\catcode`, = \the\catcode`&%
+	},
+}
+	*  0 = Escape character,   \charsym\textbackslash \\
+	   1 = Begin grouping,     \charsym\{ \\
+	   2 = End grouping,       \charsym\} \\
+	   3 = Math shift,         \charsym\$ \\
+	   4 = Alignment tab,      \charsym\& \\
+	*  5 = End of line,        \charname{return} \\
+	   6 = Parameter,          \charsym\# \\
+	   7 = Superscript,        \charsym\^ \\
+	   8 = Subscript,          \charsym\_ \\
+	*  9 = Ignored character,  \charname{null} \\
+	  10 = Space,              \charname{space} and \charname{tab} \\
+	  11 = Letter,             \charsym{a}--\charsym{z} and \charsym{A}--\charsym{Z} \\
+	  12 = Other,              other characters \\
+	  % "In plain TeX this is only the tie character ~" TeX by Topic, page 30
+	  13 = Active character,   \charsym{\string~} \\
+	* 14 = Comment character,  \charsym\% \\
+	* 15 = Invalid character,  \charname{delete} \\
+\end{tableobject}
+\end{document}

@@ -1,0 +1,48 @@
+% !TeX root = ../easyfloats.tex
+
+% \section{Used packages}
+\section{使用的宏包}
+\label{used-packages}
+
+% This package uses the following packages (but depending on the package options it may load more or less packages, see \cref{package-options}):
+该宏包使用了以下宏包(注意使用该宏包选项可以选择性使用这些宏包，参见\cref{package-options}):
+\pkgdoc{float}
+  % for `placement=H` and `float style`.
+  为实现`placement=H`和`float style`。
+  % It also gives you the possibility to define new float types.
+  同时，也可以通过该宏包定义新浮动类型。
+\pkgdoc{caption}
+  % In the standard document classes there is no distance at all between a table and it's caption above.
+  % The caption package fixes this.
+  % It also defines the `\phantomcaption` command which I am using in case that no caption is given.
+  % (The documentation of `\phantomcaption` is in the \pkg{subcaption} package.)
+  % It also gives you the possibility to customize the layout of captions but I am not changing the default layout.
+  % And it is a dependency of the \pkg{subcaption} package.
+  在标准文件类中，表格与其上方的标题之间完全没有间距。
+  caption宏包用于解决此问题。
+  当然，它还定义了`\phantomcaption`令，
+  如果没有给出标题，将使用该命令。
+  (`\phantomcaption`的说明在\pkg{subcaption}宏包文档中)
+  它还能够实现字幕的自定义布局，
+  但在此没有更改默认布局。
+  并且它是\pkg{subcaption}宏包的依赖。
+\pkgdoc{subcaption}
+  % for \hyperref[subobject-environment]{subobjects}
+  用于\hyperref[subobject-environment]{subobjects}
+\pkgdoc{graphicx}/\pkgdoc{graphbox}
+  % for inserting graphics
+  % (see \cmd{\includegraphicobject})
+  用于插图
+  (参见\cmd{\includegraphicobject})
+\pkgdoc{pgfkeys}
+  % for parsing key=value lists
+  用于解析key=value选项表
+\pkgdoc{etoolbox}
+  % is a collection of small helpers for programming.
+  用于为命令或环境打补丁的工具合集。
+\pkgdoc{environ}
+  % to define environments which save their content in a macro.
+  % I am using this for the `subcaptionbox` backend of the \env{subobject} environment.
+  定义将其内容保存在宏中的环境。
+  该宏包正在将此用于\env{subobject}环境的`subcaptionbox`后端。
+\endpkgdoc

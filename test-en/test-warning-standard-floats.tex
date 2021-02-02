@@ -1,0 +1,40 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\makeatletter
+\@ifpackagelater{caption}{2020/08/30}
+	{\let\IfNewCaption=\@firstoftwo}
+	{\let\IfNewCaption=\@secondoftwo}
+\makeatother
+
+\newfloat{Graph}{tbp}{grp}
+\NewObjectStyle{graph}{type=Graph, float style=plain}
+
+\newcommand{\ExpectingWarningIfCaptionTooOld}[2][+1]{\IfNewCaption{}{\ExpectingPackageWarning[#1]{easyfloats}{The caption package is too old for me to define the subtype automatically. Please insert `\string\AtBeginDocument{\string\DeclareCaptionSubType{#2}}' before loading this package}}}
+\ExpectingWarningIfCaptionTooOld{Graph}
+\begin{document}
+\ExpectingPackageWarning{easyfloats}{In order to profit from the advantages of the easyfloats package please use figureobject or \string\includegraphicobject\space instead}
+\begin{figure}
+	content
+\end{figure}
+
+\ExpectingPackageWarning{easyfloats}{In order to profit from the advantages of the easyfloats package please use tableobject instead}
+\begin{table}
+	content
+\end{table}
+
+\ExpectingPackageWarning{easyfloats}{In order to profit from the advantages of the easyfloats package please use graphobject or \string\includegraphicobject\space instead}
+\begin{Graph}
+	content
+\end{Graph}
+
+\NewObjectStyle{ruledfigure}{type=figure, float style=ruled}
+\ExpectingPackageWarning{easyfloats}{In order to profit from the advantages of the easyfloats package please use figureobject or \string\includegraphicobject\space or ruledfigureobject instead}
+\begin{figure}{}
+	content
+\end{figure}
+\end{document}

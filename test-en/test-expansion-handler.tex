@@ -1,0 +1,29 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\def\colspec{r @\quad l}
+\objectset[table]{%
+	warn no label=false,
+	warn no caption=false,
+	%tabular arg=\colspec,
+	tabular arg/.expand once=\colspec,
+	%tabular arg/.expanded=\colspec,
+	show env args,
+}
+\def\colspec{l @\quad r}
+
+\ShowObjectStyleOptions{table}
+
+\begin{document}
+\begin{tableobject}{env=tabular}
+	\toprule
+	a   & 1   \\
+	bc  & 23  \\
+	def & 456 \\
+	\bottomrule
+\end{tableobject}
+\end{document}

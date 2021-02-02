@@ -1,0 +1,108 @@
+% !TeX program = pdflatex
+
+\documentclass{article}
+\usepackage{easyfloats}
+\usepackage{longtable}
+\usepackage{siunitx}
+
+\objectset[table]{%
+	env=longtable,
+	%env=tabular,
+	%
+	% The default table break text is too wide for the table
+	% thus increasing the width of the last column.
+	% In order to avoid that I make it empty.
+	table break text =,
+}
+
+\newcommand\pminfty{\multicolumn1r{$\pm\infty$}}
+
+\begin{document}
+\begin{tableobject}{%
+	arg = {
+		S[table-format=2.0, table-space-text-post=\si{\degree}] <{\si{\degree}}
+		S[table-format=1.2, table-space-text-post=]
+	},
+	caption = Sine,
+	label = sine,
+	table head = \multicolumn1c{$x$} & $\sin x$,
+}
+	  0  &  0.00 \\
+	  5  &  0.09 \\
+	 10  &  0.17 \\
+	 15  &  0.26 \\
+	 20  &  0.34 \\
+	 25  &  0.42 \\
+	 30  &  0.50 \\
+	 35  &  0.57 \\
+	 40  &  0.64 \\
+	 45  &  0.71 \\
+	 50  &  0.77 \\
+	 55  &  0.82 \\
+	 60  &  0.87 \\
+	 65  &  0.91 \\
+	 70  &  0.94 \\
+	 75  &  0.97 \\
+	 80  &  0.98 \\
+	 85  &  1.00 \\
+	 90  &  1.00 \\
+\end{tableobject}
+\begin{tableobject}{%
+	arg = {
+		S[table-format=2.0, table-space-text-post=\si{\degree}] <{\si{\degree}}
+		S[table-format=1.2]
+	},
+	caption = Cosine,
+	label = cosine,
+	table head = \multicolumn1c{$x$} & $\cos x$,
+}
+	  0  &  1.00  \\
+	  5  &  1.00  \\
+	 10  &  0.98  \\
+	 15  &  0.97  \\
+	 20  &  0.94  \\
+	 25  &  0.91  \\
+	 30  &  0.87  \\
+	 35  &  0.82  \\
+	 40  &  0.77  \\
+	 45  &  0.71  \\
+	 50  &  0.64  \\
+	 55  &  0.57  \\
+	 60  &  0.50  \\
+	 65  &  0.42  \\
+	 70  &  0.34  \\
+	 75  &  0.26  \\
+	 80  &  0.17  \\
+	 85  &  0.09  \\
+	 90  &  0.00  \\
+\end{tableobject}
+\begin{tableobject}{%
+	arg = {
+		S[table-format=2.0, table-space-text-post=\si{\degree}] <{\si{\degree}}
+		S[table-format=2.2]
+	},
+	caption = Tangent,
+	label = tangent,
+	table head = \multicolumn1c{$x$} & $\tan x$,
+}
+	  0  &   0.00    \\
+	  5  &   0.09    \\
+	 10  &   0.18    \\
+	 15  &   0.27    \\
+	 20  &   0.36    \\
+	 25  &   0.47    \\
+	 30  &   0.58    \\
+	 35  &   0.70    \\
+	 40  &   0.84    \\
+	 45  &   1.00    \\
+	 50  &   1.19    \\
+	 55  &   1.43    \\
+	 60  &   1.73    \\
+	 65  &   2.14    \\
+	 70  &   2.75    \\
+	 75  &   3.73    \\
+	 80  &   5.67    \\
+	 85  &  11.43    \\
+	 90  &  \pminfty \\
+\end{tableobject}
+\end{document}

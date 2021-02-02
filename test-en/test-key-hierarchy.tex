@@ -1,0 +1,49 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\objectset{warn no label=false}
+
+\newcommand{\AssertDetails}[1]{%
+	\pgfkeysgetvalue{/object/details}{\detailsvalue}%
+	\ifdefstring\detailsvalue{#1}%
+		\relax
+		{\PackageError{test}{Unexpected details: '\detailsvalue'. Expected: '#1'}{}}%
+}
+
+\objectset[figure]{details=FIGURE}
+\objectset[table]{details=TABLE}
+\AssertDetails{}
+\objectset{details=OBJECT}
+\AssertDetails{OBJECT}
+
+\objectset{graphic width=.8\linewidth}
+\AtBeginGraphicObject{\objectset[all]{details=GRAPHIC}}
+
+\begin{document}
+\begin{tableobject}{caption=Test Table, env=tabular}{rl}
+	\toprule
+	\AssertDetails{TABLE}
+	abc & 123 \\
+	de  & 45  \\
+	f   & 6   \\
+	\bottomrule
+\end{tableobject}
+\AssertDetails{OBJECT}
+
+\begin{figureobject}{caption=A Rule}
+	\AssertDetails{FIGURE}
+	\rule{.8\linewidth}{.5\linewidth}%
+\end{figureobject}
+\AssertDetails{OBJECT}
+
+\includegraphicobject[%
+	label = lion,
+	caption = CTAN lion drawing by Duane Bibby,
+	foot = \AssertDetails{GRAPHIC},
+]{graphics/ctan_lion}
+\AssertDetails{OBJECT}
+\end{document}

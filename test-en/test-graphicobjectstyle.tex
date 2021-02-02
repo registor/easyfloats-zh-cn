@@ -1,0 +1,19 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\objectset{graphic auto label=false, warn no label=false}
+\objectset[figure]{graphic width=.8\linewidth}
+
+\begin{document}
+\includegraphicobject{graphics/ctan_lion}
+\includegraphicobject[table][]{graphics/catcodes}
+
+\ExpectingPackageError{easyfloats}{Undefined object style: 'tableobject'}
+\includegraphicobject[tableobject][]{graphics/catcodes}
+\ExpectingPackageError{easyfloats}{Undefined object style: 'all'}
+\includegraphicobject[all][]{graphics/catcodes}
+\end{document}

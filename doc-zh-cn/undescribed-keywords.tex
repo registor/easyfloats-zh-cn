@@ -1,0 +1,247 @@
+% !TeX root = easyfloats.tex
+\makeatletter
+\edef\@thecatcode@asterisc{\the\catcode\string`*}
+\@makeother*
+
+% undescribed packages
+\NoDescribePkg{graphics}
+\NoDescribePkg{subfigure}
+\NoDescribePkg{subfig}
+\NoDescribePkg{trivfloat}
+\NoDescribePkg{capt-of}
+\NoDescribePkg{geometry}
+\NoDescribePkg{fontenc}
+\NoDescribePkg{lmodern}
+
+% standard preamble
+\NoDescribeMacro\documentclass
+\NoDescribeMacro\usepackage
+\NoDescribeMacro\newcommand
+\NoDescribeMacro\AtBeginDocument
+\NoDescribeMacro\floatplacement
+\NoDescribeMacro\makeatletter
+\NoDescribeMacro\makeatother
+\NoDescribeMacro\title
+\NoDescribeMacro\author
+\NoDescribeMacro\typeout
+\NoDescribeMacro\@empty
+\NoDescribeMacro\@tfor
+
+% standard document
+\NoDescribeEnv{document}
+\NoDescribeMacro\section
+\NoDescribeMacro\begin
+\NoDescribeMacro\end
+\NoDescribeEnv{center}
+\NoDescribeMacro\centering
+\NoDescribeMacro\caption
+\NoDescribeMacro\label
+\NoDescribeMacro\texttt
+\NoDescribeMacro\small
+\NoDescribeMacro\href
+\NoDescribeMacro\vdots
+\NoDescribeMacro\quad
+\NoDescribeMacro\qquad
+\NoDescribeMacro\ref
+\NoDescribeMacro\pageref
+\NoDescribeMacro\raggedleft
+\NoDescribeMacro\bigskip
+\NoDescribeMacro\verb
+\NoDescribeMacro\hspace
+\NoDescribeMacro\phantom
+
+% escape sequences
+\NoDescribeMacro\textbackslash
+\NoDescribeMacro\{
+\NoDescribeMacro\}
+\NoDescribeMacro\$
+\NoDescribeMacro\&
+\NoDescribeMacro\#
+\NoDescribeMacro\^
+\NoDescribeMacro\_
+\NoDescribeMacro\textunderscore
+\NoDescribeMacro~
+\NoDescribeMacro\%
+
+% ambiguous values
+% e.g. placement, subpage outer pos, subcaptionbox inner pos
+\NoDescribeVal{htbp}
+\NoDescribeVal{h}
+\NoDescribeVal{t}
+\NoDescribeVal{b}
+\NoDescribeVal{p}
+\NoDescribeVal{H}
+\NoDescribeVal{h!}
+\NoDescribeVal{c}
+\NoDescribeVal{T}
+\NoDescribeVal{B}
+\NoDescribeVal{auto}
+\NoDescribeVal{Auto}
+\NoDescribeVal{l}
+\NoDescribeVal{r}
+\NoDescribeVal{s}
+\NoDescribeVal{tbp}
+\NoDescribeVal{lof}
+\NoDescribeVal{lot}
+\NoDescribeVal{cl}
+
+% float style values
+\NoDescribeVal{plain}
+\NoDescribeVal{plaintop}
+\NoDescribeVal{ruled}
+\NoDescribeVal{boxed}
+
+% plain TeX
+\NoDescribeMacro\csname
+\NoDescribeMacro\number
+
+% units
+\NoDescribeVal{cm}
+\NoDescribeVal{pt}
+\NoDescribeVal{em}
+\NoDescribeVal{ex}
+
+% this package
+\NoDescribePkg{easyfloats}
+\NoDescribeVal{all}
+\NoDescribeKey{graphic}% "prefix `graphic`"
+\NoDescribeKey{<options>}
+\NoDescribeKey{/object/<options>}
+\NoDescribeMacro\object@tableBreakText
+
+% tables
+\NoDescribeEnv{table}
+\NoDescribeEnv{tabular}
+\NoDescribeEnv{tabular*}
+\NoDescribeEnv{tabularx}
+\NoDescribeMacro\\
+\NoDescribeMacro\multicolumn
+\NoDescribeMacro\hline
+
+% booktabs
+\NoDescribeMacro\toprule
+\NoDescribeMacro\midrule
+\NoDescribeMacro\bottomrule
+
+% array
+\NoDescribeMacro\newcolumntype
+\NoDescribeMacro\arraybackslash
+
+% longtable
+\NoDescribeEnv{longtable}
+\NoDescribeMacro\LT@cols
+
+% graphics
+\NoDescribeEnv{figure}
+\NoDescribeMacro\includegraphics
+\NoDescribeMacro\linewidth
+\NoDescribeMacro\listoffigures
+\NoDescribeMacro\resizebox
+
+% float
+\NoDescribeMacro\restylefloat
+\NoDescribeMacro\floatstyle
+\NoDescribeMacro\floatname
+\NoDescribeKey{width}
+
+% (sub)caption
+\NoDescribeMacro\captionsetup
+\NoDescribeMacro\DeclareCaptionJustification
+\NoDescribeMacro\DeclareCaptionSubType
+\NoDescribeMacro\phantomcaption
+\NoDescribeEnv{subfigure}
+\NoDescribeEnv{subtable}
+\NoDescribeMacro\subcaptionbox
+\NoDescribeMacro\captionof
+
+% placeins
+\NoDescribePkgoptn{section}
+\NoDescribeMacro\FloatBarrier
+
+% xcolor
+\NoDescribeMacro\colorlet
+\NoDescribeMacro\rowcolor
+\NoDescribeMacro\rowcolors
+\NoDescribePkgoptn{table}
+
+% siunitx
+\NoDescribeMacro\si
+\NoDescribeMacro\degree
+\NoDescribeVal{S}
+
+% plain
+\NoDescribeMacro\def
+\NoDescribeMacro\catcode
+\NoDescribeMacro\active
+\NoDescribeMacro\the
+\NoDescribeMacro\string
+\NoDescribeMacro\par
+\NoDescribeMacro\ifx
+\NoDescribeMacro\else
+\NoDescribeMacro\fi
+\NoDescribeMacro\relax
+\NoDescribeMacro\begingroup
+\NoDescribeMacro\endgroup
+\NoDescribeMacro\scantokens
+
+% math
+\NoDescribeMacro\sin
+\NoDescribeMacro\cos
+\NoDescribeMacro\tan
+\NoDescribeMacro\pm
+\NoDescribeMacro\infty
+\NoDescribeMacro\langle
+\NoDescribeMacro\rangle
+
+% tikz
+\NoDescribeEnv{tikzpicture}
+\NoDescribeMacro\tikzset
+\NoDescribeMacro\draw
+\NoDescribeMacro\node
+\NoDescribeMacro\foreach
+
+% cleveref
+\NoDescribeMacro\cref
+\NoDescribeMacro\cpageref
+\NoDescribePkgoptn{nameinlink}
+\NoDescribePkgoptn{noabbrev}
+
+% hyperref
+\NoDescribeMacro\url
+\NoDescribePkgoptn{pdfusetitle}
+
+% pgfkeys
+\NoDescribeMacro\pgfkeys
+\NoDescribeVal{true}
+\NoDescribeVal{false}
+\NoDescribeHandler{.expand once}
+
+% keyval
+\NoDescribeMacro\setkeys
+
+% custom
+\NoDescribeMacro\pminfty
+\NoDescribeMacro\charsym
+\NoDescribeMacro\charname
+\NoDescribeMacro\colspec
+\NoDescribeMacro\n
+\NoDescribeMacro\i
+\NoDescribeMacro\w
+\NoDescribeEnv{tikzobject}
+\NoDescribeEnv{tikz3dobject}
+
+% not used directly
+\NoDescribeMacro\center
+\NoDescribeMacro\endcenter
+\NoDescribeMacro\refstepcounter
+\NoDescribeMacro\ignorespacesafterend
+\NoDescribeMacro\@endparenv
+\NoDescribeMacro\caption@iftop
+
+% not existing
+\NoDescribeMacro\endcentering
+\NoDescribeMacro\|
+\NoDescribeMacro|
+
+\catcode\string`*=\@thecatcode@asterisc
+\makeatother

@@ -1,0 +1,778 @@
+% !TeX root = ../easyfloats.tex
+
+% Copyright © 2020 E. Zöllner
+% Alternatively to the terms of the LPPL, at your choice,
+% you can redistribute and/or modify this file under the
+% terms of the Do What The Fuck You Want To Public License, Version 2,
+% as published by Sam Hocevar. See http://www.wtfpl.net/about/.
+
+% Defines an environment to typeset LaTeX code:
+%     \begin{examplecode}
+%         \let\do=\@makeother
+%         \dospecials
+%     \end{examplecode}
+% @ is treated as letter.
+%
+% A starred version takes one argument, TeX code to be executed inside of the group.
+% It can be used to change catcodes or to define escape characters.
+%   \begin{examplecode*}{\ExamplecodeEscapeinside $ $}
+%       a long$\\$long line
+%   \end{examplecode*}
+%
+% \ExamplecodeEscapeinside takes two arguments
+% characters between which the code is executed normally.
+%
+% \ExamplecodeNoBox
+% disables the tcolorbox
+%
+% \ExamplecodeLinenumbers
+% enables line numbers
+%
+% \\ is redefined to cause a linebreak marked with \ExamplecodePostBreakText.
+
+
+
+\makeatletter
+% ---------- settings ---------
+
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+\usepackage{latexsym}
+\usepackage{textcomp}
+
+
+% taken from /usr/lib/python3/dist-packages/pygments/styles/default.py
+\definecolor{math}{RGB}{"BA,"21,"21}
+\definecolor{aligntab}{RGB}{"00,"80,"00}
+\definecolor{parameter}{RGB}{"19,"17,"7C}
+\colorlet{superscript}{black}
+\colorlet{subscript}{superscript}
+\colorlet{brace}{aligntab}
+\colorlet{controlsequence}{aligntab}
+\definecolor{comment}{RGB}{"40,"80,"80}
+\definecolor{codebackground}{rgb}{0.9,0.9,1}
+\colorlet{codeborder}{codebackground!50!black}
+\colorlet{codelinkcolor}{white}
+
+\newtcolorbox{examplecodebox}{breakable, skin=enhanced,
+	colback = codebackground,
+	colframe = codeborder,
+	size = fbox, % normal|title|small|fbox|tight|minimal
+	%left = 0pt, right = 0pt,
+	%top = 0pt, bottom = 0pt,
+	%boxrule = 1pt,
+	%arc = 3pt,
+}
+\newcommand{\ExamplecodeNoBox}{%
+	\let\examplecodebox=\par
+	\let\endexamplecodebox=\par
+}
+
+\newcommand{\NewExamplecodeFormatMandatoryArgument}[2]{% #1: control sequence, #2: replacement text where ##1 is the unprocessed argument
+	\expandafter\newcommand\csname @examplecode@formatarg\detokenize{#1}\endcsname[1]{\ExamplecodeProcessBeginGroup{\{}#2\ExamplecodeProcessEndGroup{\}}\ExamplecodeAllowLinebreakBeforeNext\@examplecode@loop}%
+}
+\newcommand{\NewExamplecodeFormatOptionalArgument}[4]{% #1: control sequence, #2: bracket open, #3: bracket close, #4: replacement text where ##1 is the unprocessed argument
+	\expandafter\def\csname @examplecode@formatoptarg\detokenize{#1}#2\endcsname##1#3{\ExamplecodeProcessBracket{#2}#4\ExamplecodeProcessBracket{#3}\ExamplecodeAllowLinebreakBeforeNext\@examplecode@loop}%
+}
+\NewExamplecodeFormatMandatoryArgument\begin{\ExamplecodeProcessEnv{#1}\ExamplecodeSetCmd{#1}}
+\NewExamplecodeFormatMandatoryArgument\end{\ExamplecodeProcessEnv{#1}\ExamplecodeNoCmd}
+\NewExamplecodeFormatMandatoryArgument\usepackage{\ExamplecodeProcessPkg{#1}\ExamplecodeNoCmd}
+\NewExamplecodeFormatMandatoryArgument{object}{\ExamplecodeParseKeys{/object}#1\ExamplecodeEndParseKeys\ExamplecodeNoCmd}
+\NewExamplecodeFormatMandatoryArgument{tableobject}{\ExamplecodeParseKeys{/object}#1\ExamplecodeEndParseKeys\ExamplecodeNoCmd}
+\NewExamplecodeFormatMandatoryArgument{figureobject}{\ExamplecodeParseKeys{/object}#1\ExamplecodeEndParseKeys\ExamplecodeNoCmd}
+\NewExamplecodeFormatMandatoryArgument{subobject}{\ExamplecodeParseKeys{/object}#1\ExamplecodeEndParseKeys\ExamplecodeNoCmd}
+\NewExamplecodeFormatMandatoryArgument\objectset{\ExamplecodeParseKeys{/object}#1\ExamplecodeEndParseKeys\ExamplecodeNoCmd}
+\NewExamplecodeFormatOptionalArgument\includegraphicobject[]{\ExamplecodeParseKeys{}#1\ExamplecodeEndParseKeys\ExamplecodeNoCmd}
+\NewExamplecodeFormatOptionalArgument\includegraphicsubobject[]{\ExamplecodeParseKeys{}#1\ExamplecodeEndParseKeys\ExamplecodeNoCmd}
+\NewExamplecodeFormatMandatoryArgument\NewObjectStyle{\ExamplecodeParse\relax\relax\ExamplecodeEndParseKeys#1\ExamplecodeEndParseKeys\ExamplecodeSetCmd{\NewObjectStyle2}}
+\NewExamplecodeFormatMandatoryArgument{\NewObjectStyle2}{\ExamplecodeParseKeys{/object}#1\ExamplecodeEndParseKeys\ExamplecodeNoCmd}
+
+% custom styles defined in example
+\NewExamplecodeFormatMandatoryArgument{tikzobject}{\ExamplecodeParseKeys{/object}#1\ExamplecodeEndParseKeys\ExamplecodeNoCmd}
+\NewExamplecodeFormatMandatoryArgument{tikz3dobject}{\ExamplecodeParseKeys{/object}#1\ExamplecodeEndParseKeys\ExamplecodeNoCmd}
+
+\newcommand{\ExamplecodeFormatMeta}[1]{{\normalfont\meta{#1}}}
+
+\newcommand{\ExamplecodePrint}[1]{#1}
+
+\newcommand{\ExamplecodePostBreakSymbol}{\footnotesize$\hookrightarrow$\quad}
+\newcommand{\ExamplecodeIndentation}{}% don't change this, it is overwritten later to always contain the indentation of the current line
+\newcommand{\ExamplecodePostBreakText}{\hbox{\ExamplecodeIndentation\ExamplecodePostBreakSymbol}}
+\newcommand{\ExamplecodeAllowLinebreak}{\discretionary{}{\ExamplecodePostBreakText}{}}
+\newcommand{\ExamplecodeAllowLinebreakBeforeNext}{\@examplecode@allowlinebreakbeforenexttrue}
+\newcommand{\ExamplecodeLinebreak}{\newline\ExamplecodePostBreakText}
+
+\newcommand{\ExamplecodeFormatCmd}[1]{{\leavevmode\color{controlsequence}\LinkUnformattedKeyword{cs}{\detokenize{#1}}{\string#1}}\ExamplecodeAllowLinebreakBeforeNext}  % catcode 0/16
+\newcommand{\ExamplecodeFormatEnv}[1]{\LinkUnformattedKeyword{env}{#1}{#1}}
+\newcommand{\ExamplecodeFormatPkg}[1]{\LinkUnformattedKeyword{pkg}{#1}{#1}}
+
+\newcommand{\ExamplecodeFormatBeginGroup}[1]{\textcolor{brace}{#1}}  % catcode 1
+\newcommand{\ExamplecodeFormatEndGroup}[1]{\textcolor{brace}{#1}\ExamplecodeAllowLinebreakBeforeNext}  % catcode 2
+\newcommand{\ExamplecodeFormatMathShift}[1]{\textup{#1}}  % catcode 3, see \ExamplecodeFormatMath
+\newcommand{\ExamplecodeFormatAlignmentTab}[1]{\textcolor{aligntab}{#1}}  % catcode 4
+% catcode 5: \ExamplecodeEndOfLine
+\newcommand{\ExamplecodeFormatParameter}[1]{\textcolor{parameter}{#1}}  % catcode 6
+\newcommand{\ExamplecodeFormatSuperscript}[1]{\textcolor{superscript}{#1}}  % catcode 7
+\newcommand{\ExamplecodeFormatSubscript}[1]{\textcolor{subscript}{#1}}  % catcode 8
+% catcode 9: ignored
+% catcode 10: \ExamplecodeSpace, \ExamplecodeTab
+\newcommand{\ExamplecodeFormatText}[1]{%
+	\ifx`#1%
+		\textasciigrave
+	\else\ifx'#1%
+		\textquotesingle
+	\else
+		#1%
+	\fi\fi
+}  % catcode 11, 12
+\newcommand{\ExamplecodeFormatBracket}[1]{#1}  % catcode 11
+% catcode 13: active (uses \ExamplecodeFormatCmd, too)
+
+% in contrast to the other format macros this does
+% *not* take an argument. Instead it applies the
+% format for the rest of the group.
+\newcommand{\ExamplecodeFormatComment}{%
+	\leavevmode
+	\color{comment}%
+	\itshape
+	\let\color=\@gobble
+}  % catcode 14
+\newcommand{\ExamplecodeFormatMath}{%
+	\leavevmode
+	\color{math}%
+	\itshape
+	\let\color=\@gobble
+	\ExamplecodeForbidLinebreaks
+}
+\newcommand{\ExamplecodeForbidLinebreaks}{%
+	\let\discretionary=\@thirdofthree
+}  % catcode 3
+
+% catcode 15: invalid
+
+\newcommand{\ExamplecodeSpaceSymbol}{\space}
+\newcommand{\ExamplecodeTabSymbol}{\qquad}
+\newcommand{\ExamplecodeIndentationSpace}{\EnsureHMode\nobreak\space}
+\newcommand{\ExamplecodeIndentationTab}{\EnsureHMode\nobreak\qquad}
+\newcommand{\ExamplecodeNormalSpace}{\discretionary{}{\ExamplecodePostBreakText}{\hbox{\ExamplecodeSpaceSymbol}}}
+\newcommand{\ExamplecodeNormalTab}{\discretionary{}{\ExamplecodePostBreakText}{\hbox{\ExamplecodeTabSymbol}}}
+\newcommand{\ExamplecodeEndOfLine}{\EnsureHMode\par}
+
+
+\newcommand{\ExamplecodeTabsize}{4}
+
+
+\newcommand{\ExamplecodeAllowLinebreakAfter}[1]{\expandafter\def\csname @examplecode@breakafter@#1\endcsname{\ExamplecodeAllowLinebreakBeforeNext}}
+\ExamplecodeAllowLinebreakAfter]
+
+
+% ---------- process ---------
+
+\newif\ifExamplecodeInAlign
+
+\newcommand{\ExamplecodeProcessCmd}[1]{\ExamplecodePrint{\ExamplecodeFormatCmd{#1}}}  % catcode 0/16
+\newcommand{\ExamplecodeProcessEnv}[1]{\ExamplecodePrint{\ExamplecodeFormatEnv{#1}}}
+\newcommand{\ExamplecodeProcessPkg}[1]{\ExamplecodePrint{\ExamplecodeFormatPkg{#1}}}
+\newcommand{\ExamplecodeProcessBeginGroup}[1]{\ExamplecodePrint{\ExamplecodeFormatBeginGroup{#1}}}  % catcode 1
+\newcommand{\ExamplecodeProcessEndGroup}[1]{\ExamplecodePrint{\ExamplecodeFormatEndGroup{#1}}}  % catcode 2
+\newcommand{\ExamplecodeProcessMathShift}[1]{\ExamplecodePrint{\ExamplecodeFormatMathShift{#1}}}  % catcode 3
+\newcommand{\ExamplecodeProcessBeginMath}{\ExamplecodePrint{\begingroup\ExamplecodeFormatMath}}  % catcode 3
+\newcommand{\ExamplecodeProcessEndMath}{\ExamplecodePrint{\endgroup}}
+\newcommand{\ExamplecodeProcessAlignmentTab}[1]{\ExamplecodePrint{%
+	\ifExamplecodeInAlign
+		\endgroup
+	\fi
+	\ExamplecodeAllowLinebreak
+	\begingroup
+		\ExamplecodeInAligntrue
+		\ExamplecodeForbidLinebreaks
+		\ExamplecodeFormatAlignmentTab{#1}%
+}}  % catcode 4
+\newcommand{\ExamplecodeProcessEndOfLine}{\ExamplecodePrint{%
+	\ifExamplecodeInAlign
+		\endgroup
+	\fi
+	\ExamplecodeEndOfLine
+}}  % catcode 5
+\newcommand{\ExamplecodeProcessParameter}[1]{\ExamplecodePrint{\ExamplecodeFormatParameter{#1}}}  % catcode 6
+\newcommand{\ExamplecodeProcessSuperscript}[1]{\ExamplecodePrint{\ExamplecodeFormatSuperscript{#1}}}  % catcode 7
+\newcommand{\ExamplecodeProcessSubscript}[1]{\ExamplecodePrint{\ExamplecodeFormatSubscript{#1}}}  % catcode 8
+% catcode 9: ignored
+\newcommand{\ExamplecodeProcessSpace}{\ExamplecodePrint{\ExamplecodeSpace}\ExamplecodeAppendIndentation{\ExamplecodeSpace}}  % catcode 10
+\newcommand{\ExamplecodeProcessTab}{\ExamplecodePrint{\ExamplecodeTab}\ExamplecodeAppendIndentation{\ExamplecodeTab}}  % catcode 10
+\newcommand{\ExamplecodeProcessText}[1]{\ExamplecodePrint{\ExamplecodeFormatText{#1}}}  % catcode 11, 12
+\newcommand{\ExamplecodeProcessBracket}[1]{\ExamplecodePrint{\ExamplecodeFormatBracket{#1}}}  % catcode 11
+% catcode 13: active (uses \ExamplecodeProcessCmd, too)
+\newcommand{\ExamplecodeProcessBeginComment}{\ExamplecodePrint{\begingroup\ExamplecodeFormatComment}}  % catcode 14
+\newcommand{\ExamplecodeProcessEndComment}{\ExamplecodePrint{\endgroup}}
+% catcode 15: invalid
+
+\newcommand{\ExamplecodeProcessCleanup}{\ExamplecodePrint{%
+	\ifExamplecodeInAlign
+		\endgroup
+	\fi
+}}
+
+\newcommand{\ExamplecodeProcessMeta}[1]{\ExamplecodePrint{\ExamplecodeFormatMeta{#1}}}
+
+
+% ---------- key=value options ---------
+
+\newcommand{\ExamplecodeParseKeys}[1]{% #1: key path
+	\ExamplecodeParse
+		{\@examplecode@prepare@parsekeys{#1}}%
+		{\@examplecode@cleanup@parsekeys}%
+		\ExamplecodeEndParseKeys
+}
+\newcommand{\@examplecode@prepare@parsekeys}[1]{% #1: key path
+	\let\@examplecode@print@original=\ExamplecodePrint
+	\ExamplecodeNoCmd
+	\def\@examplecode@key@cmd{\key@withopt@unformatted}%
+	\def\@examplecode@keypath{#1}%
+	\let\@examplecode@pathsep=\@empty
+	\def\ExamplecodeProcessText##1{% ##1: current token
+		\ifx,##1%
+			\ifExamplecodeInAlign
+				\endgroup
+			\fi
+			\@examplecode@endkey
+			\let\@examplecode@beginkey=\@examplecode@beginkey@bak
+			\@examplecode@print@original{\ExamplecodeFormatText{##1}}%
+		\else\ifx=##1%
+			\@examplecode@endkey
+			\let\@examplecode@beginkey=\relax
+			\@examplecode@print@original{\ExamplecodeFormatText{##1}}%
+		\else\ifx/##1%
+			\@examplecode@beginkey
+			\@examplecode@appendpathsep{##1}%
+		\else\ifx.##1%
+			\unless \ifx \@examplecode@pathsep \@empty
+				\@examplecode@endkey
+				\expandafter\@examplecode@print@original\expandafter{\expandafter\ExamplecodeFormatText\expandafter{\@examplecode@pathsep}}%
+			\fi
+			\@examplecode@beginkey
+			\ifx \@examplecode@key \@empty
+				\def\@examplecode@key@cmd[####1]####2{\LinkUnformattedKeyword{handler}{####2}{####2}}%
+			\fi
+			\@examplecode@appendkey{##1}%
+		\else
+			\@examplecode@beginkey
+			\@examplecode@appendkey{##1}%
+		\fi \fi \fi \fi
+	}%
+	\def\@examplecode@appendkey##1{%
+		\ExamplecodePrint{\ExamplecodeFormatText{##1}}%
+	}%
+	\def\@examplecode@appendpathsep##1{%
+		\ExamplecodePrint{\ExamplecodeFormatText{##1}}%
+	}%
+	\def\ExamplecodeProcessBeginComment{%
+		\@examplecode@endkey
+		\begingroup
+		\let\@examplecode@beginkey=\relax
+		\let\@examplecode@beginkey@bak=\relax
+		\@examplecode@print@original{\begingroup\ExamplecodeFormatComment}%
+		\let\ExamplecodePrint=\@examplecode@print@original
+	}%
+	\def\ExamplecodeProcessEndComment{%
+		\@examplecode@print@original{\endgroup}%
+		\endgroup
+	}%
+	\def\ExamplecodeProcessBeginGroup##1{%
+		\begingroup
+		\let\@examplecode@beginkey=\relax
+		\let\@examplecode@beginkey@bak=\relax
+		\ExamplecodePrint{\ExamplecodeFormatBeginGroup{##1}}%
+	}%
+	\def\ExamplecodeProcessEndGroup##1{%
+		\ExamplecodePrint{\ExamplecodeFormatEndGroup{##1}}%
+		\endgroup
+	}%
+}
+\newcommand{\@examplecode@cleanup@parsekeys}{%
+	\@examplecode@endkey
+	\ExamplecodeProcessCleanup
+}
+\newcommand{\@examplecode@beginkey}{%
+	\begingroup
+	\def\@examplecode@key{}%
+	\let\@examplecode@keyspace=\@empty
+	\def\@examplecode@appendkey##1{%
+		\unless \ifx \@examplecode@keyspace \@empty
+			\appto\@examplecode@key{ }%
+			\let\@examplecode@keyspace=\@empty
+		\fi
+		\@examplecode@applypathsep
+		\appto\@examplecode@key{##1}%
+	}%
+	\def\@examplecode@appendpathsep##1{%
+		\unless \ifx \@examplecode@keyspace \@empty
+			\appto\@examplecode@key{ }%
+			\let\@examplecode@keyspace=\@empty
+		\fi
+		\appto\@examplecode@pathsep{##1}%
+	}%
+	\def\@examplecode@applypathsep{%
+		\unless \ifx \@examplecode@pathsep \@empty
+			\eappto\@examplecode@key{\@examplecode@pathsep}%
+			\let\@examplecode@pathsep=\@empty
+		\fi
+	}%
+	\def\ExamplecodePrint##1{%
+		\@examplecode@endkey
+		\@examplecode@print@original{##1}%
+	}%
+	\def\ExamplecodeProcessSpace{%
+		\@examplecode@applypathsep
+		\appto\@examplecode@keyspace{\ExamplecodeSpace}%
+	}%
+	\let\@examplecode@beginkey=\relax
+	\def\@examplecode@endkey{%
+		\edef\@examplecode@do{\noexpand\@examplecode@print@original{%
+			\expandafter\noexpand\@examplecode@key@cmd[\@examplecode@keypath]{\@examplecode@key}%
+			\expandonce{\@examplecode@pathsep}%
+			\expandonce{\@examplecode@keyspace}%
+		}}%
+		\@examplecode@do
+		\endgroup
+	}%
+}
+\let\@examplecode@beginkey@bak=\@examplecode@beginkey
+\newcommand{\@examplecode@endkey}{}
+
+\newcommand{\ExamplecodeEndParseKeys}{\PackageError{examplecode}{This should never be expanded}{}}
+
+
+% ---------- parsing command ---------
+
+\newcommand{\ExamplecodeParse}[3]{% #1: prepare, #2: cleanup, #3: end token
+	\begingroup
+	#1%
+	\let\@examplecode@endtoken=#3%
+	\def\@examplecode@checkend##1{#2\@examplecode@beforeline\endgroup}%
+	\@examplecode@loop
+}
+
+% WARNING: reads end token before changing catcodes
+% compares end token with \ifx in case it is a control sequence
+% => does not find end token if it's catcode is changed
+% => \xc`...` does not work directly but inside of macro
+\newcommand{\@xc@prepare}{%
+	\def\ExamplecodeNormalSpace{\ExamplecodeSpaceSymbol}%
+	\def\ExamplecodeNormalTab{\ExamplecodeTabSymbol}%
+	\@examplecode@setcatcodes
+	\@examplecode@state@normal
+	\let\ExamplecodeAllowLinebreak=\relax
+	\gdef\@xc@code{}%
+	\def\ExamplecodePrint{\gappto\@xc@code}%
+}%
+\newcommand{\@xc@afterend}{%
+	\formatcode{\@xc@code}%
+}
+\newcommand{\xc}{%
+	\ExamplecodeParse{%
+		\@xc@prepare
+	}{%
+		\ExamplecodeProcessCleanup
+		\@xc@afterend
+	}%
+}
+\newcommand{\xckey}{%
+	\ExamplecodeParse{%
+		\@xc@prepare
+		\@examplecode@prepare@parsekeys{}%
+	}{%
+		\@examplecode@cleanup@parsekeys
+		\@xc@afterend
+	}%
+}
+
+
+% ---------- escape inside ---------
+
+\newcommand{\ExamplecodeEscapeinside}[2]{% #1: begin token, #2: end token
+	\def\@examplecode@escapeinside#1##1#2{##1\@examplecode@loop}%
+	\let\@examplecode@escapeinside@startchar=#1%
+}
+
+
+% ---------- line numbers ---------
+
+\newcounter{ExamplecodeLinecounter}
+\newcommand{\ExamplecodeLinenumbers}{%
+	\setcounter{ExamplecodeLinecounter}{1}%
+	\let\@examplecode@beforeline@hook=\@examplecode@insertlinenumber
+}
+\newcommand\@examplecode@insertlinenumber{%
+	\makebox[0pt][r]{{\ExamplecodeFormatLinenumber{\theExamplecodeLinecounter}}\quad}%
+	\stepcounter{ExamplecodeLinecounter}%
+}
+\newcommand\ExamplecodeFormatLinenumber[1]{%
+	\normalfont
+	\footnotesize
+	#1%
+}
+
+
+% ---------- parsing environment ---------
+
+\newenvironment{examplecode}{%
+	\csname examplecode*\endcsname{}%
+}{%
+	\csname endexamplecode*\endcsname{}%
+}
+\newenvironment{examplecode*}[1]{%
+	\let\@examplecode@envname=\@currenvir
+	\@examplecode@setcatcodes
+	\let\@examplecode@endtoken=\end
+	#1%
+	\begin{examplecodebox}%
+	\colorlet{linkcolor}{codelinkcolor}%
+	\raggedright
+	\ttfamily
+	\leavevmode
+	\parskip=0pt
+	\parindent=0pt\relax
+	\let\\=\ExamplecodeLinebreak
+	\@examplecode@state@firstindent
+	\@examplecode@gobblefirsteol
+}{%
+	\end{examplecodebox}%
+}
+
+\newenvironment{examplecodekey}{%
+	\csname examplecodekey*\endcsname{}%
+}{%
+	\csname endexamplecodekey*\endcsname{}%
+}
+\newenvironment{examplecodekey*}[1]{%
+	\csname examplecode*\endcsname{%
+		\@examplecode@prepare@parsekeys{}%
+		#1%
+	}%
+}{%
+	\@examplecode@cleanup@parsekeys
+	\csname endexamplecode*\endcsname
+}
+
+
+\newcommand{\@examplecode@setcatcodes}{%
+	\@makeother\^^M% end of line
+	\@makeother\^^I% tab
+	\@makeother\ % space
+	\@makeother\%%
+	\makeatletter
+	% changed
+	\@makeother*%
+	\@makeother`%
+}
+\begingroup
+\@makeother\^^M %
+\@makeother\^^I %
+\@firstofone{%
+\endgroup%
+\let\EolOther=^^M%
+\let\TabOther=^^I%
+}
+\begingroup\@makeother\%\@firstofone{\endgroup\let\PercentOther=%}
+
+\newcommand{\@examplecode@error@catcodes@indentation}{\PackageError{examplecode}{failed to change catcodes, indentation will be screwed up}{}}
+\newcommand{\@examplecode@error@mixedtabsandspaces}{\PackageWarning{examplecode}{mixed use of tabs and spaces}}
+
+\newcount\@examplecode@count@outerindent
+\newcount\@examplecode@count@gobbledindent
+\newif\if@examplecode@allowlinebreakbeforenext
+
+\newcommand{\EnsureHMode}{\leavevmode\@examplecode@beforeline\let\EnsureHMode\relax}%
+\let\@EnsureHMode@bak=\EnsureHMode
+
+
+\newcommand{\@examplecode@beforeline}{%
+	\@examplecode@beforeline@hook
+	\let\@examplecode@beforeline=\relax
+}
+\let\@examplecode@beforeline@bak=\@examplecode@beforeline
+\let\@examplecode@beforeline@hook=\relax
+
+\newcommand{\@examplecode@state@firstindent}{%
+	\@examplecode@beforeline
+	\let\@examplecode@check@spaces=\@examplecode@check@firstindent
+}
+\newcommand{\@examplecode@state@gobbleindent}{%
+	\let\@examplecode@beforeline=\@examplecode@beforeline@bak
+	\let\@examplecode@state@normal=\@examplecode@state@normal@bak
+	\ifnum \@examplecode@count@outerindent > 0
+		\@examplecode@count@gobbledindent=0
+		\let\@examplecode@check@spaces=\@examplecode@check@gobbleindent
+	\else
+		\@examplecode@state@indent
+	\fi
+	\let\EnsureHMode=\@EnsureHMode@bak
+}
+\newcommand{\@examplecode@state@indent}{%
+	\let\@examplecode@check@spaces=\@examplecode@check@normalspaces
+	\let\ExamplecodeSpace=\ExamplecodeIndentationSpace
+	\let\ExamplecodeTab=\ExamplecodeIndentationTab
+	\def\ExamplecodeAppendIndentation##1{\eappto\ExamplecodeIndentation{\expandonce{##1}}}%
+	\let\ExamplecodeIndentation=\@empty
+}
+\newcommand{\@examplecode@state@normal}{%
+	\@examplecode@beforeline
+	\let\@examplecode@check@spaces=\@examplecode@check@normalspaces
+	\let\ExamplecodeSpace=\ExamplecodeNormalSpace
+	\let\ExamplecodeTab=\ExamplecodeNormalTab
+	\let\@examplecode@state@normal=\relax
+	\let\ExamplecodeAppendIndentation=\@gobble
+}
+\let\@examplecode@state@normal@bak=\@examplecode@state@normal
+
+
+\newcommand{\@examplecode@gobblefirsteol}[1]{%
+	\ifx \EolOther #1\relax
+	\else
+		\PackageError{examplecode}{unexpected code on same line after \string\begin{examplecode}}{}%
+		\detokenize{#1}%
+	\fi
+	\@examplecode@loop
+}
+
+\newcommand{\@examplecode@loop}{%
+	\futurelet \@examplecode@nexttoken \@examplecode@check
+}
+\newcommand{\@examplecode@check}{%
+	\ifx \@examplecode@nexttoken \@examplecode@endtoken
+		\expandafter \@examplecode@checkend
+	\else
+		\if@examplecode@allowlinebreakbeforenext
+			\ExamplecodeAllowLinebreak
+			\@examplecode@allowlinebreakbeforenextfalse
+		\fi
+		\expandafter \@examplecode@check@ii
+	\fi
+}
+
+\newcommand{\@examplecode@check@ii}{%
+	\ifcat \noexpand\@examplecode@nexttoken \relax
+		\def\@examplecode@do{\@examplecode@handle@cs}%
+	\else
+		\def\@examplecode@do{\@examplecode@check@spaces}%
+	\fi
+	\@examplecode@do
+}
+\newcommand{\@examplecode@handle@cs}[1]{%
+	\ExamplecodeSetCmd{#1}%
+	\@examplecode@state@normal
+	\ExamplecodeProcessCmd{#1}%
+	\@examplecode@loop
+}
+\newcommand{\ExamplecodeSetCmd}[1]{\edef\@examplecode@cs{\detokenize{#1}}}
+\newcommand{\ExamplecodeNoCmd}{\def\@examplecode@cs{}}
+\ExamplecodeNoCmd
+
+\newcommand{\@examplecode@check@normalspaces}{%
+	\ifcat \noexpand\@examplecode@nexttoken \space
+		\def\@examplecode@do##1{\ExamplecodeProcessSpace\@examplecode@loop##1}%
+	\else\if \noexpand\@examplecode@nexttoken \space
+		\def\@examplecode@do##1{\ExamplecodeProcessSpace\@examplecode@loop}%
+	\else\ifx \@examplecode@nexttoken \TabOther
+		\def\@examplecode@do##1{\ExamplecodeProcessTab\@examplecode@loop}%
+	\else
+		\def\@examplecode@do{\@examplecode@check@iv}%
+	\fi \fi \fi
+	\@examplecode@do
+}
+% count the indentation of the first line
+\newcommand{\@examplecode@check@firstindent}{%
+	\ifcat \noexpand\@examplecode@nexttoken \space
+		\@examplecode@error@catcodes@indentation
+		\advance\@examplecode@count@outerindent by 1
+		\def\@examplecode@do##1{\@examplecode@loop##1}%
+	\else\if \noexpand\@examplecode@nexttoken \space
+		\advance\@examplecode@count@outerindent by 1
+		\def\@examplecode@do##1{\@examplecode@loop}%
+	\else\ifx \@examplecode@nexttoken \TabOther
+		\advance\@examplecode@count@outerindent by \ExamplecodeTabsize
+		\def\@examplecode@do##1{\@examplecode@loop}%
+	\else
+		\def\@examplecode@do{\@examplecode@check@iv}%
+	\fi \fi \fi
+	\@examplecode@do
+}
+% gobble indentation as far as the first line was indented
+\newcommand{\@examplecode@check@gobbleindent}{%
+	\ifcat \noexpand\@examplecode@nexttoken \space
+		\@examplecode@error@catcodes@indentation
+		\@examplecode@gobbleindent{1}%
+		\def\@examplecode@do##1{\@examplecode@loop##1}%
+	\else\if \noexpand\@examplecode@nexttoken \space
+		\@examplecode@gobbleindent{1}%
+		\def\@examplecode@do##1{\@examplecode@loop}%
+	\else\ifx \@examplecode@nexttoken \TabOther
+		\@examplecode@gobbleindent{\ExamplecodeTabsize}%
+		\def\@examplecode@do##1{\@examplecode@loop}%
+	\else
+		\def\@examplecode@do{\@examplecode@check@iv}%
+	\fi \fi \fi
+	\@examplecode@do
+}
+\newcommand{\@examplecode@gobbleindent}[1]{%
+	\advance\@examplecode@count@gobbledindent by #1
+	\ifnum \@examplecode@count@gobbledindent = \@examplecode@count@outerindent
+		\@examplecode@state@indent
+	\else\ifnum \@examplecode@count@gobbledindent > \@examplecode@count@outerindent
+		\@examplecode@error@mixedtabsandspaces
+		\@examplecode@state@indent
+	\fi \fi
+}
+\newcommand{\@examplecode@check@iv}{%
+	\def\@examplecode@do{\@examplecode@check@v}%
+	\unless\ifx \@examplecode@escapeinside@startchar \relax
+		\if \noexpand\@examplecode@nexttoken \noexpand\@examplecode@escapeinside@startchar
+			\def\@examplecode@do{\@examplecode@escapeinside}%
+		\fi
+	\fi
+	\@examplecode@do
+}
+\newcommand{\@examplecode@check@v}{%
+	\ifcat \noexpand\@examplecode@nexttoken \bgroup% catcode 1
+		\def\@examplecode@do{\@examplecode@handlebgroup}%
+	\else\ifcat \noexpand\@examplecode@nexttoken \egroup% catcode 2
+		\def\@examplecode@do{\expandafter\@examplecode@handlespecialtoken\expandafter\ExamplecodeProcessEndGroup\string}%
+	\else\ifcat \noexpand\@examplecode@nexttoken $% catcode 3
+		\def\@examplecode@do{\@examplecode@handlemathshift}%
+	\else\ifcat \noexpand\@examplecode@nexttoken &% catcode 4
+		\def\@examplecode@do{\@examplecode@handlespecialtoken\ExamplecodeProcessAlignmentTab}%
+	\else\ifx \@examplecode@nexttoken \EolOther% catcode 5
+		\@examplecode@endcomment
+		\def\@examplecode@do##1{%
+			\ExamplecodeProcessEndOfLine
+			\@examplecode@state@gobbleindent
+			\@examplecode@loop
+		}%
+	\else\ifcat \noexpand\@examplecode@nexttoken ##% catcode 6
+		\def\@examplecode@do{\@examplecode@handleparameter}%
+	\else\ifcat \noexpand\@examplecode@nexttoken ^% catcode 7
+		\def\@examplecode@do{\@examplecode@handlespecialtoken\ExamplecodeProcessSuperscript}%
+	\else\ifcat \noexpand\@examplecode@nexttoken _% catcode 8
+		\def\@examplecode@do{\@examplecode@handlespecialtoken\ExamplecodeProcessSubscript}%
+	% catcode 9: ignored characters
+	% catcode 10: space, handled in \@examplecode@check@spaces
+	% catcode 11: letter, handled in \else
+	% catcode 12: other, handled in \else
+	\else\ifx \@examplecode@nexttoken <%
+		\def\@examplecode@do{\@examplecode@handlepossiblemeta}%
+	% catcode 13: active, handled in \@examplecode@check@ii (after \futurelet it's indistinguishable from a control sequence)
+	\else\ifx \@examplecode@nexttoken \PercentOther% catcode 14
+		\@examplecode@state@normal
+		\ExamplecodeProcessBeginComment
+		\def\@examplecode@endcomment{\ExamplecodeProcessEndComment}%
+		\def\@examplecode@do{\@examplecode@handlenormaltoken}%
+	% catcode 15: invalid characters
+	\else% catcode 11, 12
+		\def\@examplecode@do{\@examplecode@handlenormaltoken}%
+	\fi \fi \fi \fi \fi \fi \fi \fi \fi \fi
+	\@examplecode@do
+}
+\newcommand{\@examplecode@endcomment}{}
+\newcommand{\@examplecode@handlebgroup}{%
+	\ifcsundef{@examplecode@formatarg\@examplecode@cs}{%	
+		\expandafter\@examplecode@handlespecialtoken\expandafter\ExamplecodeProcessBeginGroup\string
+	}{%
+		\csname @examplecode@formatarg\@examplecode@cs\endcsname
+	}%
+}
+\newcommand{\@examplecode@handlenormaltoken}[1]{%
+	\@examplecode@state@normal
+	\ifcsundef{@examplecode@formatoptarg\@examplecode@cs#1}{%
+		\csname @examplecode@breakafter@#1\endcsname
+		\ExamplecodeProcessText{#1}%
+		\@examplecode@loop
+	}{%
+		\csname @examplecode@formatoptarg\@examplecode@cs#1\endcsname
+	}%
+}
+\newcommand{\@examplecode@handlespecialtoken}[2]{%
+	\@examplecode@state@normal
+	#1{\string#2}%
+	\@examplecode@loop
+}
+
+\newcommand{\@examplecode@handlemathshift}[1]{%
+	\@examplecode@math@begin
+	\ExamplecodeProcessMathShift{\string#1}%
+	\@examplecode@math@end
+	\@examplecode@loop
+}
+\newcommand{\@examplecode@math@begin}{%
+	\@examplecode@state@normal
+	\begingroup
+	\let\@examplecode@handlemeta=\@examplecode@handlenormaltoken
+	\ExamplecodeProcessBeginMath
+	\let\@examplecode@math@begin=\relax
+	\def\@examplecode@math@end{\def\@examplecode@math@end{\ExamplecodeProcessEndMath\endgroup}}%
+}
+
+\newcommand{\@examplecode@handleparameter}[1]{%
+	\edef\@examplecode@parameter{\string#1}%
+	\@examplecode@parameterloop
+}
+\newcommand{\@examplecode@parameterloop}{%
+	\futurelet \@examplecode@nexttoken \@examplecode@parametercheck
+}
+\newcommand{\@examplecode@parametercheck}{%
+	\ifcat \noexpand\@examplecode@nexttoken ##%
+		\def\@examplecode@do##1{%
+			\edef\@examplecode@parameter{\@examplecode@parameter\string##1}%
+			\@examplecode@parameterloop
+		}%
+	\else\ifcat \noexpand\@examplecode@nexttoken 1%
+		\def\@examplecode@do##1{%
+			\edef\@examplecode@parameter{\@examplecode@parameter##1}%
+			\expandafter\ExamplecodeProcessParameter\expandafter{\@examplecode@parameter}%
+			\@examplecode@loop
+		}%
+	\else
+		\def\@examplecode@do{%
+			\expandafter\ExamplecodeProcessParameter\expandafter{\@examplecode@parameter}%
+			\@examplecode@check
+		}%
+	\fi \fi
+	\@examplecode@do
+}
+
+\newcommand{\@examplecode@handlepossiblemeta}[1]{%
+	\def\@examplecode@tmp{#1}%
+	\futurelet \@examplecode@nexttoken \@examplecode@checkmeta
+}
+\newcommand{\@examplecode@checkmeta}{%
+	\ifcat \@examplecode@nexttoken a%
+		\def\@examplecode@do{\@examplecode@handlemeta}%
+	\else
+		\def\@examplecode@do{\@examplecode@handlenormaltoken}%
+	\fi
+	\expandafter\@examplecode@do\@examplecode@tmp
+}
+\def\@examplecode@handlemeta<#1>{%
+	\ExamplecodeProcessMeta{#1}%
+	\@examplecode@loop
+}
+
+\newcommand{\@examplecode@checkend}[2]{%
+	\def\@examplecode@arg{#2}%
+	\ifx \@examplecode@arg \@examplecode@envname
+		\expandafter \@firstoftwo
+	\else
+		\expandafter \@secondoftwo
+	\fi{%
+		\end{#2}%
+	}{%
+		\@examplecode@state@normal
+		\ExamplecodeProcessCmd{#1}%
+		\ExamplecodeProcessBeginGroup{\{}%
+		\ExamplecodeProcessEnv{#2}%
+		\ExamplecodeProcessEndGroup{\}}%
+		\@examplecode@loop
+	}%
+}%
+\makeatother

@@ -1,0 +1,66 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\objectset{%
+	warn no caption = false,
+	warn no label = false,
+	subobject warn no caption = false,
+	subobject warn no label = false,
+	graphic auto caption = false,
+	graphic auto label = false,
+	graphic width = .8\linewidth,
+}
+
+\objectset{exec=\PackageWarning{test}{objectset exec test}}
+\objectset[table]{exec=\PackageWarning{test}{objectset[table] exec test}}
+\objectset[figure]{exec += \PackageWarning{test}{objectset[figure] exec + test}}
+\objectset[all]{exec+=\PackageWarning{test}{objectset[all] exec+ test}}
+
+\begin{document}
+\ExpectingPackageWarning[+2]{test}{objectset[table] exec test}
+\ExpectingPackageWarning[+1]{test}{objectset[all] exec+ test}
+\begin{tableobject}{}
+\end{tableobject}
+
+\ExpectingPackageWarning[+1]{test}{tableobject exec test}
+\begin{tableobject}{exec=\PackageWarning{test}{tableobject exec test}}
+\end{tableobject}
+
+\ExpectingPackageWarning[+3]{test}{objectset exec test}
+\ExpectingPackageWarning[+2]{test}{objectset[figure] exec + test}
+\ExpectingPackageWarning[+1]{test}{objectset[all] exec+ test}
+\begin{figureobject}{}
+\end{figureobject}
+
+\ExpectingPackageWarning[+4]{test}{objectset exec test}
+\ExpectingPackageWarning[+3]{test}{objectset[figure] exec + test}
+\ExpectingPackageWarning[+2]{test}{objectset[all] exec+ test}
+\ExpectingPackageWarning[+1]{test}{includegraphicobject exec+ test}
+\includegraphicobject[exec+=\PackageWarning{test}{includegraphicobject exec+ test}]{graphics/ctan_lion}
+
+
+\ExpectingPackageWarning[+2]{test}{objectset[table] exec test}
+\ExpectingPackageWarning[+1]{test}{objectset[all] exec+ test}
+\begin{tableobject}{sub}
+	\ExpectingPackageWarning{test}{subobject1 exec test}
+	\begin{subobject}{exec=\PackageWarning{test}{subobject1 exec test}}
+	\end{subobject}
+	\ExpectingPackageWarning{test}{subobject2 exec+ test}
+	\begin{subobject}{exec=\PackageWarning{test}{subobject2 exec+ test}}
+	\end{subobject}
+\end{tableobject}
+
+\objectset{subobject exec=\PackageWarning{test}{objectset subobject exec test}}
+\begin{figureobject}{sub, exec=, subobject exec += \PackageWarning{test}{figureobject subobject exec + test}}
+	\ExpectingPackageWarning[+1]{test}{subobject1 exec test}
+	\includegraphicsubobject[exec=\PackageWarning{test}{subobject1 exec test}]{graphics/ctan_lion}
+	\ExpectingPackageWarning[+3]{test}{objectset subobject exec test}
+	\ExpectingPackageWarning[+2]{test}{figureobject subobject exec + test}
+	\ExpectingPackageWarning[+1]{test}{subobject2 exec+ test}
+	\includegraphicsubobject[exec+=\PackageWarning{test}{subobject2 exec+ test}]{graphics/ctan_lion}
+\end{figureobject}
+\end{document}

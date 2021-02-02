@@ -1,0 +1,36 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\objectset{
+	warn no caption = false,
+	warn no label = false,
+	subobject warn no caption = false,
+	env = tabular,
+}
+\AtBeginGraphicObject{\objectset{subobject env=}}
+
+\begin{document}
+\ExpectingPackageWarning[+2]{easyfloats}{It seems you have forgotten to specify 'contains subobjects'. I am using the value of 'env' for the subobjects instead of for tableobject.}
+\begin{tableobject}{}
+	\includegraphicsubobject{graphics/catcodes}
+\end{tableobject}
+
+\ExpectingPackageWarning[+2]{easyfloats}{It seems you have forgotten to specify 'contains subobjects'. I am using the value of 'env' for the subobjects instead of for figureobject.}
+\begin{figureobject}{env=tabular}
+	\begin{subobject}{}{rl}
+		sub figure & a
+	\end{subobject}
+	\begin{subobject}{}{rl}
+		sub figure & b
+	\end{subobject}
+\end{figureobject}
+
+\begin{figureobject}{contains subobjects}
+	figure
+	\ExpectingPackageWarning{easyfloats}{'contains subobjects' is true but the object does not contain any subobjects.}
+\end{figureobject}
+\end{document}

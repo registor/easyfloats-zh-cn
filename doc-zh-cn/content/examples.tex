@@ -1,0 +1,407 @@
+% !TeX root = ../easyfloats.tex
+
+% \section{Examples}
+\section{引例}
+\label{examples}
+
+% Let's start with a few examples.
+% Environments, commands and keys defined by this package are links (both in the code and in the text).
+% Klicking on them will get you to their explanation in \cref{documentation}.
+注意，示例代码中的环境、命令及选项等关键字在代码和文本中都设置有超链接，
+单击这些超链接热点，就可以在第\cref{documentation}查看其详细解释。
+
+% \Cref{motivation} gives a motivation why this package is useful.
+% There is a list of related packages in \cref{used-packages,other-packages}.
+% Package names link to the rather short description in that list.
+\Cref{motivation}给出了开发该宏包的动机，
+\cref{used-packages,other-packages}中给出了该宏包需要使用的宏包列表。
+宏包名称能够链接到其简要说明。
+
+
+% \subsection{Table}
+\subsection{插入表格}
+\label{table}
+% Use the \env{tableobject} environment for inserting tables.
+% Pass caption and label as keyword arguments.
+% You can't mess up the order of caption and label and you get a warning if you forget to specify them.
+% You don't need two environments (one for the float, one for the table---`tableobject` can do both).
+% \pkg{booktabs} (and \pkg{array}) are loaded automatically (if not disabled, see \cref{package-options}).
+可以使用该宏包设计的\env{tableobject}环境插入表格，
+用传入的caption和label 选项(key=value)设置标题和引用标签。
+在此，不可颠倒caption和label顺序，如果未传入caption和label选项，会报告警告信息。
+使用\env{tableobject}环境插入表格，则无需再使用两个嵌套环境
+(浮动体环境和表格环境---`tableobject`环境能够一次完成工作)。
+如果没有禁止载入\pkg{booktabs}和\pkg{array}宏包(详见\cref{package-options})，
+则\pkg{easyfloats}宏包会自动载入\pkg{booktabs}及\pkg{array}宏包。
+
+\begin{examplecode}
+\documentclass{article}
+\usepackage{easyfloats}
+\objectset{warn no label=false}
+
+\begin{document}
+\begin{tableobject}{caption=Some catcodes, env=tabular}{cl}
+	\toprule
+		Catcode & Meaning          \\
+	\midrule
+		0       & Escape Character \\
+		1       & Begin Group      \\
+		2       & End Group        \\
+		\vdots  & \quad \vdots     \\
+	\bottomrule
+\end{tableobject}
+\end{document}
+\end{examplecode}
+
+% You can reduce typing effort even further by using the `table head` key, see \cref{longtable}.
+如果使用`table head`选项，则可以进一步简化排版工作(详见\cref{longtable})。
+
+
+% \subsection{Graphic}
+\subsection{插入图片}
+\label{graphic}
+% Use the \cmd{\includegraphicobject} command to insert a graphic.
+% It is a wrapper around \pkg{graphicx}' `\includegraphics` command taking the same arguments.
+% No need for a surrounding `figure` environment.
+% I have extended the allowed optional keyword argument to also accept caption, label and more.
+% `details` are appended to the caption below the figure but not in the list of figures.
+% Select with the \pkgoptn{graphicx} or \pkgoptn{graphbox} package options whether you want to use the commonly used \pkg{graphicx} package or it's extension \pkg{graphbox}.
+可以使用该宏包设计的\cmd{\includegraphicobject}命令实现插图排版。
+该命令是对\pkg{graphicx}宏包的`\includegraphics`命令的封装，并使用相同选项。
+同样，不再需要`figure`浮动体环境，也可以实现浮动体排版。
+并且宏包扩展了更多选项，以便传入caption、label等内容。
+`details`选项用于为标题添加详细说明，但说明内容不会出现在插图目录中。
+可通过\pkg{easyfloats}宏包的\pkgoptn{graphicx}或\pkgoptn{graphbox}选项指定
+是使用\pkg{graphicx}宏包还是其扩展宏包\pkg{graphbox}实现插图排版。
+
+\begin{examplecode}
+\documentclass{article}
+\usepackage{easyfloats}
+\usepackage{hyperref}
+\objectset[figure]{graphic width=.8\linewidth}
+
+\begin{document}
+\includegraphicobject[%
+	label = lion,
+	caption = CTAN lion drawing by Duane Bibby,
+	details = Thanks to \href{https://ctan.org/lion/files}{www.ctan.org}.,
+]{graphics/ctan_lion}
+
+\listoffigures
+\end{document}
+\end{examplecode}
+
+% If you omit \key{caption} or `label` the file name is used.
+% See `auto label`, `auto caption`, `auto label strip path` and `auto caption strip path`.
+如果省略\key{caption}或\key{label}，则使用文件名作为这些选项的值。
+详见`auto label`、`auto caption`、`auto label strip path` 和`auto caption strip path`的说明。
+
+% \subsection{Subobjects}
+\subsection{子对象}
+\label{subobjects-2}
+% Use the \env{subobject} environment to combine two (or more) subobjects to one big object.
+使用宏包设计的\env{subobject}环境可以将2个或多个子对象组合成一个对象(容器对象)。
+% The `contains subobjects` option causes the `env` option to be applied to the subobjects instead of the containing object.
+`contains subobjects`选项用于将`env`选项传递给各子对象，而不再作用于容器对象。
+% Changing the `subobject linewidth` is usually not necessary but in this example the tables fill only a small part of the width
+一般并不需要修改`subobject linewidth`选项，但在本例中，由于表格仅占宽度的一小部分，
+% so they are too far apart from each other if each is centered on `.5\linewidth`.
+因此，如果每一个都按`0.5\linewidth`进行居中排版的话，两个子对象间距则较远。
+% Pay attention to *not* insert an empty line between the subobjects, otherwise they will be placed below each other instead of side by side.
+需注意在子对象之间不要插入空行，否则，会造成子对象的上下布局。
+% If you want them to be placed below each other you can use the `ver` option.
+如果需要上下布局，则可以使用`ver`选项。
+
+% `\captionsetup` is explained in the \pkg{caption} package documentation~\autocite{caption}.
+有关`\captionsetup`命令的详细说明，请查阅\pkg{caption}宏包说明文档~\autocite{caption}。
+
+\begin{examplecode}
+\documentclass{article}
+\usepackage{easyfloats}
+
+\objectset[table]{env=tabular}
+\captionsetup[sub]{list=true}
+
+\begin{document}
+\begin{tableobject}{contains subobjects,
+		caption = Two test tables,
+		label = tabs abc 123,
+		subobject linewidth = .25\linewidth,
+	}
+	\begin{subobject}{caption=Abc \& 123}{rl}
+		\toprule
+		abc & 123 \\
+		de  & 45  \\
+		f   & 6   \\
+		\bottomrule
+	\end{subobject}
+	\begin{subobject}{caption=123 \& abc}{lr}
+		\toprule
+		123 & abc \\
+		45  & de  \\
+		6   & f   \\
+		\bottomrule
+	\end{subobject}
+\end{tableobject}
+\end{document}
+\end{examplecode}
+
+% \subsection{Longtable}
+\subsection{长表格}
+\label{longtable}
+% If you are undecided whether to use floating `tabular`s or \env{longtable}s which can break across pages you can use the following approach.
+如果无法确定到底是使用`tabular`浮动体表格还是使用\env{longtable}排版跨页长表格，则可以使用以下方法实现。
+% Changing between them is as easy as changing `env=longtable` to `env=tabular` once.
+这样就可以简单地通过将`env=longtable`修改为`env=tabular`实现表格类型调整(反之亦然)。
+% The table head and foot are set by the key `table head` and are by default formatted with the \pkg{booktabs} package.
+通过`table head`选项设置标题行和表的尾注，并且其格式受\pkg{booktabs}宏包控制
+% (If you don't like this you can change the definition of `table head` with `table head style`.)
+(如果这样不符合要求，可以通过`table head style`修改`table head`的样式。)。
+% The column specification cannot be given as a separate argument (like in the example above) but must be set with the `arg` key
+% because otherwise the column specification would be after the table head.
+由于列格式出现在标题行后是错误的，所以
+无法直接通过单独参数设置表格的列格式(像上面的例子一样)，
+如果需要则必须使用`arg`选项设置列格式。
+
+\begin{examplecode}
+\documentclass{article}
+\usepackage[longtable]{easyfloats}
+\usepackage{siunitx}
+
+\newcommand\pminfty{\multicolumn1r{$\pm\infty$}}
+
+\objectset[table]{env=longtable}
+
+\begin{document}
+\begin{tableobject}{%
+	caption = Trigonometric functions,
+	label = trifun,
+	arg = {
+		S[table-format=2.0, table-space-text-post=\si{\degree}] <{\si{\degree}} !\quad
+		*2{S[table-format=+1.2]}
+		S[table-format=+4.2]
+	},
+	table head = \multicolumn1{c!\quad}{$x$} & $\sin x$ & $\cos x$ & $\tan x$,
+}
+
+	  0  &   0.00 &  1.00 &   0.00 \\
+	  5  &   0.09 &  1.00 &   0.09 \\
+	 10  &   0.17 &  0.98 &   0.18 \\
+	 15  &   0.26 &  0.97 &   0.27 \\
+	 20  &   0.34 &  0.94 &   0.36 \\
+	 25  &   0.42 &  0.91 &   0.47 \\
+	 30  &   0.50 &  0.87 &   0.58 \\
+	 35  &   0.57 &  0.82 &   0.70 \\
+	 40  &   0.64 &  0.77 &   0.84 \\
+	 45  &   0.71 &  0.71 &   1.00 \\
+	 50  &   0.77 &  0.64 &   1.19 \\
+	 55  &   0.82 &  0.57 &   1.43 \\
+	 60  &   0.87 &  0.50 &   1.73 \\
+	 65  &   0.91 &  0.42 &   2.14 \\
+	 70  &   0.94 &  0.34 &   2.75 \\
+	 75  &   0.97 &  0.26 &   3.73 \\
+	 80  &   0.98 &  0.17 &   5.67 \\
+	 85  &   1.00 &  0.09 &  11.43 \\
+	 90  &   1.00 &  0.00 & \pminfty \\
+\end{tableobject}
+\begin{tableobject}{%
+	caption = Squared trigonometric functions,
+	label = trifun2,
+	arg = {
+		S[table-format=2.0, table-space-text-post=\si{\degree}] <{\si{\degree}} !\quad
+		*2{S[table-format=+1.2]}
+		S[table-format=+4.2]
+	},
+	table head = \multicolumn1{c!\quad}{$x$} & {$\sin^2 x$} & {$\cos^2 x$} & {$\tan^2 x$},
+}
+
+	  0  &   0.00 &  1.00 &   0.00 \\
+	  5  &   0.01 &  0.99 &   0.01 \\
+	 10  &   0.03 &  0.97 &   0.03 \\
+	 15  &   0.07 &  0.93 &   0.07 \\
+	 20  &   0.12 &  0.88 &   0.13 \\
+	 25  &   0.18 &  0.82 &   0.22 \\
+	 30  &   0.25 &  0.75 &   0.33 \\
+	 35  &   0.33 &  0.67 &   0.49 \\
+	 40  &   0.41 &  0.59 &   0.70 \\
+	 45  &   0.50 &  0.50 &   1.00 \\
+	 50  &   0.59 &  0.41 &   1.42 \\
+	 55  &   0.67 &  0.33 &   2.04 \\
+	 60  &   0.75 &  0.25 &   3.00 \\
+	 65  &   0.82 &  0.18 &   4.60 \\
+	 70  &   0.88 &  0.12 &   7.55 \\
+	 75  &   0.93 &  0.07 &  13.93 \\
+	 80  &   0.97 &  0.03 &  32.16 \\
+	 85  &   0.99 &  0.01 & 130.65 \\
+	 90  &   1.00 &  0.00 & \pminfty \\
+\end{tableobject}
+\begin{tableobject}{%
+	caption = Cubed trigonometric functions,
+	label = trifun3,
+	arg = {
+		S[table-format=2.0, table-space-text-post=\si{\degree}] <{\si{\degree}} !\quad
+		*2{S[table-format=+1.2]}
+		S[table-format=+4.2]
+	},
+	table head = \multicolumn1{c!\quad}{$x$} & {$\sin^3 x$} & {$\cos^3 x$} & {$\tan^3 x$},
+}
+
+	  0  &   0.00 &  1.00 &   0.00 \\
+	  5  &   0.00 &  0.99 &   0.00 \\
+	 10  &   0.01 &  0.96 &   0.01 \\
+	 15  &   0.02 &  0.90 &   0.02 \\
+	 20  &   0.04 &  0.83 &   0.05 \\
+	 25  &   0.08 &  0.74 &   0.10 \\
+	 30  &   0.12 &  0.65 &   0.19 \\
+	 35  &   0.19 &  0.55 &   0.34 \\
+	 40  &   0.27 &  0.45 &   0.59 \\
+	 45  &   0.35 &  0.35 &   1.00 \\
+	 50  &   0.45 &  0.27 &   1.69 \\
+	 55  &   0.55 &  0.19 &   2.91 \\
+	 60  &   0.65 &  0.13 &   5.20 \\
+	 65  &   0.74 &  0.08 &   9.86 \\
+	 70  &   0.83 &  0.04 &  20.74 \\
+	 75  &   0.90 &  0.02 &  51.98 \\
+	 80  &   0.96 &  0.01 & 182.41 \\
+	 85  &   0.99 &  0.00 & 1493.29 \\
+	 90  &   1.00 &  0.00 & \pminfty \\
+\end{tableobject}
+\end{document}
+\end{examplecode}
+
+% \subsection{Local definitions in tables}
+\subsection{表格局部设置}
+\label{local-definitions-in-tables}
+
+% If you want to define a command locally for one table you cannot put it's definition in the first cell because each cell is a separate group
+由于\LaTeX{}将表格的一个单元格看做是一个独立分组，因此，在一个单元格中定义的命令在其它单元格中是无效的。
+% (meaning that the definition will  be forgotten at the end of the cell).
+% Instead I provide the `exec` key whose value is executed inside of the object but before `env`.
+为此，该宏包提供了一个`exec`选项，其键值能够在`env`选项之前执行。
+% If you want to tinker around with catcodes keep in mind that arguments are always read entirely before expansion and execution.
+如果需要排版catcodes(分类码)，请记住，所有参数总是在展开和执行之前被完全读取的。
+% The \eTeX\ primitive `\scantokens` can be useful to define active characters.
+\eTeX{}的元命令`\scantokens`用于定义一个字符。
+% If you are unfamiliar with how \TeX\ processes a file you can read up on it in \mycite[section~1]{texbytopic}.
+如果不熟悉\TeX{}处理一个文件的过程，请参阅\mycite[第1节]{texbytopic}。
+
+\begin{examplecode}
+\documentclass{article}
+\usepackage{easyfloats}
+\usepackage[table]{xcolor}
+
+% avoid Warning: Font shape `OMS/cmtt/m/n' undefined
+\usepackage[T1]{fontenc}
+% fontenc T1 causes unclean/pixelated font on some systems
+% and trouble with copying ligatures from pdf => change font
+% lmodern is relatively close to the default font but unmaintained
+\usepackage{lmodern}
+
+\colorlet{rowbg}{gray!50}
+
+\newcommand\charsym[1]{\texttt{#1}}
+\newcommand\charname[1]{$\langle$#1$\rangle$}
+
+\begin{document}
+\begin{tableobject}{%
+	caption = Category Codes,
+	details = Highlighted catcodes have no tokens.,
+	label = catcodes,
+	env = tabular,
+	arg = cll,
+	table head = Catcode & Meaning & Characters,
+	exec = {%
+		\catcode`* = \active
+		\scantokens{\def*{\rowcolor{rowbg}}}%
+		\catcode`= = \the\catcode`&%
+		\catcode`, = \the\catcode`&%
+	},
+}
+	*  0 = Escape character,   \charsym\textbackslash       \\
+	   1 = Begin grouping,     \charsym\{                   \\
+	   2 = End grouping,       \charsym\}                   \\
+	   3 = Math shift,         \charsym\$                   \\
+	   4 = Alignment tab,      \charsym\&                   \\
+	*  5 = End of line,        \charname{return}            \\
+	   6 = Parameter,          \charsym\#                   \\
+	   7 = Superscript,        \charsym\^                   \\
+	   8 = Subscript,          \charsym\_                   \\
+	*  9 = Ignored character,  \charname{null}              \\
+	  10 = Space,              \charname{space} and
+	                           \charname{tab}               \\
+	  11 = Letter,             \charsym{a}--\charsym{z} and
+	                           \charsym{A}--\charsym{Z}     \\
+	  12 = Other,              other characters             \\
+	  % "In plain TeX this is only the tie character ~"
+	  % TeX by Topic, page 30
+	  13 = Active character,   \charsym{\string~}           \\
+	* 14 = Comment character,  \charsym\%                   \\
+	* 15 = Invalid character,  \charname{delete}            \\
+\end{tableobject}
+\end{document}
+\end{examplecode}
+
+% \subsection{New object style~\slash\ `tikzobject`}
+\subsection{自定义环境~\slash\ `tikzobject`}
+\label{new-object-style-tikzobject}
+
+% You can easily define new object environments.
+% For more information see \cref{new-object-styles-and-types}.
+该宏包可以非常容易地根据需要，自定义对象排版环境，
+详见\cref{new-object-styles-and-types}。
+
+\begin{examplecode}
+\documentclass{article}
+\usepackage{easyfloats}
+\usepackage{tikz}
+
+\NewObjectStyle{tikz}{type=figure, env=tikzpicture}
+% I am not using `arg=[3D]` so that I can still pass an optional argument to tikz3dobject
+\NewObjectStyle{tikz3d}{type=figure, env=tikzpicture, exec=\tikzset{3D}}
+
+\tikzset{
+	3D/.style = {
+		x = {(-3.85mm, -3.85mm)},
+		y = {(1cm, 0cm)},
+		z = {(0cm, 1cm)},
+	},
+}
+\objectset{warn no label=false}
+
+\begin{document}
+\begin{tikzobject}{caption=2D coordinate system}
+	\newcommand\n{5}
+	\newcommand\w{.075}
+	\draw[->] (0,0) -- ++(\n,0);
+	\draw[->] (0,0) -- ++(0,\n);
+	\foreach \i in {1,...,\n-1} {
+		\draw (\i,0) +(0,\w) -- +(0,-\w);
+		\draw (0,\i) +(\w,0) -- +(-\w,0);
+	}
+\end{tikzobject}
+\begin{tikz3dobject}{caption=3D coordinate system}
+	\newcommand\n{5}
+	\newcommand\w{.075}
+	\draw[->] (0,0,0) -- ++(\n,0,0);
+	\draw[->] (0,0,0) -- ++(0,\n,0);
+	\draw[->] (0,0,0) -- ++(0,0,\n);
+	\foreach \i in {1,...,\n-1} {
+		\draw (\i,0,0) +(0,\w,0) -- +(0,-\w,0);
+		\draw (0,\i,0) +(\w,0,0) -- +(-\w,0,0);
+		\draw (0,0,\i) +(0,\w,0) -- +(0,-\w,0);
+	}
+\end{tikz3dobject}
+\end{document}
+\end{examplecode}
+
+% \subsection{Nonfloating objects}
+\subsection{非浮动对象}
+\label{nonfloating-objects}
+% If your professor absolutely won't allow floating objects you can easily disable them globally
+% (for all objects based on the \env{object} environment defined by this package which is internally used by \env{tableobject} and \cmd{\includegraphicobject}).
+如果确实不需要浮动体(强烈建议不要这样做)，则可以使用如下命令全局设置禁用浮动体
+(所有对象需基于被\env{tableobject}和\cmd{\includegraphicobject}在内部使用的\env{object}环境创建的)。
+
+\begin{examplecode}
+\objectset{placement=H}
+\end{examplecode}

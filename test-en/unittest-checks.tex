@@ -1,0 +1,73 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\newif\ifResult
+
+\newcommand\AssertObjectOption[2]{%
+	\Resultfalse
+	\CheckObjectOption{#1}{#2}{\Resulttrue}%
+	\ifResult\success\else\fail\fi
+	\ignorespaces
+}
+\newcommand\AssertObjectOptionNot[2]{%
+	\Resultfalse
+	\CheckObjectOption{#1}{#2}{\Resulttrue}%
+	\ifResult\fail\else\success\fi
+	\ignorespaces
+}
+
+\newcommand\AssertGraphicobjectOption[2]{%
+	\Resultfalse
+	\CheckGraphicobjectOption{#1}{#2}{\Resulttrue}%
+	\ifResult\success\else\fail\fi
+	\ignorespaces
+}
+\newcommand\AssertGraphicobjectOptionNot[2]{%
+	\Resultfalse
+	\CheckGraphicobjectOption{#1}{#2}{\Resulttrue}%
+	\ifResult\fail\else\success\fi
+	\ignorespaces
+}
+
+\begin{document}
+	These checks are not able to test wether the value is correct
+	only whether a required value is missing.
+
+	\verb|\CheckObjectOption|
+	\AssertObjectOption{type}{figure}
+	\ExpectingPackageError{easyfloats}{The key 'type' requires a value. I am going to ignore this key}%
+	\AssertObjectOptionNot{type}{\pgfkeysnovalue}
+	%
+	\AssertObjectOption{graphic width}{.8\linewidth}
+	\AssertObjectOption{graphic auto caption}{true}
+	\ExpectingPackageError{easyfloats}{'noopt' is not a valid graphic option key}%
+	\AssertObjectOptionNot{graphic noopt}{}
+	%
+	\AssertObjectOption{subobject hor sep}{\quad}
+	\ExpectingPackageError{easyfloats}{The key 'subobject hor sep' requires a value. I am going to ignore this key}%
+	\AssertObjectOptionNot{subobject hor sep}{\pgfkeysnovalue}
+	%
+	\AssertObjectOption{tabular arg}{lr}
+	\AssertObjectOption{tabular* args}{}
+	\AssertObjectOption{tabular* arg+}{\linewidth}
+	\AssertObjectOption{tabular* arg +}{\linewidth}
+	%
+	\ExpectingPackageError{easyfloats}{I do not know the key 'argx' and I am going to ignore it. Perhaps you misspelled it}%
+	\AssertObjectOptionNot{argx}{val}
+	\ExpectingPackageError{easyfloats}{I do not know the key 'center arg figure' and I am going to ignore it. Perhaps you misspelled it}%
+	\AssertObjectOptionNot{center arg figure}{}
+
+	\verb|\IfGraphicobjectOption|
+	\AssertGraphicobjectOption{angle}{0}
+	\AssertGraphicobjectOption{auto label}{false}
+	\AssertGraphicobjectOption{no env}{true}
+	\ExpectingPackageError{easyfloats}{'sep' is not a valid graphic option key}%
+	\AssertGraphicobjectOptionNot{sep}{}
+	\AssertGraphicobjectOption{auto label}{\pgfkeysnovalue}
+	\ExpectingPackageError{easyfloats}{The key 'angle' requires a value. I am going to ignore this key}%
+	\AssertGraphicobjectOptionNot{angle}{\pgfkeysnovalue}
+\end{document}

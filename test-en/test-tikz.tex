@@ -1,0 +1,40 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass[a4paper]{article}
+\usepackage{easyfloats}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+\begin{document}
+\begin{figureobject}{env=tikzpicture, caption=\TeX\ processing steps, label=texprocsteps, float style=plaintop}
+	[
+		data/.style={draw},
+		process/.style={},
+		end/.style={double},
+		shorten < = 2pt,
+		shorten > = 2pt,
+		node distance = 3.5em,
+	]
+
+	\node[data, end] (char)                     {Character};
+	\node[data     ] (tokens) [below=of char]   {List of tokens};
+	\node[data     ] (lists)  [below=of tokens] {Vertical/Horizontal/Math lists};
+	\node[data, end] (out)    [below=of lists]  {Pages/Paragraphs/Formulas};
+
+	\draw[->] (char) -- (tokens)
+		node[process, midway, right] {reading in};
+	\draw[->] (tokens) edge [in=5, out=-5, loop]
+		node[process, midway, right] {expansion} (tokens);
+	\draw[->] (tokens) -- (lists)
+		node[process, midway, right] {execution};
+	\draw[->] (lists) -- (out)
+		node[process, midway, right] {setting};
+\end{figureobject}
+
+\clearpage
+\begin{figureobject}{env=tikzpicture, caption=Circle with radius 1\,em, warn no label=false}
+	\draw[->] (0,0) circle (1em);
+\end{figureobject}
+\end{document}

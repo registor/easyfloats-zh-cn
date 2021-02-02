@@ -1,0 +1,19 @@
+% !TeX program = pdflatex
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\begin{document}
+\begin{tableobject}{%
+	caption = Some catcodes,
+	label = catcodes,
+	env = tabular,
+	arg = cl,
+	table head = Catcode & Meaning,
+}
+	0       & Escape Character \\
+	1       & Begin Group      \\
+	2       & End Group        \\
+	\vdots  & \quad \vdots     \\
+\end{tableobject}
+\end{document}

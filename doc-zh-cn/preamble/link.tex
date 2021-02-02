@@ -1,0 +1,53 @@
+% !TeX root = ../easyfloats.tex
+
+% Copyright © 2020 E. Zöllner
+% Alternatively to the terms of the LPPL, at your choice,
+% you can redistribute and/or modify this file under the
+% terms of the Do What The Fuck You Want To Public License, Version 2,
+% as published by Sam Hocevar. See http://www.wtfpl.net/about/.
+
+% Adds an abstraction layer above hyperref's \href and \hyperref commands.
+% Links are defined with:
+%     \newurllink{<name>}{<url>}
+%     \newlabellink{<name>}{<label>}
+% A text is turned into a link with
+%     \link[<name>]{<text>}
+% Like in markdown the name of the link is optional.
+% If it is omitted <text> is used instead.
+% This has the advantage that all links can be declared in one place
+% and URLs don't need to be repeated.
+% Changing an external link to an internal link is easy.
+
+\makeatletter
+\newcommand{\link@csname}[1]{link@cs@#1}
+
+\newcommand\newurllink{%
+	\begingroup
+	\let\do=\@makeother
+	\dospecials
+	\catcode`{=1
+	\catcode`}=2
+	\newurllink@do
+}
+\newcommand\newurllink@do[2]{% #1: name, #2: url
+	\endgroup
+	\expandafter \newcommand \csname\link@csname{#1}\endcsname{\href{#2}}%
+}
+
+\newcommand\newlabellink[2]{% #1: name, #2: label
+	\expandafter \newcommand \csname\link@csname{#1}\endcsname{\hyperref[#2]}%
+}
+
+\newcommand\link{% [#1: name], #2: displayed text
+	\@ifnextchar [
+		{\link@do}
+		{\@dblarg\link@do}%
+}
+\def\link@do[#1]#2{%
+	\ifcsname\link@csname{#1}\endcsname
+		\csname\link@csname{#1}\endcsname{#2}%
+	\else
+		\PackageError{link}{link name `#1' undefined}{}%
+	\fi
+}
+\makeatother

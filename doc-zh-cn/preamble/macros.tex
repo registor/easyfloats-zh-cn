@@ -1,0 +1,218 @@
+% !TeX root = ../easyfloats.tex
+
+% Copyright © 2020 E. Zöllner
+% Alternatively to the terms of the LPPL, at your choice,
+% you can redistribute and/or modify this file under the
+% terms of the Do What The Fuck You Want To Public License, Version 2,
+% as published by Sam Hocevar. See http://www.wtfpl.net/about/.
+
+% Defines additional macros which are not provided
+% by the document class or other packages.
+%
+% \TikZ
+% Typesets the name of the TikZ package.
+% dtxdescribe defines the \tikz macro for that
+% but it's wrong, the Z is not capitalized.
+%
+% \eTeX
+% Typesets the name of eTeX.
+% In standard LaTeX there are \TeX, \LaTeX and \LaTeXe.
+% metalogo and dtxdescribe define more logos.
+% But I have failed to find a package which provides
+% the eTeX logo.
+% In contrast to the other logo macros \eTeX includes a
+% link to the eTeX manual on CTAN.
+%
+% \radioon
+% draws an activated radio button
+% \radiooff
+% draws a deactivated radio button
+%
+% \DescribeHandler[<class>]{<name>}
+% Typesets the handler name as a \marginpar.
+% The same like all other \Describe* macros defined by dtxdescribe
+% just for handlers.
+%
+% \handler{<name>}
+% To reference a handler described with \DescribeHandler.
+%
+% \filename{<filename>}
+% Typesets a file name in the pdf.
+%
+% \pkgoptn{<option>}
+% Typesets a package option in the pdf.
+% \key{<option>}
+% Typesets a macro/environment option in the pdf.
+% Usually \optn is used for both macro options and package options.
+% However, I am using pgfkeys for macro options and standard LaTeX
+% for package options making the two types of options quite different.
+% Unlike some other packages the easyfloats package does not allow to
+% pass macro options as package options.
+% Therefore I like to have a better distinction between them even
+% if they are formatted in the same way.
+% Also, dtxdescribe defines two different macros for the description:
+% \DescribeOption for package/class options and
+% \DescribeKey for macro/environment options.
+% So it is only consistent to have two different macros for typesetting
+% macro/environment and package/class options.
+% I have redefined \optn to print an error in order to avoid ambiguity.
+% \val{<value>}
+% typesets the value of a key. Package options don't have values.
+%
+% \errormessage{<message>}
+% Typesets an error message in the pdf. Changes category codes so that
+% control sequences and active characters do *not* need to be prefixed
+% by \string.
+%
+% \sectionname{<title>}
+% Format the name of a section of a different document which I am referring to.
+% For sections of this document use \cref or \Cref instead.
+%
+% \newlicense{<name>}{<display text>}{<url>}
+% \license{<name>}
+% Define a license in the preamble with displayed name and URL with \newlicense
+% and use it in the document with \license.
+% Changes catcodes for the <url> only so that special characters
+% can be used there without worrying (except for curly braces).
+%
+% \formatcode{<texcode>}
+% Formats inline code.
+% It does not change catcodes or performs any other kind of magic.
+% <texcode> is executed as TeX code.
+
+\usepackage{relsize}
+
+
+\makeatletter
+\newcommand{\version}{\newcommand\theversion}
+\newcommand{\package}{\newcommand\thepackage}
+\newcommand{\thedate}{\@date}
+\AtBeginDocument{%
+	\let\thedate=\@date
+	\ifundef{\theversion}{}{\appto\@date{\strut\\\strut\thepackage~\theversion}}%
+}
+\makeatother
+
+\makeatletter
+\newcommand\parskipintoc[1]{%
+	\def\@starttoc##1{%
+		\begingroup
+			\makeatletter
+			\parskip=#1\relax
+			\@input{\jobname.##1}%
+			\if@filesw
+				\expandafter\newwrite\csname tf@##1\endcsname
+				\immediate\openout\csname tf@##1\endcsname \jobname.##1\relax
+			\fi
+			\@nobreakfalse
+		\endgroup
+	}
+}
+\makeatother
+\parskipintoc{0pt plus .6em minus 1pt}
+
+\newcommand{\bigpar}{\par{\centering*~*~*\pagebreak[3]\par}}
+\newcommand{\bigparinlist}{\par\medskip\pagebreak[3]\par}
+\let\OriginalItemize=\itemize
+\def\itemize{\OriginalItemize\let\bigpar\bigparinlist}
+
+\newcommand{\eTeX}{\texorpdfstring{\href{https://ctan.org/pkg/etex}{\ensuremath{\varepsilon}-\TeX}}{eTeX}}
+\newcommand{\TikZ}{Ti\emph{k}Z}
+
+\newcommand{\radioon}{\radio{\fill circle (.45);}}
+\newcommand{\radiooff}{\radio\relax}
+\newcommand{\radio}[1]{\tikz[x=1ex,y=1ex,baseline=-.6ex,very thin]{\draw circle (.75);#1}}
+
+
+\newcommand{\filename}{\emph}
+
+\newcommand{\pkgoptn}{\optn}
+\newcommand{\key}{\optn}
+\let\pkgoptn=\optn
+\let\key=\optn
+\let\handler=\optn
+% Do *not* add the optional argument, otherwise \renewcommand would not only redefine \optn
+% but also two internal macros which \pkgoptn and \key depend on.
+\renewcommand{\optn}[1]{\PackageError{macros}{\string\optn\space is ambiguous}{Please use \string\key\space for macro/environment options and \string\pkgoptn\space for package/class options.}}
+
+\newcommand{\val}[1]{#1}
+
+\makeatletter
+\newcommand*{\DescribeHandler}[2][]{\DTXD@margintagindex{#1}{#2}{Handler}{handler}{usage}}
+
+\newcommand{\errormessage}{%
+	\begingroup
+	\let\do=\@makeother
+	\dospecials
+	\@makeother`
+	\catcode`{=1
+	\catcode`}=2
+	\catcode` =10
+	\do@errormessage
+}
+\newcommand{\do@errormessage}[1]{%
+	\endgroup
+	\enquote{\texttt{#1}}%
+}
+\makeatother
+
+
+\newrobustcmd{\sectionname}[1]{{\let\formatcode\formatcodeinsection\emph{#1}}}
+
+
+\makeatletter
+\newcommand{\license@csname}[1]{license@cs@#1}
+\newcommand{\FormatLicense}{\emph}
+
+\newcommand{\newlicense}[2]{%
+	\begingroup
+	\let\do=\@makeother
+	\dospecials
+	\catcode`{=1
+	\catcode`}=2
+	\newlicense@do{#1}{#2}%
+}
+\newcommand{\newlicense@do}[3]{% #1: name, #2: display text, #3: url
+	\endgroup
+	\expandafter \newcommand \csname\license@csname{#1}\endcsname{\href{#3}{\FormatLicense{#2}}}%
+}
+
+\newcommand{\license}[1]{% #1: name
+	\ifcsname\license@csname{#1}\endcsname
+		\csname\license@csname{#1}\endcsname
+	\else
+		\PackageError{macros}{license name `#1' undefined}{}%
+	\fi
+}
+
+
+% ---------- \formatcode ---------
+
+\newcommand{\formatcode}[1]{{\ttfamily\smaller[.5]\fboxsep=.5pt\colorbox{codebackground!50}{\vphantom\}\colorlet{linkcolor}{codelinkcolor}#1}}}
+\newcommand{\formatcodeinsection}[1]{{\ttfamily#1}}
+\newcommand{\formatcodeinmarginpar}[1]{\formatcodeinsection{\small#1}}
+
+% patch section commands and toc to use \formatcodeinsection instead of \formatcode
+\newcommand{\patchsection}[3]{% #1: command to be patched, #2: code to be inserted before, #3 code to be appended
+	\expandafter\let\csname @@originalsec@\string#1\endcsname #1%
+	\expandafter\def\csname @@sec@\string#1\endcsname##1##2{#2\csname @@originalsec@\string#1\endcsname##1{##2}#3}%
+	\def#1##1##{\csname @@sec@\string#1\endcsname{##1}}%
+}
+\@tfor \@sec@cmd :=\section\subsection\subsubsection \do{%
+	\expandafter\expandafter\expandafter\patchsection\expandafter\@sec@cmd\expandafter{%
+		\csname My\expandafter\string\@sec@cmd Hook\endcsname
+		\let\@original@formatcode=\formatcode
+		\let\formatcode=\formatcodeinsection
+	}{%
+		\let\formatcode=\@original@formatcode
+	}%
+}
+\let\@@original@toc=\tableofcontents
+\def\tableofcontents{{\let\formatcode\formatcodeinsection\DisableLinks\@@original@toc}}
+
+% patch \marginpar to use \formatcodeinmarginpar instead of \formatcode
+\let\@@original@marginpar=\marginpar
+\renewcommand\marginpar[1]{\@@original@marginpar{\let\formatcode=\formatcodeinmarginpar#1}}
+
+
+\makeatother

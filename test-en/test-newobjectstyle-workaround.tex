@@ -1,0 +1,58 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+
+%https://tex.stackexchange.com/a/63967
+\AtBeginDocument{\DeclareCaptionSubType{Graph}}
+\AtBeginDocument{\DeclareCaptionSubType{Test}}
+
+\usepackage{easyfloats}
+\objectset{warn no label=false}
+
+\floatstyle{plain}
+\newfloat{Graph}{tbp}{lograph}
+\NewObjectStyle{graph}{type=Graph}
+\floatstyle{plaintop}
+\newfloat{Test}{tbp}{lotest}
+\NewObjectStyle{test}{type=Test}
+
+\begin{document}
+\begin{figureobject}{caption=An underexposed figure}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{figureobject}
+\begin{graphobject}{caption={A graph, black on black}}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{graphobject}
+\begin{testobject}{caption=A somewhat darkish test}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{testobject}
+\begin{tableobject}{caption=A table with too little space}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{tableobject}
+
+\clearpage
+\begin{graphobject}{caption={Two graphs, black on black}}
+	\begin{subobject}{caption=left}
+	\rule{.7\linewidth}{.3\linewidth}
+	\end{subobject}
+	\begin{subobject}{caption=right}
+	\rule{.7\linewidth}{.3\linewidth}
+	\end{subobject}
+\end{graphobject}
+\begin{testobject}{caption={Two tests, one as dark as the other}}
+	\begin{subobject}{caption=left}
+	\rule{.7\linewidth}{.3\linewidth}
+	\end{subobject}
+	\begin{subobject}{caption=right}
+	\rule{.7\linewidth}{.3\linewidth}
+	\end{subobject}
+\end{testobject}
+
+\clearpage
+\listoffigures
+\listof{Graph}{List of Graphs}
+\listof{Test}{List of Tests}
+\listoftables
+\end{document}

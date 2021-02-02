@@ -1,0 +1,40 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+\usepackage{tabularx}
+
+\newcolumntype{Y}{>{\raggedleft\arraybackslash}X}
+\objectset[table]{%
+	env = tabularx,
+	tabularx arg = .8\linewidth,
+}
+
+\begin{document}
+\begin{tableobject}{caption=Test Table, label=tab1, tabularx arg+=XY, tabular arg=lr}
+	\toprule
+	abc & 123 \\
+	de  & 45  \\
+	f   & 6   \\
+	\bottomrule
+\end{tableobject}
+
+\begin{tableobject}{caption=Two Test Tables, label=tab2, sub}%
+	\begin{subobject}{caption=a, label=tab2a, tabularx arg+=XY, tabular arg=lr}
+		\toprule
+		abc & 123 \\
+		de  & 45  \\
+		f   & 6   \\
+		\bottomrule
+	\end{subobject}
+	\begin{subobject}{caption=b, label=tab2b, tabularx arg+=YX, tabular arg=rl}
+		\toprule
+		abc & 123 \\
+		de  & 45  \\
+		f   & 6   \\
+		\bottomrule
+	\end{subobject}
+\end{tableobject}
+\end{document}

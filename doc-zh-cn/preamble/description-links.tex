@@ -1,0 +1,224 @@
+% !TeX root = ../easyfloats.tex
+
+% Copyright © 2020 E. Zöllner
+% Alternatively to the terms of the LPPL, at your choice,
+% you can redistribute and/or modify this file under the
+% terms of the Do What The Fuck You Want To Public License, Version 2,
+% as published by Sam Hocevar. See http://www.wtfpl.net/about/.
+
+% Links all \cmd, \env and \handler to the corresponding \Describe*.
+% Links all \pkg to a reference defined with \newurllink (see link.tex)
+% Defines \pkgoptndoc to document package otions and links all \pkgoptn to it.
+%
+% \pkgoptndoc{<packageoption>}
+% \pkgoptndoc*{<packageoption>}
+% The starred version is for default package options.
+% The non-starred version is for options disabled by default.
+% Empty lines before a \pkgoptndoc are relevant:
+% Without an empty line they are considered to belong together.
+% With an empty line they do not and \pkgoptndoc@afterpar is inserted as separator.
+% A list of \pkgoptndoc must be closed with \endpkgoptndoc.
+%
+% Defines
+%     \NoDescribeMacro{<cs>}
+%     \NoDescribeEnv{<environment>}
+% to declare undescribed control sequences or environments
+% which shall not produce a warning when being referenced.
+%
+% Warning: \cmd and \DescribeMacro are not intended for use with control characters.
+%
+% depends on
+%     \NewKeyword[\unexpanded]{<keywordtype>}{<keyword>}{<formatmacro-bg>}{<formatmacro-fg>}{<text>}
+%     \NoKeyword{<keywordtype>}{<keyword>}{<formatmacro-bg>}{<formatmacro-fg>}
+%     \LinkKeyword{<keywordtype>}{<keyword>}<formatmacro-bg><formatmacro-fg>{<text>}
+% from preamble/keydoc.tex
+
+\makeatletter
+
+% --------- \cmd & \(No)DescribeMacro ----------
+
+\newcommand{\DlCmdLabelName}[1]{\detokenize{#1}}
+\newcommand{\Cmd}[1]{\expandafter{\detokenize{#1}\unskip}}
+\newcommand{\CmdBg}{\formatcode}
+\let\DlOriginalDescribeMacro=\DescribeMacro
+\renewcommand{\DescribeMacro}[1]{%
+	\begingroup
+	\def\cmd##1{\formatcodeinmarginpar{\Cmd{##1}}}%
+	\DlOriginalDescribeMacro{#1}%
+	\endgroup
+	\NewKeyword[\unexpanded]{cs}{\DlCmdLabelName{#1}}{\CmdBg}{\Cmd}{}%
+	\AbbrevKeyword[\unexpanded]{}{\DlCmdLabelName{#1}} {cs}{\DlCmdLabelName{#1}}%
+	\ignorespaces
+}
+\newcommand{\NoDescribeMacro}[1]{%
+	\NoKeyword[\unexpanded]{cs}{\DlCmdLabelName{#1}}{\CmdBg}{\Cmd}%
+	\AbbrevKeyword[\unexpanded]{}{\DlCmdLabelName{#1}} {cs}{\DlCmdLabelName{#1}}%
+	\ignorespaces
+}
+\renewrobustcmd{\cmd}[1]{%
+	\LinkKeyword{cs}{\detokenize{#1}}\CmdBg\Cmd{#1}%
+}
+
+
+% --------- \env & \(No)DescribeEnv ----------
+
+\let\DlOriginalDescribeEnv=\DescribeEnv
+\renewcommand{\DescribeEnv}[1]{%
+	\DlOriginalDescribeEnv{#1}%
+	\NewKeyword{env}{#1}{\DlEnvBg}{\DlOriginalEnv}{}%
+	\AbbrevKeyword{}{#1} {env}{#1}%
+	\ignorespaces
+}
+\newcommand{\NoDescribeEnv}[1]{%
+	\NoKeyword{env}{#1}{\DlEnvBg}{\DlOriginalEnv}%
+	\AbbrevKeyword{}{#1} {env}{#1}%
+	\ignorespaces
+}
+\let\DlOriginalEnv=\env
+\renewcommand{\env}[1]{\LinkKeyword{env}{#1}\DlEnvBg\DlOriginalEnv{#1}}
+\newcommand{\DlEnvBg}{\formatcode}
+
+
+% --------- \handler & \DescribeHandler ----------
+
+\let\DlOriginalDescribeHandler=\DescribeHandler
+\renewcommand{\DescribeHandler}[1]{%
+	\DlOriginalDescribeHandler{#1}%
+	\NewKeyword{handler}{#1}{\DlHandlerBg}{\DlOriginalHandler}{}%
+	\AbbrevKeyword{}{#1} {handler}{#1}%
+	\ignorespaces
+}
+\let\DlOriginalHandler=\handler
+\renewcommand{\handler}[1]{\LinkKeyword{handler}{#1}\DlHandlerBg\DlOriginalHandler{#1}}
+\newcommand{\DlHandlerBg}{\formatcode}
+
+\newcommand{\NoDescribeHandler}[1]{%
+	\NoKeyword{handler}{#1}{\DlHandlerBg}{\DlOriginalHandler}%
+	\AbbrevKeyword{}{#1} {handler}{#1}%
+	\ignorespaces
+}
+
+
+% --------- \NoDescribeKey, \NoDescribeVal ----------
+
+\newcommand{\NoDescribeKey}[1]{%
+	\NoKeyword{key}{#1}{\keydoc@key@bg}{\keydoc@original@key}%
+	\AbbrevKeyword{}{#1} {key}{#1}%
+	\ignorespaces
+}
+\newcommand{\NoDescribeVal}[1]{%
+	\NoKeyword{}{#1}{\formatcode}{\val}%
+	\ignorespaces
+}
+
+
+% --------- \DescribeMeta ----------
+
+\newcommand{\DescribeMeta}[1]{%
+	\NewKeyword{meta}{#1}{\formatcode}{\val}{}%
+	\ignorespaces
+}
+
+\let\meta@nolink=\meta
+\renewcommand{\meta}[1]{%
+	\IfKeywordUndefined{meta}{#1}%
+		{\@firstofone}%
+		{\LinkUnformattedKeyword{meta}{#1}}%
+	{\meta@nolink{#1}}%
+}
+
+
+% --------- \pkgoptn & \pkgoptndoc ----------
+
+\let\DlOriginalPkgoptn=\pkgoptn
+\renewcommand{\pkgoptn}[1]{\LinkKeyword{pkgoptn}{#1}\DlPkgoptnBg\DlOriginalPkgoptn{#1}}
+\newcommand{\DlPkgoptnBg}{\formatcode}
+
+\newcommand{\begin@pkgoptndoc}{\begin{itemize}}
+\def        \endpkgoptndoc    {\end{itemize}}
+\newcommand{\pkgoptndoc@beforepkg@normal}{\item[\radiooff]}
+\newcommand{\pkgoptndoc@beforepkg@default}{\item[\radioon]}
+% inserted before \pkgoptndoc if it was preceded by an empty line
+\newcommand{\pkgoptndoc@afterpar}{\bigpar}
+
+\newif\if@inpkgoptndoc
+
+\newcommand{\pkgoptndoc}{%
+	\unless\if@inpkgoptndoc
+		\begin@pkgoptndoc
+		\@inpkgoptndoctrue
+	\else
+		\ifvmode
+			\pkgoptndoc@afterpar
+		\fi
+	\fi
+	\@ifstar
+		{\pkgoptndoc@beforepkg@default\@pkgoptndoc@do}%
+		{\pkgoptndoc@beforepkg@normal\@pkgoptndoc@do}%
+}
+\newcommand{\@pkgoptndoc@do}[1]{%
+	\NewKeyword{pkgoptn}{#1}{\DlPkgoptnBg}{\DlOriginalPkgoptn}{#1}%
+	\AbbrevKeyword{}{#1} {pkgoptn}{#1}%
+}
+
+\newcommand{\NoDescribePkgoptn}[1]{%
+	\NoKeyword{pkgoptn}{#1}{\DlPkgoptnBg}{\DlOriginalPkgoptn}%
+	\AbbrevKeyword{}{#1} {pkgoptn}{#1}%
+	\ignorespaces
+}
+
+
+% --------- \pkg & \pkgdoc, \NoDescribePkg ----------
+
+\let\DlOriginalPkg=\pkg
+\newcommand{\DlPkgBg}[1]{#1}
+\renewcommand{\pkg}[1]{\LinkKeyword{pkg}{#1}\DlPkgBg\DlOriginalPkg{#1}}
+\newcommand{\pkgdoc}[1]{%
+	\unless\if@inpkgdoc
+		\begin@pkgdoc
+		\@inpkgdoctrue
+	\fi
+	\pkgdoc@beforepkg
+	\NewKeyword{pkg}{#1}{\DlPkgBg}{\DlOriginalPkg}{\link[#1]{#1}}%
+	%\AbbrevKeyword{}{#1} {pkg}{#1}%
+	\let\pkgdoc@beforepkg=\pkgdoc@beforepkg@bak
+	\pkgdoc@lookahead
+}
+\newcommand{\pkgdoc@lookahead}{%
+	\futurelet \pkgdoc@nexttoken \pkgdoc@lookahead@check
+}
+\newcommand{\pkgdoc@lookahead@check}{%
+	\ifcat \noexpand\pkgdoc@nexttoken \space
+		\let\pkgdoc@lookahead@do=\pkgdoc@lookahead
+		\let\pkgdoc@lookahead@gobble=\@firstofone
+	\else\ifx \pkgdoc@nexttoken /%
+		\pkgdoc@pkgsep
+		\let\pkgdoc@beforepkg=\relax
+		\let\pkgdoc@lookahead@do=\pkgdoc@lookahead
+		\let\pkgdoc@lookahead@gobble=\@gobble
+	\else\ifx \pkgdoc@nexttoken \pkgdoc
+		\let\pkgdoc@lookahead@do=\relax
+		\let\pkgdoc@lookahead@gobble=\@empty
+	\else
+		\pkgdoc@descriptionsep
+		\let\pkgdoc@lookahead@do=\relax
+		\let\pkgdoc@lookahead@gobble=\@empty
+	\fi \fi \fi
+	\expandafter \pkgdoc@lookahead@do \pkgdoc@lookahead@gobble
+}
+
+\newcommand{\begin@pkgdoc}{\begin{itemize}}
+\def        \endpkgdoc    {\end{itemize}}
+\newif\if@inpkgdoc
+\newcommand{\pkgdoc@beforepkg}{\item}
+\newcommand{\pkgdoc@pkgsep}{/}
+\newcommand{\pkgdoc@descriptionsep}{ }
+\let\pkgdoc@beforepkg@bak=\pkgdoc@beforepkg
+
+\newcommand{\NoDescribePkg}[1]{%
+	\NoKeyword{pkg}{#1}{\DlPkgBg}{\DlOriginalPkg}%
+	%\AbbrevKeyword{}{#1} {pkg}{#1}%
+	\ignorespaces
+}
+
+\makeatother

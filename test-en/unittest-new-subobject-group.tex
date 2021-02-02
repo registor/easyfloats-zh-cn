@@ -1,0 +1,50 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+\objectset{warn no label=false}
+
+\NewObjectStyleGroup{test}{figure, table}
+\objectset[test]{caption=test}
+
+\NewObjectStyleGroup{empty}{}
+\objectset[empty]{exec=\PackageError{test}{this should not be executed}{}}
+
+
+\ExpectingPackageError{easyfloats}{Undefined object style: all}
+\AddObjectStyleToGroup{empty}{all}
+
+\ExpectingPackageError{easyfloats}{Undefined object style group: undefed}
+\AddObjectStyleToGroup{undefed}{figure}
+
+\ExpectingPackageError{easyfloats}{Style or style group with the name 'test' exists already}
+\NewObjectStyleGroup{test}{}
+
+
+\makeatletter
+\newcommand{\AssertObjectOptionEquals}[2]{% #1: key, #2: value
+	\Assert{\IfObjectOptionEquals{#1}}{#2}{Key `/object/#1' has an unexpected value}%
+}
+\newcommand{\IfObjectOptionEquals}[2]{% #1: key, #2: value, #3: then, #4: else
+	\pgfkeysgetvalue{/object/#1}{\tmpis}%
+	\def\tmpexpected{#2}%
+	\ifx \tmpis \tmpexpected
+		\expandafter \@firstoftwo
+	\else
+		\expandafter \@secondoftwo
+	\fi
+}
+\makeatother
+
+
+\begin{document}
+\AssertObjectOptionEquals{caption}{\pgfkeysnovalue}
+\begin{figureobject}{}
+	\AssertObjectOptionEquals{caption}{test}
+\end{figureobject}
+\begin{tableobject}{}
+	\AssertObjectOptionEquals{caption}{test}
+\end{tableobject}
+\end{document}

@@ -1,0 +1,70 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+% ---------- set options directly ---------
+\ExpectingPackageError[+2]{pgfkeys}{I do not know the key '/object/foo' and I am going to ignore it. Perhaps you misspelled it}
+\ExpectingPackageError{pgfkeys}{I do not know the key '/object/bar', to which you passed '42', and I am going to ignore it. Perhaps you misspelled it}
+\objectset{foo, bar=42}
+
+\ExpectingPackageError{pgfkeys}{The key '/object/type' requires a value. I am going to ignore this key}
+\objectset{type}
+\ExpectingPackageError{easyfloats}{Invalid value for key 'type': 'none'. I am going to ignore this option}
+\objectset{type=none}
+
+\ExpectingPackageError{easyfloats}{'foo' is not a valid graphic option key}
+\objectset{graphic foo}
+\ExpectingPackageError{easyfloats}{Environment foo for which you set 'arg(s)' does not exist}
+\objectset{foo args}
+
+\ExpectingPackageError{pgfkeys}{The key '/object/env' requires a value. I am going to ignore this key}
+\objectset{env}
+\ExpectingPackageError[+2]{easyfloats}{Environment none which you passed to the key 'env' does not exist}
+\ExpectingPackageError[+1]{easyfloats}{'env' for 'arg(s)' is not defined}
+\objectset{env=none, args=}
+\ExpectingPackageError{easyfloats}{Environment relax which you passed to the key 'env' does not exist}
+\objectset{env=relax}
+
+% ---------- set options for styles ---------
+\ExpectingPackageError[+2]{easyfloats}{I do not know the key 'foo' and I am going to ignore it. Perhaps you misspelled it}
+\ExpectingPackageError{easyfloats}{I do not know the key 'bar' and I am going to ignore it. Perhaps you misspelled it}
+\objectset[figure, table]{foo, bar=42}
+
+\ExpectingPackageError{easyfloats}{The key 'type' requires a value. I am going to ignore this key}
+\objectset[figure]{type}
+%\ExpectingPackageError is at the object
+\objectset[figure]{type=none}
+
+\ExpectingPackageError{easyfloats}{'foo' is not a valid graphic option key}
+\objectset[figure]{graphic foo}
+\ExpectingPackageError{easyfloats}{Environment foo for which you set 'arg(s)' does not exist}
+\objectset[figure]{foo args}
+
+\ExpectingPackageError{easyfloats}{The key 'env' requires a value. I am going to ignore this key}
+\objectset[table]{env}
+\ExpectingPackageError[+2]{easyfloats}{Environment none which you passed to the key 'env' does not exist}
+\ExpectingPackageError[+1]{easyfloats}{'env' for 'arg(s)' is not defined}
+\objectset[table]{env=none, args=}
+\ExpectingPackageError{easyfloats}{Environment relax which you passed to the key 'env' does not exist}
+\objectset[table]{env=relax}
+
+% no error for undefined style group because options are checked first
+\ExpectingPackageError{easyfloats}{The key 'type' requires a value. I am going to ignore this key}
+\objectset[none]{type}
+
+\ExpectingPackageError{easyfloats}{Undefined object style: 'none'}
+\objectset[none]{type=figure}
+
+
+\begin{document}
+	\ExpectingPackageError{easyfloats}{Invalid value for key 'type': 'none'. I am going to ignore this option}
+	\begin{figureobject}{warn no caption=false, warn no label=false}
+		\ExpectingPackageWarning{easyfloats}{Recommended key 'caption' not given. This warning occured}
+		\begin{subobject}{}
+			content
+		\end{subobject}
+	\end{figureobject}
+\end{document}

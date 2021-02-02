@@ -1,0 +1,34 @@
+% !TeX program = pdflatex
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\objectset[table]{%
+	env = tabular,
+	subcaptionbox,
+	subobject linewidth =,
+	subobject hor = \qquad,
+}
+\captionsetup[sub]{list=true}
+
+\begin{document}
+\begin{tableobject}{contains subobjects,
+		caption = Two test tables,
+		label = tabs abc 123,
+	}
+	\begin{subobject}{caption=Abc \& 123, arg=rl}
+		\toprule
+		abc & 123 \\
+		de  & 45  \\
+		f   & 6   \\
+		\bottomrule
+	\end{subobject}
+	\begin{subobject}{caption=123 \& abc, arg=lr}
+		\toprule
+		123 & abc \\
+		45  & de  \\
+		6   & f   \\
+		\bottomrule
+	\end{subobject}
+\end{tableobject}
+\end{document}

@@ -1,0 +1,97 @@
+% !TeX program = pdflatex
+% !TeX option = --shell-escape
+
+% underline links generated with the keyword api defined in preamble/keydoc.tex
+% does *not* affect \ref, \cite, table of contents etc.
+\newif\ifunderlinelinks
+\underlinelinkstrue
+
+\documentclass[a4paper]{ltxdoc}
+
+\usepackage{ctex}
+\ctexset{appendixname=附录}
+\usepackage{dtxdescribe}
+\usepackage{parskip}
+\usepackage{csquotes}
+
+\input{preamble/bibliography}
+\input{preamble/macros}
+\input{preamble/examplecode}
+\input{preamble/markdown}
+\input{preamble/link}
+\input{preamble/keydoc}
+\input{preamble/description-links}
+\input{preamble/pdfstring}
+
+\usepackage[hidelinks, pdfusetitle]{hyperref}
+\usepackage[nameinlink, noabbrev]{cleveref}
+
+%====================================================
+% 设置\cref章节引用格式(耿楠，2021.01.27)
+\crefformat{section}{#2#1#3节}
+\crefrangeformat{section}{#3#1#4~-~#5#2#6节}
+\crefmultiformat{section}{#2#1#3}%
+{和#2#1#3节}{, #2#1#3}{和#2#1#3节}
+\crefformat{subsection}{#2#1#3小节}
+\crefrangeformat{subsection}{#3#1#4~-~#5#2#6小节}
+\crefmultiformat{subsection}{#2#1#3}%
+{和#2#1#3小节}{, #2#1#3}{和#2#1#3小节}
+\crefformat{subsubsection}{#2#1#3小节}
+\crefrangeformat{subsubsection}{#3#1#4~-~#5#2#6小节}
+\Crefformat{section}{#2#1#3节}
+\Crefrangeformat{section}{#3#1#4~-~#5#2#6节}
+\Crefformat{subsection}{#2#1#3小节}
+\Crefrangeformat{subsection}{#3#1#4~-~#5#2#6小节}
+\Crefformat{subsubsection}{#2#1#3小节}
+\Crefrangeformat{subsubsection}{#3#1#4~-~#5#2#6小节}
+\crefformat{appendix}{附录#2#1#3}
+\Crefformat{appendix}{附录#2#1#3}
+%\crefname{section}{节}{节}
+%\crefname{subsection}{小节}{小节}
+%\crefname{subsubsection}{小节}{小节}
+\crefname{appendix}{附录}{附录}
+\crefmultiformat{appendix}{附录#2#1#3}%
+{和#2#1#3}{, 附录#2#1#3}{和#2#1#3}
+\newcommand\crefpairconjunction{和}
+%====================================================
+
+\newlicense{lppl}{\LaTeX\ Project Public License}{https://www.latex-project.org/lppl/}
+\newlicense{wtfpl}{WTFPL}{http://www.wtfpl.net/}
+
+\makeindex
+
+\title{easyfloats：图表浮动体对象排版宏包}
+\author{著：Erik Zöllner\\译：耿楠}
+\date{December~20, 2020}
+\package{\jobname}
+\version{v1.0.0}
+
+\newcommand{\myinput}[1]{\input{#1}\unskip}
+
+\input{links}
+\begin{document}
+	\myinput{undescribed-keywords}
+	\myinput{content/titlepage}
+	\myinput{content/examples}
+	\myinput{content/names}
+	\myinput{content/documentation}
+	\myinput{content/installation}
+	\myinput{content/bug-reports-and-contributions}
+	\myinput{content/license}
+
+	\appendix	
+	\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
+	\myinput{content/motivation}
+	\myinput{content/used-packages}
+	\myinput{content/other-packages}
+
+	%\section{\refname}
+	\section{参考文献}
+	%Works cited in this documentation (ordered by appearance in this document,
+	%if there are several versions on CTAN I am referring to the English pdf):
+	本文档引用的文献(按引用顺序排序，
+	如果这些文献在CTAN中有多种语言版本，在此引用其英文版pdf文档):
+	\printbibliography[heading=none]
+
+	\addtocontents{toc}{\protect\setcounter{tocdepth}{3}}
+\end{document}

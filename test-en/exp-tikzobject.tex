@@ -1,0 +1,45 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+\usepackage{tikz}
+
+\NewObjectStyle{tikz}{type=figure, env=tikzpicture}
+% I am not using `arg=[3D]` so that I can still pass an optional argument to tikz3dobject
+\NewObjectStyle{tikz3d}{type=figure, env=tikzpicture, exec=\tikzset{3D}}
+
+\tikzset{
+	3D/.style = {
+		x = {(-3.85mm, -3.85mm)},
+		y = {(1cm, 0cm)},
+		z = {(0cm, 1cm)},
+	},
+}
+\objectset{warn no label=false}
+
+\begin{document}
+\begin{tikzobject}{caption=2D coordinate system}
+	\newcommand\n{5}
+	\newcommand\w{.075}
+	\draw[->] (0,0) -- ++(\n,0);
+	\draw[->] (0,0) -- ++(0,\n);
+	\foreach \i in {1,...,\the\numexpr\n-1} {
+		\draw (\i,0) +(0,\w) -- +(0,-\w);
+		\draw (0,\i) +(\w,0) -- +(-\w,0);
+	}
+\end{tikzobject}
+\begin{tikz3dobject}{caption=3D coordinate system}
+	\newcommand\n{5}
+	\newcommand\w{.075}
+	\draw[->] (0,0,0) -- ++(\n,0,0);
+	\draw[->] (0,0,0) -- ++(0,\n,0);
+	\draw[->] (0,0,0) -- ++(0,0,\n);
+	\foreach \i in {1,...,\the\numexpr\n-1} {
+		\draw (\i,0,0) +(0,\w,0) -- +(0,-\w,0);
+		\draw (0,\i,0) +(\w,0,0) -- +(-\w,0,0);
+		\draw (0,0,\i) +(0,\w,0) -- +(0,-\w,0);
+	}
+\end{tikz3dobject}
+\end{document}

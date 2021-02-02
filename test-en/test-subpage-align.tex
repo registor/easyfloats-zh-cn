@@ -1,0 +1,46 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass[a4paper]{article}
+\usepackage[]{easyfloats}
+
+\objectset{%
+	subobject warn no label = false,
+	subpage align=,
+}
+\objectset[table]{env = tabular}
+
+\begin{document}
+
+\begin{tableobject}{contains subobjects, caption=Test tables squared, label=tabbox}
+	\begin{subobject}{arg=rl, caption=nw}
+		\toprule
+		abc & 123 \\
+		de  & 45  \\
+		f   & 6   \\
+		\bottomrule
+	\end{subobject}
+	\begin{subobject}{arg=lr, caption=ne, subpage align=\raggedleft}
+		\toprule
+		123 & abc \\
+		45  & de  \\
+		6   & f   \\
+		\bottomrule
+	\end{subobject}
+	\begin{subobject}{ver, arg=rl, caption=sw}
+		\toprule
+		abc & 123 \\
+		de  & 45  \\
+		f   & 6   \\
+		\bottomrule
+	\end{subobject}
+	\begin{subobject}{arg=lr, caption=se, subpage align=\raggedleft}
+		\toprule
+		123 & abc \\
+		45  & de  \\
+		6   & f   \\
+		\bottomrule
+	\end{subobject}
+\end{tableobject}
+\end{document}

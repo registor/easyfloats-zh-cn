@@ -1,0 +1,35 @@
+% !TeX root = ../easyfloats.tex
+
+% Copyright © 2020 E. Zöllner
+% Alternatively to the terms of the LPPL, at your choice,
+% you can redistribute and/or modify this file under the
+% terms of the Do What The Fuck You Want To Public License, Version 2,
+% as published by Sam Hocevar. See http://www.wtfpl.net/about/.
+
+% Redefines \cmd so that it can be used in a pdf string,
+% e.g. in \section{...}.
+% Please note that additionally to the restrictions
+% named in the ltxdoc documentation you cannot use \cmd{\ }.
+% That is a bug in ltxdoc and unrelated to pdf strings.
+%
+% This must be loaded last, after all other modifications
+% to the \cmd macro.
+
+\let\PdfstringOriginalCmd=\cmd
+\renewcommand{\cmd}[1]{%
+	\texorpdfstring
+		{\PdfstringOriginalCmd{#1}}
+		{\expandafter\PdfstringCmd\string#1\relax}%
+}
+
+\def\PdfstringCmd#1#2#3\relax{%
+	\textbackslash
+	\ifnum\noexpand`\\=\noexpand`#2
+		\textbackslash
+	\else\ifnum\noexpand`\%=\noexpand`#2
+		\%%
+	\else
+		#2%
+	\fi\fi
+	#3%
+}

@@ -1,0 +1,38 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\newcommand{\AssertCaption}[1]{%
+	\pgfkeysgetvalue{/object/caption}{\captionvalue}%
+	\ifdefstring\captionvalue{#1}
+		\relax
+		{\PackageError{test}{Unexpected caption '\captionvalue'. Expected: '#1'}{}}%
+}
+\newcommand{\AssertLabel}[1]{%
+	\pgfkeysgetvalue{/object/label}{\labelvalue}%
+	\ifdefstring\labelvalue{#1}
+		\relax
+		{\PackageError{test}{Unexpected label '\labelvalue'. Expected: '#1'}{}}%
+}
+
+\objectset{graphic width=.8\linewidth}
+
+\ExpectingLatexWarning{Label `graphics/ctan_lion' multiply defined}
+\ExpectingLatexWarning{Label `ctan_lion' multiply defined}
+\begin{document}
+\includegraphicobject[foot=\AssertCaption{graphics/ctan\textunderscore lion}\AssertLabel{graphics/ctan_lion}]{graphics/ctan_lion}
+
+\objectset{graphic auto caption strip path}
+\includegraphicobject[foot=\AssertCaption{ctan\textunderscore lion}\AssertLabel{graphics/ctan_lion}]{graphics/ctan_lion}
+
+\objectset{graphic auto label strip path}
+\includegraphicobject[foot=\AssertCaption{ctan\textunderscore lion}\AssertLabel{ctan_lion}]{graphics/ctan_lion}
+
+\objectset{graphic auto caption strip path=false}
+\includegraphicobject[foot=\AssertCaption{graphics/ctan\textunderscore lion}\AssertLabel{ctan_lion}]{graphics/ctan_lion}
+
+\ExpectingLatexWarning{There were multiply-defined labels}
+\end{document}

@@ -1,0 +1,35 @@
+% !TeX root = ../easyfloats.tex
+
+% Copyright © 2020 E. Zöllner
+% Alternatively to the terms of the LPPL, at your choice,
+% you can redistribute and/or modify this file under the
+% terms of the Do What The Fuck You Want To Public License, Version 2,
+% as published by Sam Hocevar. See http://www.wtfpl.net/about/.
+
+\usepackage[%
+	sorting=none, % none=citation order
+]{biblatex}
+
+\setcounter{biburllcpenalty}{8000}
+\setcounter{biburlucpenalty}{8000}
+\setcounter{biburlnumpenalty}{8000}
+
+\addbibresource{\jobname.bib}
+
+\SetCiteCommand\autocite
+
+\newcommand{\mycite}[2][]{%
+	\citetitle{#2}~\autocite[#1]{#2}%
+}
+
+%https://tex.stackexchange.com/a/108349
+\DeclareCiteCommand{\citetitle}
+	{\boolfalse{citetracker}%
+	 \boolfalse{pagetracker}%
+	 \usebibmacro{prenote}}
+	{\ifciteindex
+		 {\indexfield{indextitle}}
+		 {}%
+	 \printtext[bibhyperref]{\printfield[citetitle]{labeltitle}}}
+	{\multicitedelim}
+	{\usebibmacro{postnote}}

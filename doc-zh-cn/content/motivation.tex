@@ -1,0 +1,584 @@
+% !TeX root = ../easyfloats.tex
+
+% \section{Motivation}
+\section{动机}
+\label{motivation}
+
+% In this section I will explain how to insert figures and tables in standard \LaTeX\ without this package and how this package can improve that.
+% If you are only interested in how to use this package not why, see \cref{examples} for examples and \cref{documentation} for an explanation of the commands, environments and options defined by this package.
+这一节，将解释如何在标准\LaTeX{}中没有该宏包的情况下如何插入图片和表格，
+以及该宏包是如何改进这些操作的。
+如果只对如何使用此软件包感兴趣，而对为什么这么做不感兴趣，
+请参阅第\cref{examples}了解示例，
+并在第\cref{documentation}中了解该宏包定义的命令、环境和选项说明。
+
+% \subsection{Graphics}
+\subsection{插图}
+\label{graphics}
+
+% Inserting a graphic without using this package requires 6 lines of code (\pkg{graphicx} or \pkg{graphbox} must be loaded for `\includegraphics`):
+如果不使用该宏包，一般需要6行代码来插入一个图片(当然为了使用`\includegraphics`命令，必须加载\pkg{graphicx}或\pkg{graphbox}宏包):
+\begin{examplecode\starred}{\ExamplecodeNoBox\ExamplecodeLinenumbers}
+\begin{figure}
+	\centering
+	\includegraphics[graphic width=.8\linewidth]{ctan_lion}
+	\caption{CTAN lion drawing by Duane Bibby}
+	\label{ctan_lion}
+\end{figure}
+\end{examplecode\starred}
+
+% \begin{description}
+% \item[Lines 1 and 6]
+%   open\slash close a floating environment.
+%   The content of this environment can float around so that it won't cause a bad page break.
+%   You don't need this if you really just want to insert a graphic exactly here (like a logo in a header)
+%   but a graphic cannot break across pages so if it is too large for the end of the current page it will move to the next page leaving the end of this page empty.
+%   This is a waste of paper and may confuse a reader by suggesting this might be the end of a chapter.
+%   A floating environment can help you by putting the figure where it fits best.
+%
+%   The placement determines where a float is allowed to be placed.
+%   Initially that's the top or bottom of a text page or a separate page just for floats.
+%   The placement can be specified for a single floating object by passing an optional argument to the floating environment
+%   or for all floating objects using the `\floatplacement` command defined by the \pkg{float} package.
+%   (The floating environments `figure` and \env{table} are standard \LaTeX\ and do not require the \pkg{float} package.)
+%   The allowed values for the placement are described in the description of the \env{object} environment's `placement` key.
+%
+%   There are people who are concerned that a figure not sitting at the exact position might confuse a reader.
+%   However, a graphic naturally attracts the reader's attention.
+%   Therefore it does not matter where it is located on the double page.
+%   The reader will see it.
+%
+%   Of course the author must ensure that the figure does not float too far away.
+%   If that is the case changing the size of this or another graphic,
+%   `\usepackage[section]{placeins}`,
+%   `\FloatBarrier` (defined by the \pkg{placeins} package),
+%   moving this block of lines in the code,
+%   changing the placement or
+%   tweaking the parameters which govern the placing of floats \autocite[page~28]{latex2e}
+%   can help.
+%
+% \item[Line 2]
+%   centers the graphic horizontally on the line.
+%
+%   The `\centering` command is used instead of the `center` environment because the latter would insert additional vertical space.
+%
+%   \begin{examplecode\starred}{\ExamplecodeNoBox}
+%   \begin{center}
+%   	...
+%   \end{center}
+%   \end{examplecode\starred}
+%   is in \LaTeX2\footnote{This will change in \LaTeX3~\autocite{ltx3env}.}
+%   \makeatletter
+%   (somewhat simplified\footnote{`\begin` checks that it's argument is defined, `\end` checks that it's argument matches that of `\begin` and deals with `\ignorespacesafterend` and `\@endparenv`. Since 2019/10/01 `\begin` and `\end` are robust. Since 2020/10/01 they include hooks. \autocite[section \sectionname{ltmiscen.dtx}]{source2e}})
+%   \makeatother
+%   equivalent to
+%   \begin{examplecode\starred}{\ExamplecodeNoBox}
+%   \begingroup
+%   \center
+%   	...
+%   \endcenter
+%   \endgroup
+%   \end{examplecode\starred}
+%
+%   This means that if you accidentally try to use `\centering` as an environment instead of a command you will *not* get an error.
+%   You might expect to get an error at least for `\endcentering` not being defined
+%   but the \TeX\ primitive `\csname` which is used to produce the `\endcentering` token instead defines it to `\relax`, a no operation.
+%
+%   The output, however, will not be as desired: the group is closed before the end of the paragraph and `\centering` is forgotten before it can take effect.
+%
+% \item[Line 3]
+%   inserts the graphic.
+%   This requires the \pkg{graphicx} or \pkg{graphbox} package.
+%
+%   If you want all graphics to have the same width you can set the `width` globally with `\setkeys{Gin}{width=<dimen>}`.
+%   However, that does not work with all options.
+%   Unfortunately the \pkg{graphicx} package documentation~\autocite[section~4.6]{graphicx} is not getting more specific than that this works with \enquote{Most of the keyval keys}.
+%
+% \item[Line 4]
+%   inserts the caption.
+%
+%   Captions for a figure should be placed *below* the figure.
+%   Captions for a table should be placed *above* the table.
+%   \autocite{texexchange_caption_position}
+%
+%   `\caption` can be used inside of a floating environment only.
+%   If you need a caption for a non-floating object you can either use `\captionof{<type>}{<caption>}` defined by the \pkg{capt-of} or \pkg{caption} package
+%   or use a floating environment with the placement `H` defined by the \pkg{float} package.
+%   Although the placement can usually be set globally with `\floatplacement` that does *not* work with `H`.
+%
+% \item[Line 5]
+%   defines a label.
+%   This is not visible in the output but can be referenced using `\ref{<label>}` or `\pageref{<label>}`.
+%   You might want to consider using the \pkg{cleveref} package for references.
+%
+%   The label must be set inside of or after the caption.
+%   A label always refers to the last `\refstepcounter` inside of the current group. \autocite[section \sectionname{ltxref.dtx}]{source2e}
+%   `\refstepcounter` is used for example by `\caption` and `\section`.
+%   Therefore if you use `\label` after the caption it refers to the caption.
+%   If you use it before the caption it refers to the current section\slash subsection\slash subsubsection.
+% \end{description}
+\begin{description}
+\item[第1行和第6行]
+  开始\slash 结束一个浮动体环境。
+  一个浮动体中的内容能够自动浮动，以免造成不合理的分页(大面积留白现象)。
+  如果需要精确地将图片插入到固定位置(如页眉中的logo)，则不需要浮动，
+  但是一个图片是不能分页的，
+  因此，当一个图片太大以至于直到当前页结尾都无法排下该图片时，
+  \LaTeX{}就会将其排到下一页，从而在当前页留出空白。
+  这一方面会造成纸张的浪费，另一方面也会给读者造成章节结束的误解。
+  浮动体环境则可以通过调整文字，将图片排到合适的位置来解决这一问题。
+
+  可以通过位置选项确定如何排版浮动体。
+  初始状态下，浮动体被允许排在文本页的顶部或底部，或独立浮动页。
+  可以为通过位置选项单独为一个浮动体指定浮动方式，
+  也可以通过\pkg{float}宏包提供的`\floatplacement`命令为所有浮动体统一指定浮动选项。
+  (`figure`和\env{table}浮动体环境是标准的\LaTeX{}环境，并不需要\pkg{float}宏包。)
+  在\env{object}环境的`placement`键的说明中，详细说明了位置选项允许的值。
+
+  也许有人会认为图不随文会造成读者阅读的困难，
+  然而，图片自然会引起读者的注意。
+  因此，特别是对于双页排版而言，图片的位置并不是非常重要，
+  读者总是可以方便地看到图片。
+
+  当然，作者也不能使图片浮动的太远，
+  如果发生类似现象，则应该调整该图片大小或其它图片大小，
+  或使用`\usepackage[section]{placeins}`后用
+  `\FloatBarrier`命令(由\pkg{placeins}宏包定义),
+  或整体移动浮动体代码的位置,
+  或调整位置选项，
+  或调整参数以控制浮动体的位置，详见\autocite[28页]{latex2e}。
+
+\item[第2行]
+  使让浮动内容水平居中。
+
+  使用`\centering`命令代替`center`环境的目的是避免其产生的垂直额外间距。
+
+  \begin{examplecode\starred}{\ExamplecodeNoBox}
+  \begin{center}
+  	...
+  \end{center}
+  \end{examplecode\starred}
+  在\LaTeX2\footnote{这将在\LaTeX3~\autocite{ltx3env}发生改变}
+  \makeatletter
+  (简单理解\footnote{`\begin` 检查定义的参数, `\end` 检查与`\begin`匹配的参数并处理`\ignorespacesafterend`和`\@endparenv`。2019/10/01后， `\begin`和 `\end`是鲁棒的。2020/10/01后，它们含有钩子，详见\autocite[\sectionname{ltmiscen.dtx}节]{source2e}})
+  \makeatother
+  等价于
+  \begin{examplecode\starred}{\ExamplecodeNoBox}
+  \begingroup
+  \center
+  	...
+  \endcenter
+  \endgroup
+  \end{examplecode\starred}
+
+  这意味着，如果不小心误将`\centering`当作环境而不是命令，则*不会*出现错误。
+  可能希望至少在未定义`\endcentering`时会出现错误，
+  但\TeX{}的元命令`\csname`用于生成`\endcentering`记号，代替了将其定义为`\relax`命令，这是一个空操作。
+
+  但由于该组在段落末尾之前被关闭，
+  并且`\centering`在生效之前被忽略了，
+  所以其输出将不是所希望的输出。
+\item[第3行]
+  插入图片。
+  这是\pkg{graphicx}或\pkg{graphbox}宏包定义的命令。
+
+  如需指定所有图片为同样宽度，
+  则可用`\setkeys{Gin}{width=<dimen>}`全局设置`width`。
+  然而，这并不适用所有选项。
+  不幸的是，\pkg{graphicx}宏包说明文档(\autocite[4.6小节]{graphicx}
+  并未给出比\enquote{更多键值}中更为详尽的说明。
+
+\item[第4行]
+  插入一个标题。
+
+  插图的标题应该在图的下方。
+  表格的标题应该在表的上方
+  \autocite{texexchange_caption_position}。
+
+  `\caption`只能用于浮动体环境中。
+  如果需要给非浮动体设置标题，
+  可以使用\pkg{capt-of}或\pkg{caption}宏包定义的
+  `\captionof{<type>}{<caption>}`命令，
+  也可以使用带有由\pkg{float}宏包定义的`H`位置选项的浮动体环境。
+  虽然可以使用`\floatplacement`全局设置位置选项，但这不适用于`H`选项。
+
+\item[第5行]
+  % defines a label.
+  定义一个用于交叉引用的标签。
+  % This is not visible in the output but can be referenced using .
+  标签并不会被排版输出，它只是用在`\ref{<label>}`或`\pageref{<label>}`命令中，
+  以实现交叉引用。
+  当然，可能更多的情况下，会使用\pkg{cleveref}宏包实现交叉引用。
+
+  % The label must be set inside of or after the caption.
+  标签必须设置在标题之内或标题之后。
+  标签总是使用当前组内最后一个`\refstepcounter`实现引用
+  \autocite[\sectionname{ltxref.dtx}节]{source2e}，
+  它会使用用于`\caption`命令和`\section`命令的`\refstepcounter`。
+  因此，如果在标题后使用`\label`，则指的是标题。
+  如果在标题前使用，则指的是当前的section\slash subsection\slash subsubsection。
+\end{description}
+
+% There are many things that a beginner can do wrong without even getting a warning.
+% Three out of this six lines are always the same (lines 1, 2 and~6).
+% I don't want to always write them out.
+% There is no way to easily switch floating on or off globally.
+初学者可能会在甚至没有得到任何警告的情况下做很多错误的操作。
+注意，这6行中的3行始终相同(1、2和6行)，
+因此，没有必要每次都将它们写出来，
+另外，这样做也无法轻松地在全局打开或关闭浮动。
+
+\bigpar
+
+% This package reduces these six lines to a single command and loads \pkg{graphicx} automatically (unless this package is loaded with the `nographic` option).
+该宏包将这6行代码缩减为一条命令，并且会自动载入\pkg{graphicx}宏包
+(除非使用`nographic`选项载入了该宏包)。
+\begin{examplecode\starred}{}
+\includegraphicobject[%
+	caption = CTAN lion drawing by Duane Bibby,
+	graphic width = .8\linewidth,
+]{ctan_lion}
+\end{examplecode\starred}
+
+% The floating environment is applied automatically.
+% It can be changed using the `type` key but I discourage doing so manually.
+% Instead I recommend to use the separate optional `<style>` argument if necessary.
+% If you do not want the object to float you can pass `placement=H`.
+% This works also globally with `\objectset`.
+将会自动使用浮动环境。
+可以使用`type`键更改浮动环境，但不建议这样手动操作。
+反之，建议在必要时使用单独的`<style>`选项参数。
+如果不希望该对象浮动，则可以传递`placement=H`参数。
+也可以通过`\objectset`命令进行全局设置。
+
+% `\centering` is applied automatically.
+% It can be changed using the `align` key.
+`\centering`也会被自动应用。
+当然，也可以通过`align`键更改对齐方式。
+
+% You can set any of the options passed to the `\includegraphics` command globally using:
+可以按如下方式为`\includegraphics`命令设置全局参数：
+\begin{examplecode\starred}{}
+\objectset[figure]{graphic width=.8\linewidth}
+\end{examplecode\starred}
+
+% Caption and label can be passed as options.
+% Which one is specified first makes no difference.
+% I recommend to stick with caption first in case you ever need to work without this package and to not confuse other people who are not familiar with this package.
+% If you omit one of them the file name is used.
+% See `auto label`, `auto caption`, `auto label strip path` and `auto caption strip path`.
+标题和标签可以作为选项传递，首先指定哪个没有区别，
+但建议首先设置标题，以防需要没有此软件包的工作，
+并且不要使其他不熟悉此宏包的人感到困惑。 
+如果省略其中之一，则会使用文件名代码。 
+请参见`auto label`、`auto caption`、`auto label strip path`和`auto caption strip path`的说明。
+
+% Whether the caption is put above or below the object is specified by the `float style`.
+标题是放在对象的上方还是下方是由`float style`指定。
+
+% \subsection{Tables}
+\subsection{表格}
+\label{tables}
+
+% Inserting a table is similar to inserting a graphic except that you replace the `\includegraphics` command with an environment which creates a table, place the caption above the table not below it and use another floating environment, namely \env{table} instead of `figure`.
+插入表格与插入图片相似，不同之处在于，
+需要将`\includegraphics`命令替换为创建表格的环境，
+将标题放在表格上方而不是表格下方，
+并使用另一个\env{table}浮动环境，而不是`figure`浮动体环境。
+
+% The following example (not using this package) requires the \pkg{booktabs} package for the horizontal rules and the \pkg{caption} package to have an appropriate space below the caption.
+下面的示例(未使用该宏包)需要\pkg{booktabs}宏包画表格横线，
+需要\pkg{caption}宏包在标题下方添加适当距离。
+
+\begin{examplecode\starred}{\ExamplecodeNoBox\ExamplecodeLinenumbers}
+\begin{table}
+	\centering
+	\caption{Some catcodes}
+	\label{catcodes}
+	\begin{tabular}{cl}
+		\toprule
+			Catcode & Meaning          \\
+		\midrule
+			0       & Escape Character \\
+			1       & Begin Group      \\
+			2       & End Group        \\
+			\vdots  & \quad \vdots     \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+\end{examplecode\starred}
+
+% What I have said about floating environments, `\centering`, `\caption` and `\label` in \cref{graphics} is also valid for tables.
+与前述浮动体环境一样，`\centering`, `\caption` 和`\label`与\cref{graphics}的作用没有两样。
+% New are lines 5--14.
+新增的是5--14行。
+% We now have two environments nested inside of each other.
+在此，嵌套使用了两个环境。
+% The outer environment (lines 1 and~15) is the floating environment.
+外部环境是浮动体环境(1和15行)。
+% The inner environment (lines 5--14) is the environment which creates the table.
+内部环境是表格环境(5--14行)。
+% The inner environment takes a column specification telling \LaTeX\ how many columns the table has and how they are supposed to be aligned.
+内部表格环境的列格式指定的表格列数及各列如何水平对齐。
+% In this case that is `cl`: Two columns, the first centered, the second left aligned.
+例如`cl`表示两列，第1列水平居中对齐，第2列水平左对齐。
+% For more information about column specifications see the \pkg{array} package documentation~\autocite[section~1]{array}.
+更多的列格式说明可参阅\pkg{array}宏包文档\autocite[第1节]{array}。
+
+% `\toprule`, `\midrule` and `\bottomrule` (defined by the \pkg{booktabs} package) produce horizontal lines.
+`\toprule`、 `\midrule`和`\bottomrule` (由\pkg{booktabs}宏包定义)绘制表格横线。
+% They differ in the width of the line and\slash or spacing around them.
+三条横线的宽度和前后距离不一样。
+% In contrast to the standard \LaTeX\ `\hline` command they have proper spacing around them.
+与\LaTeX{}的`\hline`命令相比，其前后会产生合适的距离。
+
+% `&` separates columns, `\\` separates rows.
+% Indentation and spaces at the beginning and end of a cell are ignored.
+`&`用于分隔各列，`\\`用于换行。
+每行开始和单元格尾部的空白会被忽略。
+
+\bigpar
+
+% Using this package we don't need two environments and we don't even need to type out the rule commands if we use `table head`.
+如果使用该宏包，则不需要使用两个环境。
+甚至如果使用了`table head`的话，也不需要使用横线命令。
+% The packages \pkg{caption}, \pkg{booktabs} and \pkg{array} are loaded automatically (unless you load this package with `nobooktabs` or `noarray`).
+\pkg{caption}、\pkg{booktabs}和\pkg{array}宏包会被自动载入(除非使用了`nobooktabs`或`noarray`选项载入该宏包)。
+\begin{examplecode\starred}{}
+\begin{tableobject}{%
+	caption = Some catcodes,
+	label = catcodes,
+	env = tabular,
+	arg = cl,
+	table head = Catcode & Meaning,
+}
+	0       & Escape Character \\
+	1       & Begin Group      \\
+	2       & End Group        \\
+	\vdots  & \quad \vdots     \\
+\end{tableobject}
+\end{examplecode\starred}
+
+% Also we gain the possibility to easily switch between different tabular-like environments, see \cref{longtable} and the example given for the `(<env>) arg(s) +` key in \cref{object-environment}.
+同样，也可以轻松实现表格环境的切换，参见\cref{longtable}和\cref{object-environment}中给出的`(<env>) arg(s) +`键的实例。
+
+% \subsection{Subobjects}
+\subsection{子对象}
+\label{subobjects}
+
+% There are several packages to combine several figures\slash tables into a single floating environment.
+% \mycite{l2tabu} recommends using \pkg{subcaption} over \pkg{subfig} and the long deprecated \pkg{subfigure}.
+有多个宏包可以实现将多个图片\slash{}表格组合到一个浮动体环境中，
+\mycite{l2tabu}推荐使用\pkg{subcaption}宏包代替\pkg{subfig}宏包，
+并且不再推荐使用\pkg{subfigure}宏包。
+
+% The \pkg{subcaption} package provides several ways to do this.
+% The first one is using the `\subcaptionbox` command.
+\pkg{subcaption}宏包提供了多种方式组子对象。
+第一种方式是使用`\subcaptionbox`命令：
+
+\begin{examplecode\starred}{\ExamplecodeNoBox\ExamplecodeLinenumbers}
+\begin{table}
+	\centering
+	\caption{Category and character codes}
+	\label{codes}
+	\subcaptionbox{Category codes\label{catcodes}}{%
+		\begin{tabular}{cl}
+			\toprule
+				Catcode & Category         \\
+			\midrule
+				0       & Escape Character \\
+				1       & Begin Group      \\
+				2       & End Group        \\
+				\vdots  & \quad \vdots     \\
+			\bottomrule
+		\end{tabular}%
+	}%
+	\qquad
+	\subcaptionbox{Character codes\label{charcodes}}{%
+		\begin{tabular}{cr<{\hspace{1.3em}}}
+			\toprule
+				Character      & \multicolumn1c{Charcode} \\
+			\midrule
+				\textbackslash & \number`\\               \\
+				\{             & \number`\{               \\
+				\}             & \number`\}               \\
+				\vdots         & \vdots \phantom{0}       \\
+			\bottomrule
+		\end{tabular}%
+	}%
+\end{table}
+\end{examplecode\starred}
+
+% As the subobjects are inside of an argument they cannot contain code which relies on changing catcodes e.g.\ `\verb`.
+% Aside from that it just doesn't seem elegant to put an environment inside of an argument.
+由于子对象在命令的参数内，因此不能包含依赖于changing catcodes的代码，例如`\verb`。
+此外，将环境置于命令参数内，似乎并不优雅。
+
+% If you accidentally put the label in the second argument of `\subcaptionbox` instead of in the first it refers to the parent object instead of the subobject and you won't get an error or a warning for that.
+如果无意中将标签放在了`\subcaptionbox`的第2个参数中，而不是第一个参数中，
+则它指的是父对象而不是子对象，并且此时不会有任何错误或警告产生。
+
+% Note how I have commented out line breaks in order to avoid undesired spaces.
+注意采用合理的注释，以避免产生不必要的空格。
+
+% The second way is to use the `subfigure`\slash `subtable` environment.
+% Because the subobject is not inside of an argument it is possible to use `\verb`.
+第二种方式是使用`subfigure`\slash{}`subtable`环境。
+由于子对象不在参数中，因此，能够使用类似`\verb` 的命令。
+
+\begin{examplecode\starred}{\ExamplecodeNoBox\ExamplecodeLinenumbers}
+\begin{table}
+	\caption{Category and character codes}
+	\label{codes}
+	\begin{subtable}{.5\linewidth}
+		\centering
+		\caption{Category codes}
+		\label{catcodes}
+		\begin{tabular}{cl}
+			\toprule
+				Catcode & Category         \\
+			\midrule
+				0       & Escape Character \\
+				1       & Begin Group      \\
+				2       & End Group        \\
+				\vdots  & \quad \vdots     \\
+			\bottomrule
+		\end{tabular}%
+	\end{subtable}%
+	\begin{subtable}{.5\linewidth}
+		\centering
+		\caption{Character codes}
+		\label{charcodes}
+		\begin{tabular}{cr<{\hspace{1.3em}}}
+			\toprule
+				Character & \multicolumn1c{Charcode} \\
+			\midrule
+				\verb|\|  & \number`\\               \\
+				\verb|{|  & \number`\{               \\
+				\verb|}|  & \number`\}               \\
+				\vdots    & \vdots \phantom{0}       \\
+			\bottomrule
+		\end{tabular}%
+	\end{subtable}%
+\end{table}
+\end{examplecode\starred}
+
+% But why having different environments for subfigures and subtables?
+% The floating environment specifies the type already.
+但是，为什么子图和子表格要使用不同的环境？
+% 浮动体环境已指定了类型。
+
+% These environments are based on a minipage and require you to always explicitly specify the width of this minipage.
+% On the one hand I don't want to always type that out.
+% On the other hand I want to be able to change the width once for all subobjects for easier consistency.
+这些环境都是基于minipage环境实现的，
+要求始终明确指定其宽度。
+一方面，不想总输入这些环境。
+另一方面，希望能够为所有子对象统一更改宽度，以实现更容易的一致性控制。
+
+% Caption and label must be placed correctly, see \cref{graphics}.
+标题和标签必须正确设置，参见\cref{graphics}。
+% Even if you restyle the floating environment to always put the caption at the top or bottom using the \pkg{float} package this does *not* apply to subobjects.
+即便是使用\pkg{float}宏包重置了浮动体标题的上\slash{}下排版位置，
+但这些设置却无法应用于子对象。
+
+% It is important to comment out line breaks because the widths of the two minipages add up to the line width, a space between them would cause an overfull hbox or a line break.
+对换行的注释也非常重要，因为两个minipages的宽度加起来等于行的宽度，
+它们之间的间隔将会导致overfull hbox或换行。
+
+% We need two `\centering`s, one for each subobject.
+% Remember what I said about `\centering` and `center` in \cref{graphics}.
+需要为每个子对象使用`\centering`命令。
+请记住在\cref{graphics}中关于`\centering`命令和`center`环境的区别。
+
+\bigpar
+
+% This package defines an environment called `subobject` which is a unified wrapper around `\subcaptionbox` and `subfigure`\slash `subtable`.
+% Which of these two backends should be used can be specified with the `subcaptionbox` and `subpage` options.
+% `subpage` is used by default so that you can usually use `\verb` in the content.
+该宏包定义了`subobject`环境，它是`\subcaptionbox`和`subfigure`\slash{}`subtable`的统一封装。
+可以使用`subcaptionbox`和`subpage`选项指定应使用这两个后端中的哪一个。
+默认情况下使用`subpage`，因此通常可以在内容中使用`\verb`。
+
+% `subobject` can be used inside of any `*object` environment.
+% If you define a new object environment with `\NewObjectStyle` it defines a corresponding subpage environment like `subfigure`\slash `subtable` if it does not exist already and if the \pkg{caption} package is new enough.
+% If the \pkg{caption} package is older than August~30, 2020 you need to define the subtype manually by putting the following line *before* loading this package \autocite{texexchange_subtype_workaround}:
+`subobject`可以用于任何`*object`环境中。 
+如果使用`\NewObjectStyle`定义了新的对象环境，
+则它会定义相应的subpage环境，例如`subfigure`\slash{}`subtable`(如果还不存在)，
+并且\pkg{caption}宏包足够新。 
+如果\pkg{caption}宏包早于2020年8月30日，
+则需要在加载此包*之前*通过添加以下行来手动定义子类型\autocite{texexchange_subtype_workaround}：
+\begin{examplecode\starred}{}
+\AtBeginDocument{\DeclareCaptionSubType{<type>}}
+\end{examplecode\starred}
+
+% You don't need to write out the width, `.5\linewidth` is used automatically. You can change this value for all subobjects using
+无需指定宽度，会自动将宽度设置为`.5\linewidth`。
+可以使用以下命令统一修改所有子对象的宽度。
+\begin{examplecode\starred}{}
+\objectset{subobject linewidth=<dimen>}
+\end{examplecode\starred}
+
+% Caption and label are given as options like for `tableobject`.
+% Their order does not matter.
+% They are placed above or below the subobject based on the internal command `\caption@iftop` defined by the \pkg{caption} package.
+标题和标签作为`tableobject`之类的选项给出。
+它们的顺序无关紧要。 
+根据\pkg{caption}宏包定义的内部命令`\caption@iftop`，
+会将标题和标签放置在子对象的上方或下方。
+
+% Spaces after `\begin{subobject}` and before and after `\end{subobject}` are ignored so you don't need to comment out the line breaks.
+% \unskip\footnote{Actually, spaces after `\begin{subobject}` and before `\end{subobject}` are ignored only if `env` is empty. But if `env` is not empty I am expecting it to be a tabular-like environment where spaces are ignored at the beginning and end of a cell or a tikzpicture where spaces are ignored as well. Spaces after `\end{subobject}` are ignored regardless of `env`.}
+% Just make sure you don't have an empty line between the subobject environments.
+% That would *not* be ignored.
+`\begin{subobject}`之后以及`\end{subobject}`之前和之后的空格将被忽略，
+\unskip\footnote{实际上，仅当`env`为空时，
+才会忽略`\begin{subobject}`之后以和`\end{subobject}`之前的空格。
+但是，如果`env`不为空，那么则希望它是一个类似于表格的环境，
+在单元格的开头和结尾忽略空格，或tikzpicture中也将忽略空格。
+`\end{subobject}`之后的空格不受`env`是否为空的影响。}
+因此无需注释掉换行符。
+只需确保子对象环境之间没有空白行即可，它不会被忽略。
+
+% `\centering` is inserted automatically. It can be changed with `subpage align`.
+能自动插入`\centering`对齐命令，
+也可通过`subpage align`键对其进行修改。
+
+\begin{examplecode\starred}{}
+\begin{tableobject}{caption=Category and character codes, label=codes, env=tabular, sub}
+	\begin{subobject}{caption=Category codes, label=catcodes}{cl}
+		\toprule
+			Catcode & Category         \\
+		\midrule
+			0       & Escape Character \\
+			1       & Begin Group      \\
+			2       & End Group        \\
+			\vdots  & \quad \vdots     \\
+		\bottomrule
+	\end{subobject}
+	\begin{subobject}{caption=Character codes, label=charcodes}{cr<{\hspace{1.3em}}}
+		\toprule
+			Character & \multicolumn1c{Charcode} \\
+		\midrule
+			\verb|\|  & \number`\\               \\
+			\verb|{|  & \number`\{               \\
+			\verb|}|  & \number`\}               \\
+			\vdots    & \vdots \phantom{0}       \\
+		\bottomrule
+	\end{subobject}
+\end{tableobject}
+\end{examplecode\starred}
+
+% A separator for the subobjects could be defined globally using `sep`, see also `hor` and `ver`.
+可以通过`sep`键全局修改子对象的分隔方式，参见`hor`和`ver`键。
+
+% For including a graphic from an external file this package defines a wrapper command around `subobject` and `\includegraphics` in order to reduce the typing effort:
+为了包括来自外部文件的图片，该宏包将`subobject`和`\includegraphics`封装为一个命令，以减少代码输入：
+\begin{examplecode\starred}{}
+\begin{figureobject}{caption=Two lions, label=lions, sub}
+	\includegraphicsubobject[caption=A lion]{lion-1}
+	\includegraphicsubobject[caption=Another lion]{lion-2}
+\end{figureobject}
+\end{examplecode\starred}

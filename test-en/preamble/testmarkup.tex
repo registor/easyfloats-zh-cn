@@ -1,0 +1,95 @@
+% Copyright © 2020 E. Zöllner
+% This work is free. You can redistribute it and/or modify it under the
+% terms of the Do What The Fuck You Want To Public License, Version 2,
+% as published by Sam Hocevar. See http://www.wtfpl.net/about/.
+
+% This file defines macros which tell ../autotest.py
+% that/which errors or warnings are expected
+% by writing to stdout/the log file:
+%
+%     \ExpectingPackageError{<packagename>}{<error message>}
+%     \ExpectingError{<error message>}
+%     \ExpectingPackageWarning{<packagename>}{<warning message>}
+%     \ExpectingLatexWarning{<warning message>}
+%
+% All messages are to be given *without* the trailing period.
+% These macros take an optional argument specifying the line
+% number relative to the current line where the error/warning
+% is expected. It defaults to `+1', i.e. the next line.
+
+% This file also defines macros to test conditional commands
+% which take one test value and execute either a true or false argument.
+% For example the \ifthenelse command of the ifthen package could be tested with:
+%
+%     \Assert\ifthenelse{\equal{\pageref{test}}{1}}{The label `test' should have been on page 1}
+%     \AssertNot\ifthenelse{\equal{\pageref{test}}{2}}{The label `test' should not have been on page 2}
+%
+% \Assert and \AssertNot take three arguments: the command to be tested, the test value
+% and an error message. In case the conditional is evaluated as expected \success is printed.
+% Otherwise \fail is printed and an error with the given error message is triggered.
+
+% Furthermore, two commands are provided to load a package from a parent directory.
+% \LoadFromParentLasttrue  loads a package from the parent directory if it is not installed.
+% \LoadFromParentFirsttrue loads a package from the parent directory preferably.
+
+
+% ------- load package from parent directory -------
+
+\newif\ifLoadFromParentFirst
+\newif\ifLoadFromParentLast
+
+\LoadFromParentLasttrue
+
+\makeatletter
+\ifLoadFromParentLast
+	\newcommand\input@path{{../}}
+\fi
+\ifLoadFromParentFirst
+	% hacking into \usepackage to load from parent directory preferably
+	\let\original@IfFileExists@=\IfFileExists@
+	\def\IfFileExists@#1#2#3{%
+		\original@IfFileExists@{../#1}{#2}
+			{\original@IfFileExists@{#1}{#2}{#3}}%
+	}
+\fi
+\makeatother
+
+% ------- expected log outputs -------
+
+\newcommand{\ExpectingPackageWarning}[3][+1]{% [#1: relative line number], #2: package name, #3: warning
+	\typeout{\string## Expecting Package #2 Warning: #3 on input line \the\numexpr\inputlineno #1\relax.}%
+	\typeout{}%
+	\ignorespaces
+}
+\newcommand{\ExpectingLatexWarning}[2][+1]{% [#1: relative line number], #2: package name, #3: warning
+	\typeout{\string## Expecting LaTeX Warning: #2.}%
+	\typeout{}%
+	\ignorespaces
+}
+
+\newcommand{\ExpectingPackageError}[3][+1]{% [#1: relative line number], #2: package name, #3: error
+	\Expecting[#1]{Package #2 Error: #3}%
+}
+\newcommand{\ExpectingError}[2][+1]{% [#1: relative line number], #2: error
+	\Expecting[#1]{Error: #2}%
+}
+\newcommand{\Expecting}[2][+1]{% [#1: relative line number], #2: message
+	\typeout{\string## Expecting #2.}%
+	\typeout{\string## l.\the\numexpr\inputlineno #1\relax}%
+	\typeout{}%
+	\ignorespaces
+}
+
+% ------- unit tests -------
+
+\newcommand\success{.}
+\newcommand\fail{x}
+
+\newcommand\Assert[3]{% #1: \If macro, #2: test value, #3: error message
+	#1{#2}{\success}{\fail\PackageError{test}{#3}{}}%
+	\ignorespaces
+}
+\newcommand\AssertNot[3]{% #1: \If macro, #2: test value, #3: error message
+	#1{#2}{\fail\PackageError{test}{#3}{}}{\success}%
+	\ignorespaces
+}

@@ -1,0 +1,52 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+\usepackage{newfloat}
+\objectset{warn no label=false}
+
+\DeclareFloatingEnvironment{graph}
+\NewObjectStyle{graph}{type=graph, float style=plain}
+\DeclareFloatingEnvironment{test}
+\NewObjectStyle{test}{type=test, float style=plaintop}
+
+\begin{document}
+\begin{figureobject}{caption=An underexposed figure}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{figureobject}
+\begin{graphobject}{caption={A graph, black on black}}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{graphobject}
+\begin{testobject}{caption=A somewhat darkish test}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{testobject}
+\begin{tableobject}{caption=A table with too little space}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{tableobject}
+
+\clearpage
+\begin{graphobject}{caption={Two graphs, black on black}}
+	\begin{subobject}{caption=left}
+	\rule{.7\linewidth}{.3\linewidth}
+	\end{subobject}
+	\begin{subobject}{caption=right}
+	\rule{.7\linewidth}{.3\linewidth}
+	\end{subobject}
+\end{graphobject}
+\begin{testobject}{caption={Two tests, one as dark as the other}}
+	\begin{subobject}{caption=left}
+	\rule{.7\linewidth}{.3\linewidth}
+	\end{subobject}
+	\begin{subobject}{caption=right}
+	\rule{.7\linewidth}{.3\linewidth}
+	\end{subobject}
+\end{testobject}
+
+\clearpage
+\listoffigures
+\listof{graph}{List of Graphs}
+\listof{test}{List of Tests}
+\listoftables
+\end{document}

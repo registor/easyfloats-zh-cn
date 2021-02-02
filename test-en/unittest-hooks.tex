@@ -1,0 +1,42 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\objectset{%
+	graphic width = .8\linewidth,
+	graphic auto caption = false,
+	graphic auto label = false,
+	warn no caption = false,
+	warn no label = false,
+	subobject warn no caption = false,
+	subobject warn no label = false,
+}
+
+\AtBeginObject{\PackageWarning{test}{at begin object hook executed}}
+\AtBeginSubobject{\PackageWarning{test}{at begin subobject hook executed}}
+\AtBeginGraphicObject{\PackageWarning{test}{at begin graphic object hook executed}}
+
+\begin{document}
+\ExpectingPackageWarning{test}{at begin object hook executed}
+\begin{figureobject}{}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{figureobject}
+
+\ExpectingPackageWarning[+2]{test}{at begin object hook executed}
+\ExpectingPackageWarning[+1]{test}{at begin graphic object hook executed}
+\includegraphicobject{graphics/ctan_lion}
+
+\ExpectingPackageWarning{test}{at begin object hook executed}
+\begin{figureobject}{}
+	\ExpectingPackageWarning[+2]{test}{at begin subobject hook executed}
+	\ExpectingPackageWarning[+1]{test}{at begin graphic object hook executed}
+	\includegraphicsubobject{graphics/ctan_lion}
+	%
+	\ExpectingPackageWarning[+2]{test}{at begin subobject hook executed}
+	\ExpectingPackageWarning[+1]{test}{at begin graphic object hook executed}
+	\includegraphicsubobject{graphics/ctan_lion}
+\end{figureobject}
+\end{document}

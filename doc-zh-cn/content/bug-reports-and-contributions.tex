@@ -1,0 +1,75 @@
+% !TeX root = ../easyfloats.tex
+
+% \section{Bug reports and contributions}
+\section{报告Bug与贡献代码}
+\label{bug-reports-and-contributions}
+
+% If you find a bug please open an issue for it
+% on \url{https://gitlab.com/erzo/latex-easyfloats/-/issues}
+% including a minimal example where the bug occurs,
+% an explanation of what you expected to happen
+% and the version of \LaTeX\ and the packages you are using (which are included in the log file).
+% Issues which are not reproducible will be closed.
+如果使用中发现Bug，请在\url{https://gitlab.com/erzo/latex-easyfloats/-/issues}
+提交issue。
+在提交issue时，强烈建议提交出错时的最小工作示例，
+期望结果的说明，
+以及\LaTeX{}的版本和使用的宏包(参见log日志文件)。
+注意，作者会关闭无法复现的问题。
+
+
+% If you have a feature request please open an issue for it
+% on \url{https://gitlab.com/erzo/latex-easyfloats/-/issues}
+% including a minimal example which you would like to work,
+% an explanation of what it should do
+% and a use case explaining why this would be useful.
+如果有新的需求，也请在\url{https://gitlab.com/erzo/latex-easyfloats/-/issues}
+中创建一个新的issue进行提交，
+在提交issue时，强烈建议提交希望如何工作的最小工作示例，
+期望结果的说明，
+以及解释为什么这样做会有用的用例。
+
+% Before opening an issue please check that there is not yet an issue for it already.
+在创建一个issue之前，请检查该issue是否已经存在。
+
+% If you want to resolve an issue yourself please create a merge request.
+% Make the changes in \filename{easyfloats.dtx}.
+% You can generate the sty file with \verb|tex easyfloats.ins|
+% but you do not need to do that manually because \filename{test/autotest.py} does that automatically for you.
+% Before creating a merge request please make sure that the automated tests still pass.
+% Run the python3 script \filename{test/autotest.py} from the project root or test directory without arguments.
+% While running the tests it shows a progress bar in square brackets.
+% A dot stands for a successful test, an F for a failed test and an E for an error in the test script.
+% Merge requests where a test prints F will most likely be rejected.
+% If you get an E please create a bug report issue.
+如果需要解决一个问题，请创建一个PR。
+注意，需要在\filename{easyfloats.dtx}中进行修改。
+可以在命令行用\verb|tex easyfloats.ins|命令生成 sty 文件，
+由于\filename{test/autotest.py}可以自动完成相应操作，实际上并不需要手动操作生成sty文件。
+在创建PR之前，请确保通过自动了测试。
+可以在项目根目录或test目录下运行无参\filename{test/autotest.py}\ python3脚本，
+当测试时，会在方括号内显示一个由方块构成的进度条。
+A.表示测试成功，F表示测试失败，
+E表示测试脚本中存在错误。
+当测试结果为F时，会拒绝合并该PR。
+如果得到E，请创建一个issue以报告问题。
+
+% Please use *tabs* for indentation.
+请使用*tabs*实现缩进。
+
+% A merge request should include:
+一个可合并的PR应该包括：
+% \begin{itemize}
+% \item The changes to \filename{easyfloats.dtx}
+% \item The automatically generated \filename{easyfloats.sty}
+% \item Additions to the documentation
+% \item Automated tests in the \filename{test} directory to make sure the new feature or bug fix does not break in the future
+% \item A link in the merge request description to the issue which it is supposed to close
+% \end{itemize}
+\begin{itemize}
+\item \filename{easyfloats.dtx}文件的变更
+\item 自动生成的\filename{easyfloats.sty}文件
+\item 添加到说明文档的内容
+\item \filename{test}目录中的自动测试，以确保新功能或Bug修复将来不会中断
+\item 合并PR描述中指向的应该关闭issue链接
+\end{itemize}

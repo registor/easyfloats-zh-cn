@@ -1,0 +1,67 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\begin{document}
+\begin{figureobject}{label=fig1, caption=fig1}
+	\rule{.8\linewidth}{.3\linewidth}
+\end{figureobject}
+\begin{figureobject}{}
+	\rule{.8\linewidth}{.3\linewidth}
+	\caption{fig2}
+	\label{fig2}
+\end{figureobject}
+\begin{figureobject}{}
+	\rule{.8\linewidth}{.3\linewidth}
+	\caption{ignored}
+	\label{ignored}
+	\ExpectingPackageWarning{easyfloats}{Overwriting existing value for caption with "fig3"}
+	\caption[fig3 in list]{fig3}
+	\ExpectingPackageWarning{easyfloats}{Overwriting existing value for label with "fig3"}
+	\label{fig3}
+\end{figureobject}
+\begin{figureobject}{}
+	\rule{.8\linewidth}{.3\linewidth}
+	\caption{fig4\label{fig4alt}}
+	\label{fig4}
+\end{figureobject}
+\begin{figureobject}{caption=ignored, label=ignored, list caption=ignored}
+	\rule{.8\linewidth}{.3\linewidth}
+	\ExpectingPackageWarning{easyfloats}{Overwriting existing value for caption with "fig5"}
+	\caption{fig5}
+	\ExpectingPackageWarning{easyfloats}{Overwriting existing value for label with "fig5"}
+	\label{fig5}
+\end{figureobject}
+\begin{figureobject}{}
+	\rule{.8\linewidth}{.3\linewidth}
+	\ExpectingPackageWarning[+2]{easyfloats}{No caption given. ...}
+	\ExpectingPackageWarning{easyfloats}{No label given. ...}
+\end{figureobject}
+
+\begin{figureobject}{caption=fig6, label=fig6}
+	\begin{subobject}{warn no caption=false}
+		\rule{.8\linewidth}{.3\linewidth}
+	\end{subobject}
+	\ExpectingPackageWarning{easyfloats}{Recommended key 'caption' not given. ...}
+	\begin{subobject}{}
+		\rule{.8\linewidth}{.3\linewidth}
+		\ExpectingPackageError{easyfloats}{\string\caption\space is not allowed in subobject. Please use the 'caption' option instead}
+		\caption{invalid}
+		\ExpectingPackageError{easyfloats}{\string\label\space is not allowed in subobject. Please use the 'label' option instead}
+		\label{invalid}
+	\end{subobject}
+\end{figureobject}
+
+\edef\refone{\ref{fig4}}
+\edef\reftwo{\ref{fig4alt}}
+\unless\ifx\refone\reftwo
+	\fail
+	\PackageError{test}{references to fig4 and fig4alt are not equivalent}
+\fi
+
+
+\listoffigures
+\end{document}

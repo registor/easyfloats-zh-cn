@@ -1,0 +1,65 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+\usepackage{trivfloat}
+\objectset{warn no label=false}
+
+\trivfloat{Graph}
+\NewObjectStyle{graph}{type=Graph, float style=plain}
+\trivfloat{Test}
+\NewObjectStyle{test}{type=Test, float style=plaintop}
+
+\makeatletter
+\@ifpackagelater{caption}{2020/08/30}
+	{\let\IfNewCaption=\@firstoftwo}
+	{\let\IfNewCaption=\@secondoftwo}
+\makeatother
+
+\newcommand{\ExpectingWarningIfCaptionTooOld}[2][+1]{\IfNewCaption{}{\ExpectingPackageWarning[#1]{easyfloats}{The caption package is too old for me to define the subtype automatically. Please insert `\string\AtBeginDocument{\string\DeclareCaptionSubType{#2}}' before loading this package}}}
+\ExpectingWarningIfCaptionTooOld[+2]{Graph}
+\ExpectingWarningIfCaptionTooOld[+1]{Test}
+\begin{document}
+\begin{figureobject}{caption=An underexposed figure}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{figureobject}
+\begin{graphobject}{caption={A graph, black on black}}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{graphobject}
+\begin{testobject}{caption=A somewhat darkish test}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{testobject}
+\begin{tableobject}{caption=A table with too little space}
+	\rule{.7\linewidth}{.3\linewidth}
+\end{tableobject}
+
+\IfNewCaption{%
+	\clearpage
+	\begin{graphobject}{caption={Two graphs, black on black}}
+		\begin{subobject}{caption=left}
+		\rule{.7\linewidth}{.3\linewidth}
+		\end{subobject}
+		\begin{subobject}{caption=right}
+		\rule{.7\linewidth}{.3\linewidth}
+		\end{subobject}
+	\end{graphobject}
+	\begin{testobject}{caption={Two tests, one as dark as the other}}
+		\begin{subobject}{caption=left}
+		\rule{.7\linewidth}{.3\linewidth}
+		\end{subobject}
+		\begin{subobject}{caption=right}
+		\rule{.7\linewidth}{.3\linewidth}
+		\end{subobject}
+	\end{testobject}
+}{%
+	\PackageInfo{test}{caption package is too old for auto definition of custom subobject types, skipping test}
+}
+
+\clearpage
+\listoffigures
+\listof{Graph}{List of Graphs}
+\listof{Test}{List of Tests}
+\listoftables
+\end{document}

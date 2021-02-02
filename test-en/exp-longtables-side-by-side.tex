@@ -1,0 +1,98 @@
+% !TeX program = pdflatex
+
+% This is a rather advanced example which shows several things:
+% 1) How to auto generate a table in (La)TeX.
+%    I am writing the table to a temporary file, then loading it with \input.
+%    \write expands everything, even macros with a \noexpand in front of them.
+%    I am using \string to avoid undesired expansion.
+%    Saving the table in a macro or token register instead might be easier.
+%    The \appto macro defined by the etoolbox package might be useful for that.
+% 2) How to put two longtables side by side by placing them in the same object.
+%    The most interesting part about that is the use of \cmidrule in table head style.
+%    I have redefined table head style using \objectset instead of in the argument of
+%    tableobject in order to avoid the need for \string.
+% 3) How to use \objectset locally.
+%    The use of \begingroup and \endgroup makes no difference in this example but
+%    would keep the redefinition of table head style local if the document was longer.
+%
+% Please note that this usage is not exactly user friendly
+% because when the reader has reached the end of column 1
+% they must jump back to the top of the table which is 5 pages earlier.
+
+\documentclass[a5paper, landscape]{article}
+\usepackage{typearea}
+\usepackage{easyfloats}
+\usepackage{longtable}
+\usepackage{pgffor}
+
+% warning: if \maxCharCode - \minCharCode is uneven
+% \maxCharCode + 1 is printed as well
+\newcommand\minCharCode{32}
+\newcommand\maxCharCode{126}
+
+% warning: \numexpr rounds mathematically
+\edef\midCharCode{\the\numexpr (\minCharCode + \maxCharCode) / 2}
+\edef\halfNumCharCodes{\the\numexpr (\maxCharCode - \minCharCode) / 2}
+
+\def\catcodealigned#1{%
+	\ifnum \catcode#1 < 10
+		\string\phantom1%
+	\fi
+	\the\catcode#1%
+}
+\def\charcodealigned#1{%
+	\ifnum #1 < 100
+		\string\phantom0%
+	\fi
+	#1%
+}
+
+\newwrite\mytmp
+\immediate\openout\mytmp=\jobname.tmp
+\immediate\write\mytmp{%
+	\noexpand\begin{tableobject}{%
+		env = longtable,
+		arg = ccc !{\qquad} ccc,
+		caption = Character codes and category codes,
+		label = codes,
+		table head = Input & Charcode & Catcode &
+		        Input & Charcode & Catcode,
+	}
+}
+\foreach \i [evaluate=\i as \j using int(\i+\halfNumCharCodes)] in {\minCharCode,...,\midCharCode}{%
+	\immediate\write\mytmp{
+		\string\texttt{\char\i} & \charcodealigned\i & \catcodealigned\i &
+		\string\texttt{\char\j} & \charcodealigned\j & \catcodealigned\j \string\\
+	}%
+}
+\immediate\write\mytmp{\noexpand\end{tableobject}}
+\immediate\closeout\mytmp
+
+\begin{document}
+\begingroup
+\objectset{%
+	table head style={%
+		first head =
+			\addlinespace[\abovetopsep]
+			\cmidrule[\heavyrulewidth](r{2em}){1-3}
+			\cmidrule[\heavyrulewidth]{4-6}
+			#1 \\
+			\cmidrule(r{2em}){1-3}
+			\cmidrule{4-6},
+		head =
+			#1 \\
+			\cmidrule(r{2em}){1-3}
+			\cmidrule{4-6},
+		foot =
+			\cmidrule(r{2em}){1-3}
+			\cmidrule{4-6}
+			\multicolumn{6}{r@{}}{(to be continued)},
+		last foot =
+			\cmidrule[\heavyrulewidth](r{2em}){1-3}
+			\cmidrule[\heavyrulewidth]{4-6}
+			\addlinespace[\belowbottomsep],
+	},
+}
+\input{\jobname.tmp}
+\endgroup
+\end{document}

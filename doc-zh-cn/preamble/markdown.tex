@@ -1,0 +1,153 @@
+% !TeX root = ../easyfloats.tex
+
+% Copyright © 2020 E. Zöllner
+% Alternatively to the terms of the LPPL, at your choice,
+% you can redistribute and/or modify this file under the
+% terms of the Do What The Fuck You Want To Public License, Version 2,
+% as published by Sam Hocevar. See http://www.wtfpl.net/about/.
+
+% Allows markdown like syntax:
+%     *emph*
+%     `code`
+%
+% If `<code>` is used in an argument <code> cannot contain:
+%     - comment characters (percent sign)
+%     - unbalanced curly braces
+%
+% If `<code>` is used in a context where fragile commands break
+% (e.g. an entry of the table of contents or list of figures):
+%     - control sequences and active characters *after* the first token
+%       must be preceded by \string or \protect
+%
+% If `<code>` is used in a pdf string (e.g. in \section):
+%     - control sequences *after* the first token must be preceded by \cmd
+%     - active characters *after* the first token must be preceded by \string
+%     - curly braces *after* the first token must be escaped or preceded by \string
+%
+% If you add prefixes like `\string` or `\cmd` in a normal execution context
+% they will (of course) be treated as code to be displayed.
+% Therefore it may be necessary to pass different code for these three cases:
+%     \section[\texorpdfstring
+%         {`\emph{page\string~42}`}
+%         {`\emph\{page\string~42\}`}]
+%         {`\emph{page~42}`}
+%
+% Warning: \section uses \write without \immediate.
+% If the definition of ` is different where it is written
+% e.g. if the next page break is inside of a minted environment
+% you will get into trouble.
+%
+% Warning: With * being an active character you cannot just
+% use starred versions of environments.
+% \starred expands to a * with catcode other:
+%     \begin{examplecode\starred}
+%         <code>
+%     \end{examplecode\starred}
+% I am redefining \@ifstar to recognize active * as well.
+% So starred commands can be used usual.
+%
+% Warning: This should be loaded last so that the
+% category changing code is appended to the hook last.
+% Otherwise there is trouble with minted.
+%
+% depends on
+%     \LinkKeyword{<keywordtype>}{<keyword>}<formatmacro>{<text>}
+% from preamble/keydoc.tex
+
+\usepackage{etoolbox}
+
+\newcommand{\starred}{*}
+
+\providecommand{\mintinline}[1]{\verb}%}
+
+\makeatletter
+% An alternative version of \@ifstar which also recognizes an active star.
+% I am not changing \@ifstar here because the active * is defined in \AtBeginDocument.
+% So in the preamble \newcommand would check if the next token is an undefined control sequence token.
+% If it was it would be discarded and it would try to define the next token.
+\let\@markdown@original@ifstar=\@ifstar
+\catcode`*=\active
+\def\@markdown@ifstar#1#2{%
+	\@markdown@original@ifstar
+		{#1}%
+		{%
+			\@ifnextchar*%
+				{\@firstoftwo{#1}}%
+				{#2}%
+		}%
+}
+\@makeother*
+
+\protected\def\IfProtectedContextGobble#1{\ifx\@thirdofthree#1\relax\else#1\fi}
+\newcommand\IfUnprotectedContext{%
+	\IfProtectedContextGobble\@thirdofthree
+	\@firstoftwo
+}
+
+\catcode``=\active
+\newcommand\MarkdownVerb{%
+	\begingroup
+	\@examplecode@setcatcodes
+	\catcode\string``=\active
+	\futurelet \@MarkdownVerb@nexttoken \@MarkdownVerb@do
+}
+\long\def\@MarkdownVerb@do#1`{%
+	\IfKeywordUndefined{}{\detokenize{#1}}{%
+		\ifcat \noexpand\@MarkdownVerb@nexttoken a%
+			\xckey`#1`%
+		\else
+			\xc`#1`%
+		\fi
+	}{%
+		\catcode\string` =10
+		\catcode\string`\^^M=9
+		\def\do{\LinkKeyword{}{\detokenize{#1}}\@firstofone\@firstofone}%
+		\scantokens{\appto\do{{#1}}}%
+		\do
+	}%
+	\endgroup
+}
+\def\StringifyMarkdownVerb#1`{\string#1\noexpand`}
+\def\PdfStringifyMarkdownVerb#1#2`{%
+	\ifcat\relax\noexpand#1\relax
+		\cmd#1%
+	\else
+		\string#1%
+	\fi
+	\detokenize{#2}%
+}
+\@makeother`
+
+\write\@auxout{\string\catcode\string\string``=\active}
+
+% \AfterEndPreamble is important when used with minted
+\AfterEndPreamble{%
+	\catcode`*=\active
+	\appto\dospecials{\do\*}%
+	\scantokens{\def\ActiveAsterisc{*}}%
+	\edef\do{\def\expandonce\ActiveAsterisc##1\expandonce\ActiveAsterisc{\noexpand\emph{##1}}}%
+	\do
+	\let\@ifstar=\@markdown@ifstar
+	%
+	\catcode``=\active
+	%% If I add ` to \dospecials \mintinline will change it to catcode other
+	%% therefore not finding the active ` which marks the end resulting in
+	%% ! Paragraph ended before \minted@inline@ii was complete.
+	%% I could change the definition of \mintinline to expect an other `
+	%% but that would fail when using `...` inside of an argument.
+	%% Whether ` is contained in \dospecials or not does not seem to bother \verb.
+	%\appto\dospecials{\do\`}%
+	\scantokens{%
+		\def`{%
+			\texorpdfstring{%
+			\IfUnprotectedContext%
+				{\MarkdownVerb}
+				{\noexpand`\StringifyMarkdownVerb}%
+			}{%
+				\PdfStringifyMarkdownVerb
+			}%
+		}%
+	}%
+}
+
+\makeatother

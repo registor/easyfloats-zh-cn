@@ -1,0 +1,30 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\newcommand\AssertPatch[3]{% #1: Patch command, #2: input, #3: expected output
+	\def\tmpIs{#2}%
+	\def\tmpExpected{#3}%
+	#1\tmpIs
+	\ifx\tmpIs\tmpExpected
+		\success
+	\else
+		\fail
+		\PackageError{test}{"\tmpIs" != "\tmpExpected"}{}%
+	\fi
+	\ignorespaces
+}
+
+\begin{document}
+	\verb|\GobbleLeadingSpace|
+	\AssertPatch\GobbleLeadingSpaceIn{abc}{abc}
+	\AssertPatch\GobbleLeadingSpaceIn{ abc}{abc}
+	\AssertPatch\GobbleLeadingSpaceIn{ a b c }{a b c }
+
+	\verb|\PatchUnderscore|
+	\AssertPatch\PatchUnderscore{abc def}{abc def}
+	\AssertPatch\PatchUnderscore{__init__.py}{\textunderscore\textunderscore init\textunderscore\textunderscore.py}
+\end{document}

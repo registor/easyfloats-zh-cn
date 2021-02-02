@@ -1,0 +1,86 @@
+% !TeX root = ../easyfloats.tex
+
+% \section{Other packages}
+\section{其它宏包}
+\label{other-packages}
+
+% Other useful packages for dealing with figures or tables:
+其它对处理图和表有用的宏包有：
+\pkgdoc{placeins}
+  % When loaded with the `section` package option it prevents floats from floating to another section.
+  % It provides the `\FloatBarrier` command which prevents floats from floating past a certain point.
+
+  当使用`section`选项载入该宏包时，它能够防止浮动体编号浮动到另一个section。
+  它提供了`\FloatBarrier`命令，用于防止浮动体编号越过指定位置。
+\pkgdoc{flafter}
+  % ensures that floats are not placed before their inclusion in the source code.
+  % (With the placement=t it is possible that they are placed on the top of the same page.)
+  确保在不会在代码之前的位置插入浮动体。
+  (如果使用了placement=t，则有可能会浮动到当前页的顶部。)
+\pkgdoc{booktabs}
+  % for formatting tables
+  用于三线表等格式化表格。
+\pkgdoc{xcolor}
+  % When loaded with the package option \pkgoptn{table} it provides commands for coloring tables.
+  如果使用\pkgoptn{table}选项载入该宏包，则能够提供排版彩色表格的命令。
+
+  % `\rowcolor{<color>}` sets a background color for a single row. See \cref{local-definitions-in-tables}.
+  `\rowcolor{<color>}`命令用于设置一行的背景色，参见\cref{local-definitions-in-tables}。
+
+  % `\rowcolors{<firstrow>}{<oddcolor>}{<evencolor>}` can be used with the `exec` key and sets alternating row colors for the entire table.
+  `\rowcolors{<firstrow>}{<oddcolor>}{<evencolor>}` 能够与`exec`键一起使用，
+  并设置整个表格奇偶行的交替色。
+
+\pkgdoc{array}
+  % extends the column specification syntax and defines the `\newcolumntype` command to define custom column types.
+  % Also changes the approach how rules are drawn but that is irrelevant if you apply \pkg{booktabs}' guidelines~\autocite[section~2 \sectionname{The layout of formal tables}]{booktabs}.
+  扩展了列格式语法并定义了`\newcolumntype`命令以实现列格式符号的自定义。
+  同时，也修改了表格横线的绘制方式，
+  但如果使用了\pkg{booktabs}的导引线，
+  则该宏包设置的横线绘制方式则无效\autocite[第2节 \sectionname{格式化表格布局}]{booktabs}.
+\pkgdoc{siunitx}
+  % for typesetting numbers and units.
+  % It provides the `S` column to align numbers at their decimal separator.
+  用于排版数字和单位。
+  它提供了`S`列格式以实现该列中按小数点对齐。
+\pkgdoc{tabularx}
+  % A table where the columns adapt to the width of the table, not the other way around.
+  % Unlike `tabular*` the space goes into the columns, not between the columns.
+  其列格式能自动适应表格的宽度。
+  与`tabular*`环境不同，空白会插入列中，而不是列之间。
+\pkgdoc{longtable}
+  % provides tables where a pagebreak is allowed,
+  % see \cref{longtable}
+  提供可以跨页排版的长表格，参见\cref{longtable}。
+\pkgdoc{hyperref}
+  % automatically creates links in the pdf document for example from references to floating objects.
+  % With the package option `pdfusetitle` it automatically sets the pdf title and author based on `\title` and `\author`.
+  自动在pdf文件中创建超链接，例如从引用位置链接到指定的浮动体。
+  如果使用了`pdfusetitle`选项，它将自动根据`\title`和`\author`
+  设置pdf文件的title和author。
+\pkgdoc{cleveref}
+  % to reference an object.
+  % In contrast to the standard `\ref` and `\pageref`, `\cref` and `\cpageref` automatically detect the type of object and can handle multiple references at once.
+  % With the `nameinlink` package option the object type in front of the number becomes part of the link created by hyperref (i.e.\ the link is \enquote{figure 1} instead of \enquote{1} and \enquote{figure } being before the link.)
+  % With the `noabbrev` option references are not abbreviated (by default references are abbreviated but only the lower case variants, not the upper case variants which seems inconsistent to me. Abbreviating at the beginning of a sentence is considered bad style~\autocite{texexchange_abbrev_bad_style}.)
+  用于实现交叉引用，
+  与标准的`\ref`命令和`\pageref`命令相比，
+  `\cref`命令和`\cpageref`命令能够自动探测对象类型并一次性处理多重引用。
+  如果使用了`nameinlink`选项，对象的类型将会添加到引用编号数字之前
+  (例如用\enquote{figure 1}代替\enquote{1}并且\enquote{figure }置于链接之前。)
+\pkgdoc{biblatex}
+  % If you input graphics you need to specify the source.
+  % Biblatex creates an entire bibliography for you.
+  如果需要为插图添加来源，
+  Biblatex能够创建完整的引用。
+\pkgdoc{tikz}
+  % is an amazingly powerful package to create your own graphics in \LaTeX.
+  是一个功能强大、表现完善的\LaTeX{}绘制宏包。
+\pkgdoc{newfloat} 
+  % provides a more modern command to define new floating environments than the \pkg{float} package.
+  与\pkg{float}宏包相比，提供了定义新浮动体的更为现代化的命令。
+\endpkgdoc
+
+
+% For more information about floats see \url{https://latexref.xyz/Floats.html} (it seems this is an html version of the above quoted pdf~\autocite{latex2e}).
+有关浮动体更多细节，请参阅\url{https://latexref.xyz/Floats.html} (这好像是pdf版\autocite{latex2e}的html版本)。

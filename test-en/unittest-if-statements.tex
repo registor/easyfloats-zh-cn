@@ -1,0 +1,123 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+%TODO: \IfPgfkeyHasValue
+
+
+\def\AssertEnvironmentExistsOrIsEmpty#1{\Assert\IfEnvironmentExistsOrIsEmpty{#1}{#1 should be an environment}}
+\newcommand\AssertEnvironmentExistsOrIsEmptyNot[1]{\AssertNot\IfEnvironmentExistsOrIsEmpty{#1}{#1 should not be an environment}}
+
+\makeatletter
+\newcommand\AssertPgfkeyExists[1]{\Assert\esf@ifpgfkeyexists{#1}{#1 should be an existing pgf key}}
+\newcommand\AssertPgfkeyExistsNot[1]{\AssertNot\esf@ifpgfkeyexists{#1}{#1 should not be an existing pgf key}}
+\newcommand\AssertPgfkeyRequiresValue[1]{\Assert\esf@ifpgfkeyrequiresvalue{#1}{#1 should require a value}}
+\newcommand\AssertPgfkeyRequiresValueNot[1]{\AssertNot\esf@ifpgfkeyrequiresvalue{#1}{#1 should not require a value}}
+
+\newcommand\AssertKeyvalkeyExists[2]{\Assert{\esf@ifkeyvalkeyexists{#1}}{#2}{#1.#2 should be an existing keyval key}}
+\newcommand\AssertKeyvalkeyExistsNot[2]{\AssertNot{\esf@ifkeyvalkeyexists{#1}}{#2}{#1.#2 should not be an existing keyval key}}
+\newcommand\AssertKeyvalkeyRequiresValue[2]{\Assert{\esf@ifkeyvalkeyrequiresvalue{#1}}{#2}{#1.#2 should require a value}}
+\newcommand\AssertKeyvalkeyRequiresValueNot[2]{\AssertNot{\esf@ifkeyvalkeyrequiresvalue{#1}}{#2}{#1.#2 should not require a value}}
+
+\newcommand\AssertEndsOnPlus[1]{\Assert\IfEndsOnPlus{#1}{'#1' ends on '+'}}
+\newcommand\AssertEndsOnPlusNot[1]{\AssertNot\IfEndsOnPlus{#1}{'#1' does not end on '+'}}
+\newcommand\AssertEndsOnSpacePlus[1]{\Assert\IfEndsOnSpacePlus{#1}{'#1' ends on ' +'}}
+\newcommand\AssertEndsOnSpacePlusNot[1]{\AssertNot\IfEndsOnSpacePlus{#1}{'#1' does not end on ' +'}}
+
+
+\newcommand\AssertObjectStyleExists[1]{\Assert\IfObjectStyleExists{#1}{#1 should be an existing object style or style group}}
+\newcommand\AssertObjectStyleExistsNot[1]{\AssertNot\IfObjectStyleExists{#1}{#1 should not be an existing object style or style group}}
+\newcommand\AssertObjectStyleNotGroup[1]{\Assert\IfObjectStyleNotGroup{#1}{#1 should be an existing object style but not a style group}}
+\newcommand\AssertObjectStyleNotGroupNot[1]{\AssertNot\IfObjectStyleNotGroup{#1}{#1 should not be an existing object style but not a style group}}
+\makeatother
+
+
+\pgfqkeys{/test}{%
+	key s/.initial,
+	%
+	key sr/.initial,
+	key sr/.value required,
+	%
+	key sf/.initial,
+	key sf/.value forbidden,
+	%
+	key c/.code=,
+	%
+	key cr/.code=,
+	key cr/.value required,
+	%
+	key cf/.code=,
+	key cf/.value forbidden,
+}
+
+\makeatletter
+\define@key{test}{key c}[default]{}
+\define@key{test}{key cr}{}
+\makeatother
+
+\begin{document}
+	\verb|\IfEnvironmentExistsOrIsEmpty|
+	\AssertEnvironmentExistsOrIsEmpty{figure}
+	\AssertEnvironmentExistsOrIsEmpty{}
+	\AssertEnvironmentExistsOrIsEmptyNot{undefedenv}
+	\AssertEnvironmentExistsOrIsEmptyNot{relax}
+
+	\verb|\esf@ifpgfkeyexists|
+	\AssertPgfkeyExists{/object/type}
+	\AssertPgfkeyExists{/object/contains subobjects}
+	\AssertPgfkeyExists{/object/sub}
+	\AssertPgfkeyExistsNot{/object/undefedkey}
+	\AssertPgfkeyExistsNot{/object/undefedkey}% ensure that the test does not define the key
+
+	\verb|\esf@ifpgfkeyrequiresvalue|
+	\AssertPgfkeyRequiresValue{/test/key sr}
+	\AssertPgfkeyRequiresValue{/test/key cr}
+	\AssertPgfkeyRequiresValueNot{/test/key s}
+	\AssertPgfkeyRequiresValueNot{/test/key c}
+	\AssertPgfkeyRequiresValueNot{/test/key sf}
+	\AssertPgfkeyRequiresValueNot{/test/key cf}
+
+	\verb|\esf@ifkeyvalkeyexists|
+	\AssertKeyvalkeyExists{Gin}{width}
+	\AssertKeyvalkeyExists{Gin}{angle}
+	\AssertKeyvalkeyExistsNot{Gin}{noopt}
+	\AssertKeyvalkeyExistsNot{Gin}{noopt}% ensure that the test does not define the key
+
+	\setkeys{test}{key c, key cr=}
+
+	\verb|\esf@ifkeyvalkeyrequiresvalue|
+	\AssertKeyvalkeyRequiresValue{test}{key cr}
+	\AssertKeyvalkeyRequiresValueNot{test}{key c}
+
+	\verb|\IfEndsOnPlus|
+	\AssertEndsOnPlus{arg+}
+	\AssertEndsOnPlus{arg++}
+	\AssertEndsOnPlus{+arg+}
+	\AssertEndsOnPlusNot{arg}
+	\AssertEndsOnPlusNot{arg+ }
+
+	\verb|\IfEndsOnSpacePlus|
+	\AssertEndsOnSpacePlus{arg +}
+	\AssertEndsOnSpacePlus{arg+ +}
+	\AssertEndsOnSpacePlus{ +arg +}
+	\AssertEndsOnSpacePlusNot{arg+}
+	\AssertEndsOnSpacePlusNot{arg }
+	\AssertEndsOnSpacePlusNot{arg + }
+
+	\verb|\IfObjectStyleExists|
+	\AssertObjectStyleExists{all}
+	\AssertObjectStyleExists{figure}
+	\AssertObjectStyleExists{table}
+	\AssertObjectStyleExistsNot{}
+	\AssertObjectStyleExistsNot{none}
+
+	\verb|\IfObjectStyleNotGroup|
+	\AssertObjectStyleNotGroup{figure}
+	\AssertObjectStyleNotGroup{table}
+	\AssertObjectStyleNotGroupNot{}
+	\AssertObjectStyleNotGroupNot{none}
+	\AssertObjectStyleNotGroupNot{all}
+\end{document}

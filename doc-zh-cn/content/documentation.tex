@@ -1,0 +1,1719 @@
+% !TeX root = ../easyfloats.tex
+
+% \section{Documentation}
+\section{文档说明}
+\label{documentation}
+
+% This section contains the documentation on how to use this package.
+这一节是该宏包的详细使用说明。
+
+% \Cref{options} gives general information on options which environments and commands defined by this package may take.
+% The options themselves are explained in \cref{environments,commands} where the environments and commands defined by this package are explained.
+在\Cref{options}，给出了该宏包定义的环境和命令中各选项的通用含义。
+\cref{environments,commands}给出了这些选项的详细说明，
+同时，也会给出该宏包定义的所有环境和命令的使用说明。
+
+% \Cref{initialization} describes what is happening when loading this package.
+% \Cref{package-options} describes the options which can be passed to `\usepackage` when loading this package.
+%
+% \Cref{help} explains a few features which may help you to get a better understanding about what is going on.
+% This might be useful if you run into unexpected errors or this package behaves different than you expected.
+\Cref{initialization}说明了载入该宏包时所发生的事情。
+\Cref{package-options}说明了用`\usepackage`载入该宏包时，可以使用的宏包选项。
+\Cref{help}说明了更多的细节，以便能更好的使用该宏包。
+这对解决使用该宏包时产生的问题是非常有帮助的。
+
+% \subsection{Options}
+\subsection{选项说明}
+\label{options}
+
+% The environments and commands defined by this package take options (implemented with the \pkg{pgfkeys} package).
+% Options are a comma separated list of `<key>`s or `<key>=<value>` pairs.
+该宏包定义的环境和命令使用\pkg{pgfkeys}宏包提供的\enquote{key=value}选项，
+不同选项之间用逗号分隔，
+从而构成`<key>`或`<key>=<value>`选项列表。
+
+% Which keys are allowed for which environment\slash command and which values are allowed for which key is specified in \cref{environments,commands} where the environments and commands are documented.
+% This section gives general information about these options.
+在\cref{environments,commands}给出哪些环境和命令需要哪些选项(键)以及哪些选项能取哪些值(健值)，
+在此，仅给出这些选项的通用说明。
+
+% This section does *not* apply to the package options which are explained in \cref{package-options}.
+这一节不包含宏包选项说明，关于宏包选项说明，请参阅\cref{package-options}。
+
+
+% \subsubsection{Initial vs default values}
+\subsubsection{初值和默认值}
+\label{initial-vs-default-values}
+
+% I am using the words *initial value* and *default value* like they are used in the \mycite{tikz}.
+该宏包使用\mycite{tikz}中使用的*初值*和*默认值*概念。
+
+% The *initial* value of an option is the value which is used if the key is *not* given.
+*初值*是指当未使用一个选项时，该选项的取值。
+
+% The *default* value of an option is the value which is used if the key is given without a value.
+*默认值*是当使用一个选项，但未给选项赋值时，该选项的取值。
+% Most keys don't have a default value, i.e.\ if you use the key you must explicitly give it a value.
+很多选项是没有默认值的，也就是说当使用这些选项时，则必须为其赋值。
+
+% \subsubsection{Options scope}
+\subsubsection{选项作用域}
+\label{options-scope}
+
+% Setting an option always applies until the end of the current group.
+一个选项的作用域总是从使用该选项的位置开始直至本组结束，如：
+% For the argument of an environment this is the corresponding `\end` command.
+对于环境而言，其作用域直到环境结束标志`\end`。
+% For the argument of the \cmd{\includegraphicobject} command this is the end of this command.
+对于类似\cmd{\includegraphicobject}命令，则其使用域直到该命令结束。
+% For the argument of \cmd{\objectset} this may be the end of the document.
+对于在导言区用\cmd{\objectset}命令设置的选项，其作用域是直至文档结束。
+
+% If you are not familiar with the concept of groups in \TeX\ \mycite[chapter~10]{texbytopic} is one possible place to read up on it.
+如果对\TeX{}中组的概念不熟悉，请参阅\mycite[第10章]{texbytopic}。
+
+% \subsubsection{Special characters in options}
+\subsubsection{选项的特殊字符}
+\label{special-characters-in-options}
+
+% If a value contains a comma or an equals sign it must be wrapped in curly braces.
+如果选项的键值中有逗号或等号，则必须将这个键值置于一对大括号中。
+
+% Spaces before and after a comma (separating an option) and before or after an equals sign (separating key and value) are ignored.
+在排版中，会忽略用于分隔不同选项的逗号前后的空白及用于分隔键和键值的等号前后的空白。
+% However, a space after the opening brace is *not* ignored.
+但是，不忽略左大括号后的空白。
+% So if you put the first key on the next line make sure to comment out the linebreak.
+% If a leading or trailing space in a value is desired wrap the value in curly braces.
+所以，如果把第1个选项单独放在下一行，则一定要在前一行的大括号后添加\enquote{\%}注释符。
+如果需要在一个选项的值中添加前导空格或尾部空格，则需用大括号将其键值括起来。
+
+% `\par` (aka an empty line) is forbidden in keys but allowed in values.
+注意，在选项后不允许添加`\par` (空行)，但`\par`却可以用于选项键值。
+
+% \subsubsection{Key patterns}
+\subsubsection{键值表示模式}
+\label{key-patterns}
+
+% Sometimes I am talking about entire groups of keys instead of individual keys.
+% I specify those groups with a pattern which matches the keys that I am referring to.
+% In these patterns parenthesis stand for something optional and angular brackets for wildcards.
+在说明文档中，有时可能需要描述是整个一组键而不是单个键。
+此时，需要用一个与键相匹配的模式来说明。
+在这些模式中，圆括号表示可选内容，尖括号表示通配符。
+
+% For example the pattern `(<env>) arg(s)` matches the keys `tabular* arg` and `args` (and many more)
+% but not `env arg` because `env` is not an existing environment.
+例如，用`(<env>)arg(s)`模式可以匹配`tabular* arg`和`args`(可以有更多)，
+但由于`env`不是一个环境，因此不能匹配`env arg`。
+
+% If a key has a version which ends on a `+` to append a value instead of replacing it the space in front of the `+` is optional.
+如果一个键有带有`+`版本，则表示追加键值而不是替换键值，其`+`前的空格是可选的。
+
+% \subsubsection{Key name vs key path}
+\subsubsection{键名和键路径}
+\label{key-name-vs-key-path}
+
+% \pkg{pgfkeys} organizes all keys \textcquote[page~954]{tikz}{in a large tree that is reminiscent of the Unix file tree.}
+% The keys of this package are located in the three paths `/object`, `/subobject` and `/graphicobject`.
+\pkg{pgfkeys}将所有键按\textcquote[954页]{tikz}{类似Unix文件树结构一样构成一棵大树进行管理}，
+该宏包的键树位于`/object`、`/subobject`和`/graphicobject`。
+
+
+% In error messages thrown by the \pkg{pgfkeys} package the full path of a key is shown.
+当有错误发生时，\pkg{pgfkeys}宏包会抛出包含完整路径的键路径。
+
+% When setting keys, however, you need not and should not specify the full path.
+% The commands and environments of this package set the path automatically.
+% Using full paths does not directly cause an error or a warning but trying to set options for a style or style group with \cmd{\objectset} causes undefined behavior.
+但是，在设置一个键时，并不需要也不应该给出完整路径。
+该宏包能够自动设置所需键路径。
+使用完整路径并不会直接导致错误或警告，
+但试图用\cmd{\objectset}为浮动体类型或类型组设置选项时，
+可能会导致未定义行为。
+
+% Therefore, error messages thrown directly by this package omit the path and show the name of the key only.
+因此，该宏包直接抛出的错误信息会省略路径，而仅显示键名称。
+
+% \subsubsection{Key types}
+\subsubsection{键类型}
+\label{key-types}
+% In \pkg{pgfkeys} there are different types of keys.
+% Which type a key belongs to is relevant for debugging if you want to check the value of a key, see \cref{help}.
+在\pkg{pgfkeys}中，有不同类型的键。
+在Debug中，如果需要查看一个键的值，
+首先要明确该键属于哪个类型。
+
+\keytypedoc{storing key}
+% \keytypedoc{存储型键}
+  % Keys of this type are like a variable.
+  % They store the given value.
+  % This value can be showed using the `.show value` handler (see \cref{help}).
+  存储型键，类似于一个变量，能够保存给定的值。
+  可以使用`.show value`功能来显示这些值(详见\cref{help})
+
+\keytypedoc{executed key}
+%   Keys of this type are like a function.
+%   They execute some predefined code and possibly take a value as argument.
+% \keytypedoc{执行型键}
+  执行型键，类似于一个函数，
+  该键可以执行预设的代码并且可以接受一个参数。
+
+\keytypedoc{boolean key}
+%   is a special case of an executed key which sets a plain \TeX\ if command.
+%   This if command and it's meaning can be showed with the `.show boolean` handler (which is *not* contained in \pkg{pgfkeys}, I have defined it in this package).
+% \keytypedoc{布尔型键}
+  布尔型键，是执行型键的一个特例，用于处理普通\TeX{} 的if命令。
+  这个if命令和它的含义可以用`.show boolean`功能来显示
+  (这个功能\pkg{pgfkeys}并未实现，该宏包对其进行了定义)。
+
+  % The allowed values for a key of this type are `true` and `false`.
+  % The default value (i.e.\ the value which is assumed if the key is given without a value) is `true`.
+  该类型的键取值只能为`true`或`false`，其默认值是`true`
+  (给出键但未给出键值)。
+
+\keytypedoc{forwarding key}
+%   is a special case of an executed key which calls another key.
+% \keytypedoc{转发型键}
+  该类型的键是用于调用其它键的特殊执行型键。
+
+\keytypedoc{handler}
+%   Keys defined in the path `/handlers`.
+%   They can be applied to other keys by appending them to the path.
+%   For users of this package they can be helpful for debugging.
+%   For example `\objectset{env/.show value}` shows the value of the key `env`.
+% \keytypedoc{处理程序}
+  这些键定义在`/handlers`路径中，
+  可以通过路径追加将其应用到其它键中。
+  对于使用该宏包的用户，当需要Debug时，这一操作非常有用。
+  例如，可以用`\objectset{env/.show value}`显示`env`键的值。
+
+  % The \pkg{pgfkeys} package also defines handlers which expand the value.
+  % I haven't come up with an example where this might be useful in the context of this package but e.g.\ `tabular arg/.expand once=\colspec,` works as expected.
+  \pkg{pgfkeys}宏包还定义了键值展开处理程序，在此，还无法给出一个很好的例子，
+  但是，\ `tabular arg/.expand once=\colspec,`一定能够按期望的方式进行工作。
+
+\keytypedoc{unknown key handler}
+%   is a special key which is called if a given key does not exist and it's name is not a handler.
+%   I am using this to implement key patterns.
+% \keytypedoc{未知处理程序}
+  这是一种特殊的键，如果一个给定的键不存在并且它的名称也不是处理程序，该键就会被调用。
+  该宏包就是用这种方式来实现键模式的。
+\endkeytypedoc
+
+% \subsubsection{Styles}
+\subsubsection{浮动体类型}
+\label{styles}
+\DescribeMeta{style}
+\DescribeMeta{styles}
+
+% This package defines two styles, one for figures and one for tables.
+该宏包定义了figure(插图)和table(表格)两种浮动体类型。
+
+% You can think of these styles as an extension of the \pkg{float} package's float styles.
+可以将这些浮动体类型看作是\pkg{float}宏包中浮动体类型的扩展。
+
+% These styles are somewhat inspired by the \pkg{pgfkeys} styles but are different.
+% They are neither set nor applied in the same way.
+这些类型的设计受到了\pkg{pgfkeys}宏包类型定义的启发，但又稍有不同。
+他们既不用相同的方式设置也不用相同的方式来使用。
+
+% A style is a list of options which is not set immediately but locally for each object belonging to that style.
+一个类型本质上就是一组选项列表，它无需立即设置，
+而是为属于这种类型的浮动体对象实现局部设置。
+
+% The options of a style can be set by passing the name of the style as an optional argument to the \cmd{\objectset} command,
+% e.g.\ `\objectset[figure]{<options>}` or `\objectset[table]{<options>}`.
+当需要为一种类型的浮动体设置选项时，
+可以通过将该类型名称作为一个可选参数，然后传递给\cmd{\objectset}命令进行设置，
+如：`\objectset[figure]{<选项>}` 或 `\objectset[table]{<选项>}`.
+
+% A style is applied by using the corresponding environment (e.g.\ \env{figureobject} or \env{tableobject})
+% or `\graphicobjectstyle{<style>}` for \cmd{\includegraphicobject}.
+当使用对应的环境时(\env{figureobject}或\env{tableobject})，会自动应用相应的样式设置。
+或是直接使用`\graphicobjectstyle{<style>}`为\cmd{\includegraphicobject}命令指定样式。
+
+% New styles can be defined with `\NewObjectStyle` as explained in \cref{new-object-styles-and-types}.
+该宏包定义的`\NewObjectStyle`命令用于定义新浮动体类型(详见\cref{new-object-styles-and-types})。
+
+% \subsubsection{Style groups}
+\subsubsection{浮动体类型组}
+\label{style-groups}
+\DescribeMeta{group}
+
+% This package defines one group of styles called `all` which contains all defined styles.
+该宏包定义了一个称作`all`的浮动体类型组，用于处理所有类型的浮动体。
+
+% When setting options one can use a group name instead of a style name.
+% In that case the options are set for all styles in the group.
+当使用一个组名设置浮动体类型时，则可以为该组内所有类型的浮动体进行设置。
+
+% \subsubsection{Options processing order}
+\subsubsection{选项处理顺序}
+\label{options-processing-order}
+
+% \begin{enumerate}
+% \item Options set with `\objectset{<options>}` have the lowest priority.
+% \item Options set for a specific style with `\objectset[<styles>]{<options>}` take precedence because they are set later (at the object, not the `\objectset` command).
+% \item Options passed directly to the object have the highest priority.
+% \end{enumerate}
+\begin{enumerate}
+\item `\objectset{<options>}`的优先级最低。
+\item 用`\objectset[<styles>]{<options>}`为特定浮动体类型设置的选项具备较高优先级，
+        因为它们是较后设置的(在对象处而非`\objectset`命令).
+\item 直接传递给对象的选项优先级最高。
+\end{enumerate}
+
+% For example:
+如：
+
+\begin{examplecode}
+\objectset[figure]{placement=p}
+\objectset{placement=H}
+\objectset[table]{placement=htbp}
+\end{examplecode}
+
+% Given the above preamble both figure- and tableobjects are floating.
+% Tableobjects are allowed to be placed where they are specified in the source code.
+% Figureobjects are put on a separate float page.
+% The second line (which would disable floating) has no effect (unless you define a custom style) because it is overridden not only by the third but also the first line.
+将上述代码放在导言区，则可以将图和表都设置为浮动。
+对于表格对象，可以放在源代码中指定的地方。
+对于图对象，则放在单独的浮动页上。
+第二行代码的禁用浮动体设置是无效的(除非H是自定义的样式)，
+因为第一行和第三行的代码比它的优先级高。
+
+% \subsection{Environments}
+\subsection{环境}
+\label{environments}
+
+% This package defines the following environments.
+% Each of them takes exactly one mandatory argument,
+% options as a comma separated key=value list.
+该宏包定义了如下环境，
+每一个环境都仅需一个必选参数，
+其选项是一个用逗号分隔的key=value列表。
+
+% \subsubsection{`object` environment}
+\subsubsection{`object` 环境}
+\label{object-environment}
+\begingroup
+\keydocpath{/object}
+\DescribeEnv{object}
+% The `object` environment is used internally by \env{figureobject} and \env{tableobject}.
+% Don't use this directly.
+% You can define more environments like `figureobject` or `tableobject` with \cmd{\NewObjectStyle} if needed.
+\env{figureobject} 和\env{tableobject}环境在内部使用了`object`环境，不能直接使用该环境。
+如果需要，可用\cmd{\NewObjectStyle}定义类似`figureobject` 或 `tableobject`的自定义浮动体对象环境。
+
+% This environment redefines the `\caption` and `\label` commands to set the \key{caption}\slash `label` option so that you can use them as usual except you cannot create several labels.
+% If you really need several labels for the same object put the additional `\label` command(s) inside of the caption argument, there `\label` has it's original meaning.
+% The location or the order of `\caption` and `\label` inside of the object environment is not relevant.
+% Nevertheless I recommend to always put the `\label` after the `\caption` as it is usually required in order to get the references right (if you choose to use these commands instead of the options).
+% Where the caption is typeset (above or below the object) is determined by the float style.
+该环境重新定义了`\caption`和`\label`命令，以实现\key{caption}\slash `label`选项，
+这样除了不能创建多个引用标签，可以按习惯的方式使用它们。
+如果需要为同一个对象创建多个标签，可以通过在caption选项中附加`\label`命令来实现，
+此时，`\label`具有原来的语义。
+`object`环境中的`\caption`和`\label`的位置和顺序不影响结果。
+然而，强烈建议把`\label`放在`\caption`之后，
+因为通常这样才能得到正确的引用(如果选择使用这些命令来代替选项)。
+浮动体类型决定了标题排版的位置(对象的上方或下方)。
+
+% This environment takes the following options:
+该环境具有如下选项：
+\keydoc{type = <type>}{storing key}
+\DescribeMeta{type}
+   % The floating environment to use, e.g.\ `figure` or \env{table}.
+   需要使用的浮动体环境，也就是`figure`环境或\env{table}环境。
+\keydoc[initial value=empty]{float style = plain | plaintop | ruled | boxed | <empty>}{storing key}
+   % How the object is supposed to look like,
+   % most importantly whether the caption is supposed to be above or below the object.
+   % See the \pkg{float} package for more information.
+   浮动体对象如何排版，其中最为重要的是
+   标题应该在对象的上方还是下方。
+   更多细节请参阅\pkg{float}宏包使用说明。
+
+   % If the value is empty the float type is *not* restyled before the\slash each object.
+   % However, this package restyles \env{table} to `plaintop` and `figure` to `plain` when it is loaded.
+   % The reasoning is explained in~\autocite{texexchange_caption_position}.
+   如果值为空，那么浮动体样式不会在排版之前被重置。
+   然而，该宏包在加载时会将\env{table}的样式重置为`plaintop`，
+   将`figure`的样式重置为`plain`。
+   关于这样做的原因，请参阅\autocite{texexchange_caption_position}。
+
+\keydoc{caption = <text>}{storing key}
+   % The caption to place above or below the float.
+   浮动体标题(上\slash{}下)。
+
+   % The appearance of the caption can be configured using `\captionsetup` defined by the \pkg{caption} package.
+   可以通过\pkg{caption}宏包提供的`\captionsetup`命令对标题样式进行设置。
+   % The \pkg{caption} package is loaded automatically by this package.
+   该宏包会自动载入\pkg{caption}宏包。
+\keydoc{list caption = <text>}{storing key}
+   % The caption to place in the list of `<type>`s.
+   % If this is not given, the value of \key{caption} is used instead.
+   浮动体目录条目标题，如果未使用该键，则使用\key{caption}的值作为目录条目标题。
+\keydoc{details = <text>}{storing key}
+   % This is appended to the caption which is placed above or below the object but not to the list of `<type>`s.
+   为浮动体的标题附加指定内容，但不添加到浮动体目录条目标题中。
+   \begin{examplecodekey}
+        caption=CTAN lion drawing by Duane Bibby,
+        details=Thanks to \url{www.ctan.org}.
+   \end{examplecodekey}
+   % is equivalent to
+   等效于：
+   \begin{examplecodekey\starred}{\ExamplecodeEscapeinside $ $}
+        list caption=CTAN lion drawing by Duane Bibby,
+        caption=CTAN lion drawing by Duane Bibby.$\\$ Thanks to \url{www.ctan.org}.
+   \end{examplecodekey\starred}
+\keydoc[initial value=英文句点并在其后紧跟1个空格]{details sep = <text>}{storing key}
+   % The separator to be placed between caption and details if details are given.
+   如果设置了`details`，该选项用于设置`caption`与`details`之间的分隔符。
+\keydoc{label = <label>}{storing key}
+   % Defines a label to reference this object.
+   定义该对象的引用标签。
+\keydoc{add label = <label>}{storing key}
+   % Defines an additional label which can be used synonymously to label.
+   % If this key is given several times, only the last one will have an effect.
+   添加附加标签，可以与标签同义。
+   如果多次使用该键，则只有最后一个有效。
+\keydoc[initial value=empty]{placement = [htbp]+!? | H | <empty>}{storing key}
+   % The optional argument passed to the floating environment.
+   % Allowed values:
+   浮动位置选项，可以取如下值：
+   \begin{itemize}
+   % \item any combination of the letters `htbp` (where no letter is occuring more than once), optionally combined with an exclamation mark.
+   %   This means that the object will be a floating object.
+   %   The order of the letters makes no difference.
+   %   They have the following meanings:
+	   \item 字母`htbp`的任意组合(每个字母仅出现1次)，
+		   可以选择与感叹号(`!`)组合。
+		   该选项意味着该对象是一个浮动对象。
+		   其字母的顺序不影响浮动特性，具有以下含义：
+     % \begin{itemize}
+     % \item `h`: \LaTeX\ is allowed to place the object `h`ere, where it is defined.
+     % \item `t`: \LaTeX\ is allowed to place the object at the `t`op of a page.
+     % \item `b`: \LaTeX\ is allowed to place the object at the `b`ottom of a page.
+     % \item `p`: \LaTeX\ is allowed to place the object on a separate `p`age only for floats.
+     % \item `!`: \textcquote[page~27]{latex2e}{\LaTeX\ ignores the restrictions on both the number of floats that can appear and the relative amounts of float and non-float text on the page.}
+     % \end{itemize}
+     \begin{itemize}
+		 \item `h`: 允许置于当前位置(`h`ere)。
+		 \item `t`: 允许置于当前页面顶端(`t`op)。
+		 \item `b`: 允许置于当前页面底部(`b`ottom)。
+		 \item `p`: 允许置于浮动页(`p`age)。
+		 \item `!`: \textcquote[27页]{latex2e}{\LaTeX{}忽略浮动数量的限制以
+		 及页面上浮动和非浮动文本的相对数量}。
+     \end{itemize}
+   % \item `H`: \LaTeX\ places the object exactly here, no matter how unfitting that may be.
+   %    In contrast to a single `h` or `h!` where the object is still a floating object which may float somewhere else if it does not fit here,
+   %    `H` means here and nowhere else.
+   %    `H` is defined by the \pkg{float} package which is loaded by this package automatically.
+ \item `H`: 取消浮动，无论是否合适，将对象置于当前位置。
+      与`h` 或 `h!` 相比较而言，`h` 或 `h!`允许在当前位置浮动。
+      `H`表示仅排版在当前位置。
+	  `H`是\pkg{float}宏包提供的一个选项，当然，该宏包会自动加载\pkg{float}宏包。
+   % \item empty: do *not* pass the optional argument.
+   %   In this case the placement of the float can be changed using the `\floatplacement` command of the \pkg{float} package.
+   %   I have defined this key instead of advertising `\floatplacement` because `\floatplacement` does not allow the value~`H`.
+  \item empty: 表示空参数，此时，可以通过\pkg{float}宏包的`\floatplacement` 命令改变浮动位置。
+	  由于`\floatplacement`不支持`H`，因此，本宏包定义了该键以取代`\floatplacement`命令。
+   \end{itemize}
+
+\keydoc[initial value=`\centering`]{align = <code>}{storing key}
+  % \TeX\ code which is inserted at the beginning of the `<type>` environment.
+在`<type>`中指定的浮动体环境(figure\slash{}table)开始就执行的\TeX{}代码。
+\keydoc[initial value=empty]{exec = <code>}{storing key} /
+\keydoc{exec += <code>}{executed key}
+  % \TeX\ code which is inserted at the beginning of the `<type>` environment before align.
+  % Can be used to define a command for this object, see \cref{local-definitions-in-tables}.
+  在`<type>`中指定的浮动体环境(figure\slash{}table)前并在`align`前执行的\TeX{}代码，
+  可用于定义指定对象的命令，详见\cref{local-definitions-in-tables}。
+\keydoc{graphic <option> = <value>}{unknown key handler}
+\keylinktarget{graphic width}
+  % Is applied to \cmd{\includegraphicobject} and \cmd{\includegraphicsubobject}.
+  % Is ignored for other objects.
+  仅\cmd{\includegraphicobject}和\cmd{\includegraphicsubobject}命令使用该选项，
+  其它对象则会忽略该选项。
+
+  % `<option>` can be any key which is unique to one of these two commands and any key allowed by the `\includegraphics` command (see \pkg{graphicx}\slash \pkg{graphbox} package).
+  % Unlike `\setkeys{Gin}{<options>}` this works with all keys (compare \pkg{graphicx} documentation~\autocite[section~4.6]{graphicx}, unfortunately it's not getting more specific than \enquote{Most of the keyval keys}).
+  `<option>`可以是这两个命令能使用的任何选项
+  及`\includegraphics`命令的任何选项(详见\pkg{graphicx}\slash \pkg{graphbox}文档)。
+  与`\setkeys{Gin}{options}`不同，
+  它适用于所有键(请与\pkg{graphicx}文档的\autocite[4.6节]{graphicx}进行比较),
+  遗憾的是，它不能比多数\enquote{keyval}键更具体。
+
+  % I am checking if the key is existing immediately but I cannot check the value (only whether it is required).
+  % Therefore if you pass a wrong value the error message will not appear where you set this option but at the object where it is applied.
+  在此，会立即检查键是否存在，但却无法检查键值(仅检查是否有必要)是否存在。
+  因此，如果出现值传递错误，则无法显示选项设置位置，
+  只有当排版对象时，才会报错。
+
+  % If you set `graphic width` globally and want to override it locally you can use `graphic width=!`.
+  % This is a feature of the graphicx package but it is not well documented in it's documentation~\autocite{graphicx}.
+  % (Which is why I am mentioning it here.)
+  % The exclamation mark is mentioned for the `\resizebox` command.
+  如果使用`graphic width`进行了全局设置，但又需要局部设置，
+  此时，可以使用`graphic width=!`进行设置。
+  这是\pkg{graphicx}宏包的一个功能，但在\autocite{graphicx}的文档中却没有进行详细说明
+  (这也是为什么要在此进行说明的原因)。
+  感叹号`!`是用于`\resizebox`命令的。
+
+\bigpar
+
+\keydoc[initial value=empty]{env = <env>}{storing key}
+  % The name of an additional inner environment in which the body is wrapped, e.g.\ `tabular`, \env{tabularx}, `tikzpicture`.
+  % If empty the body is *not* wrapped in another environment (additional to object).
+  用于指定封装的内部环境名称，如`tabular`、\env{tabularx}、 `tikzpicture`，
+  如果为空，则无内部封装环境。
+
+  % Please note that using this option can lead to difficult to find errors with confusing error messages
+  % if you forget that you used it or it has a different value than you think it has.
+  % In this case `show env args` may help you.
+  注意，如果没有这个选项，或者它的值与期望值不符，
+  使用该选项可能会导致难以查找的带有混乱错误提示的错误。
+  在这种情况下，可以使用`show env args`以得到更多帮助信息。
+
+  % Please note that due to the way how environments are implemented in \LaTeX2 (this will change in \LaTeX3~\autocite{ltx3env})
+  % it is not possible to check whether a given name is an environment or a command.
+  % But if you pass something that is *not* defined you will get an error.
+  请注意，由于\LaTeX2{}中环境的实现方式所限(在\LaTeX3中会有所改变\autocite{ltx3env})，
+  不可能根据一个名称来检查是环境还是命令名称，
+  但是，如果传递的是未定义的内容，则会发生错误。
+
+  % If you have loaded the \pkg{longtable} package (either with the package option \pkgoptn{longtable} or with a `\usepackage{longtable}`)
+  % you can set the value of this key to \val{longtable}.
+  % In that case the necessary changes are performed
+  % so that the content of this object environment is set in a \env{longtable} environment
+  % and does *not* float but can span across page breaks.
+  % In this case `type`, `placement` and `align` are ignored.
+  如果载入了\pkg{longtable}宏包(无论是使用\pkgoptn{longtable}宏包选项
+  还是在导言区使用`\usepackage{longtable}`命令)，
+  就可以将该键值设置为\val{longtable}。
+  在这种情况下，需要进行必要的修改，
+  以使这个对象环境的内容能够置于\env{longtable}环境中，
+  并且不会浮动，以实现跨越排版。
+  在这种情况下，会忽略`type`、`placement`和`align`选项。
+
+\keydoc{<env> arg = <value>}{unknown key handler}
+\keylinktarget{(<env>) arg(s) (+)}
+\keylinktarget{(<env>) arg(s)}
+\keylinktarget{tabularx arg+}
+\keylinktarget{tabularx arg}
+\keylinktarget{\detokenize{tabular* arg}}
+\keylinktarget{tabular arg}
+\NoDescribeKey{env arg}
+  % The value is wrapped in braces and passed as argument to the additional inner environment if the value of `env` is not empty and `<env>` equals the value of `env`.
+  % Arguments to this environment can be given as an argument to the `*object` environment as well but this key provides the possibility to pass arguments on a global level (or to override a globally passed argument).
+  % For example this can be used to give all tabularx-tables a consistent width:
+  如果`env`的值不为空，并且`<env>`等于`env`的值，
+  那么就用大括号包裹该值后，作为参数传递给内部的附加环境。
+  这个环境的参数也可以作为`*object`环境的参数，
+  但是这个键提供了在全局传递参数的可能性(或用于覆盖全局参数)。
+  例如，如下代码可以为所有tabularx表格环境设置一个统一的宽度。
+
+  \begin{examplecode}
+  % in preamble
+  \objectset[table]{tabularx arg=.8\linewidth}
+
+  % in document
+  \begin{tableobject}{caption=Test Table, label=tab1, env=tabularx}{XX}
+      ...
+  \end{tableobject}
+  \end{examplecode}
+
+\keydoc{<env> args = <value>}{unknown key handler}
+%   Same like `<env> arg` except that the value is *not* wrapped in braces.
+%   This can be used to pass several arguments or an optional argument.
+%   Please not that this key cannot be used to pass exactly one undelimited argument consisting of more (or less) than one token because `\pgfkeys` (which I am using internally) strips several levels of braces.
+  和`<env> arg`一样，只是值没有用括号包起来。
+  这个键可以用来传递多个参数或一个可选参数。
+  请注意，这个键不能用来传递由多于(或少于)一个标记组成的非限制性参数，
+  因为`\pgfkeys`(内部使用)会去掉几层括号。
+\keydoc{arg = <value>}{unknown key handler}
+%   If `env` has a non-empty value this is an abbreviation of `<env> arg` where `<env>` is the value of `env`.
+  如果`env`值非空，
+  这将是`<env> arg`的缩写，其中`<env>`是`env`的值。
+
+  % Please note that because this key depends on the value of another key the order in which these two keys are given is important.
+  注意，由于该键的值取决于另一个键的值，
+  因此，它们的顺序非常重要。
+
+  % The value of `env` is considered when this key is evaluated.
+  % If you use `\objectset[<styles>]{<options>}` (with it's optional argument) the processing of the keys is delayed but it makes some basic error handling already so that the line numbers are as fitting as possible.
+  % For this error handling only the options passed to this call of the command are considered.
+  % (Trying to consider previously set values correctly would make things more difficult because you might be applying these options to several styles at once where one might have `env` set and another not.)
+  % Therefore the following causes an error message:
+  由于在获取该键值时，必须使用`env`的值。
+  因此，在设置选项时，如果使用了`\objectset[<styles>]{<options>}`命令(带有它的可选参数)，
+  则会延迟键的处理，但它已经进行了一些基本的错误处理。
+  因此，错误行号会尽可能的适配出错位置，
+  这是由于采用这种错误处理机制仅考虑本次调用命令所传递的选项。
+  任何试图正确地考虑以前设置的值会使事情变得更加困难，
+  因为可能同时将这些选项应用于多个样式，
+  其中一个样式可能已经设置了`env`，而另一个没有。
+  所以，以下情况会导致一个错误：
+
+  \begin{examplecode}
+  \objectset[table]{env=tabularx}
+  \objectset[table]{arg=.8\linewidth}
+  \end{examplecode}
+
+  但这样不会产生错误：
+
+  \begin{examplecode}
+  \objectset{env=tabularx}
+  \objectset{arg=.8\linewidth}
+  \end{examplecode}
+
+  % Anyway, I recommend to always use this option directly after `env` (if you intend to use it).
+  % `env` and it's `args` belong together:
+  总之，强烈建议如果需要的话，一定要在`env`之后直接使用这个选项，
+  `env`和它的`args`总是关联在一起的。
+
+  \begin{examplecode}
+  \objectset{env=tabularx, arg=.8\linewidth}
+  \end{examplecode}
+
+\keydoc{args = <value>}{unknown key handler}
+  % If `env` has a non-empty value this is an abbreviation of `<env> args` where `<env>` is the value of `env`.
+  % The notes on error handling of the `arg` key apply to this key as well.
+  如果`env`非空，这就是`<env> args`的缩写，
+  其中`<env>`是`env`的值。
+  `arg`键的错误处理也适用于这个键。
+\keydoc{(<env>) arg(s) += <value>}{unknown key handler}
+  % A plus sign can be appended to the key (patterns) `<env> arg`, `<env> args`, `args` and `arg`.
+  % In that case a possibly previously passed argument is not overridden but this value is appended to it.
+  % For example the following pattern allows to easily switch between tabular and tabularx tables on a global level:
+  在`<env> arg`、`<env> args`、`args`和`arg`键(模式)中可以使用`+`号，
+  此时则能够保存先前传递的参数不被覆盖。同时为其附加新值。
+  例如，下面的模式允许在全局地轻松切换tabular和tabluarx表格环境。
+
+  \begin{examplecode}
+  % in preamble
+  \objectset[table]{tabularx arg=.8\linewidth, env=tabularx}
+  \newcolumntype{Y}{>{\raggedleft\arraybackslash}X}
+
+  % in document
+  \begin{tableobject}{caption=Test Table, label=tab1, tabular arg=lr, tabularx arg+=XY}
+      ...
+  \end{tableobject}
+  \end{examplecode}
+
+\bigpar
+
+\keydoc{first head = <code>}{storing key}
+  % Is inserted at the beginning of the object (if `env` is non-empty: inside of the inner environment and after possibly specified `(<env>) arg(s)`).
+  % If this is not given, `head` is used instead.
+  在对象开头需要插入的代码(
+  如果`env`非空：在内部环境的内部并须在指定的`(<env>) arg(s)`之后)。
+  如果没有给定该键，则使用`head`键代替。
+\keydoc{last foot = <code>}{storing key}
+  % Is inserted at the end of the object (if `env` is non-empty: inside of the inner environment).
+  % If this is not given, `foot` is used instead.
+  在对象尾部需要插入的代码(如果`env`非空：在内部环境的内部)。
+  如果没有给定该键，则使用`foot`键代替。
+\keydoc[initial value=empty]{head = <code>}{storing key}
+  % This value is used for `first head` if `first head` is not given.
+  % If `env=longtable` this is the head after a pagebreak inside of the table.
+  如果未指定`first head`，则用该键值代替。
+  如果使用了`env=longtable`，其值为分页后表格的标题行。
+\keydoc[initial value=empty]{foot}{storing key}
+  % This value is used for `last foot` if `last foot` is not given.
+  % If `env=longtable` this is the foot before a pagebreak inside of the table.
+  如果没有指定`last foot`，则用该键值代替。
+  如果使用了`env=longtable`，其值为分页前表格页脚。
+\keydoc{table head = <code>}{executed key}
+  % This is a convenience key which sets `first head`, `last foot`, `head` and `foot`.
+  % The value is the column headers without rules\slash lines and without the trailing `\\`.
+  这是一个方便设置`first head`、 `last foot`、 `head` 和 `foot`的键，
+  其值是列标题，不能包含rules\slash lines和`\\`。
+\keydoc{table break text = <text>}{storing key}
+  % A text put in the `foot` by `table head`.
+  通过`table head`定义的`foot`的文本。
+\keydoc{table head style = <code>}{executed key}
+  % Defines how `table head` fills out `first head`, `last foot`, `head` and `foot`.
+  定义`table head`如何排版`first head`、 `last foot`、 `head`和 `foot`。
+
+  % Initial value:
+  其初值是：
+
+  \begin{examplecode}
+  {%
+      first head =
+          \toprule
+          #1 \\
+          \midrule,
+      head =
+          #1 \\
+          \midrule,
+      foot =
+          \midrule
+          \ifx\object@tableBreakText\@empty
+          \else
+              \multicolumn{\the\LT@cols}{r@\relax}{\object@tableBreakText}%
+          \fi,
+      last foot =
+          \bottomrule,
+  }
+  \end{examplecode}
+
+  % (Note the curly braces which are required because the value contains commas and equal signs, see \cref{special-characters-in-options}.
+  %  `\the\LT@cols` is the number of columns of the longtable and `\object@tableBreakText` is the value of `table break text`.
+  %  Commands containing an @ in their name are internal commands and can only be used between `\makeatletter` and `\makeatother`, see also \autocite{texexchange_make_at}.)
+  (注意，由于包含逗号和等号，必须使用大括号括起来，详见\cref{special-characters-in-options}，
+  其中，`\the\LT@cols`保存的是longtable的列数，`\object@tableBreakText`保存的是`table break text`的值。
+  由于这个命令名称中含有@符号，是内部命令，因此需用在`\makeatletter`和`\makeatother`之间，
+  参见\autocite{texexchange_make_at})
+
+\bigpar
+
+\keydoc[initial value=`false`, default value=`true`]{show env args =? true | false}{boolean key}
+  % Show the code which is assembled from the `env` and `(<env>) arg(s) (+)` keys before executing it.
+  % See \cref{help}.
+  % Please note that arguments may be given as additional arguments and not as `(<env>) arg(s) (+)` like in `\begin{tableobject}{env=tabular}{cl}`.
+  % Such arguments are *not* shown by this key.
+  % This key applies to subobjects as well.
+  在执行前，显示`env`和`(<env>) arg(s) (+)`之间的代码\cref{help}，
+  请注意，参数也可以作为附加参数给出，
+  就像`\begin{tableobject}{env=tabular}{cl}`中一样，
+  而不像`(<env>) arg(s) (+)`。
+  这样的参数则无法通过该键显示。
+  当然，这个键也适用于所有子对象。
+
+\keydoc[initial value=`true`, default value=`true`]{warn no caption =? true | false}{boolean key}
+  % Give a warning if \key{caption} is *not* given.
+如果没有给出\key{caption}选项(键)，则输出警告。
+\keydoc[initial value=`true`, default value=`true`]{warn no label =? true | false}{boolean key}
+  % Give a warning if `label` is *not* given.
+  如果没有给出\key{label}选项(键)，则输出警告。
+\keydoc[initial value=`false`, default value=`true`]{warn other env =? true | false}{boolean key}
+  % Give a warning when `<env> args` is given if `env` does not have the value `<env>` and the value of `env` is not empty.
+  % This applies to subobjects as well.
+  如果`<env> args`的`env`没有`<env>`值并且`env`的值非空，则给出警告。
+  这也适用于子对象。
+
+  % The \cmd{\objectset} command if used with it's optional argument does not set the options immediately but stores them in different macros for different object styles.
+  % Therefore if you change this value for certain styles this change does not affect following `\objectset` commands.
+  % Without the optional style argument, however, the change takes effect immediately.
+  如果与可选参数一起使用，\cmd{\objectset}命令并不立即设置选项，
+  而是为不同的对象类型存储不同的宏。
+  因此，如果改变了某些对象类型的值，
+  这个改变不会影响后续`\objectset`命令。
+  然而，如果没有可选的类型参数，则会立即生效。
+
+  % In order to avoid duplicates this warning is printed only where the key is passed by the user
+  % and *not* where it is applied implicitly because of a previous `\objectset[<styles>]{<options>}`.
+  为了避免重复，该警告只会在用户传递键选项的位置输出，
+  而不是在使用`\objectset[<styles>]{<options>}`的地方输出。
+
+\keydoc[initial value=`false`, default value=`true`]{contains subobjects =? true | false}{boolean key} /
+\keydoc{sub =? true | false}{forwarding key}
+  % Specifies that this object contains subobjects, see \cref{subobject-environment}.
+  % Is relevant only if `env` is set.
+  % The value of `env` is applied to the subobjects instead of this object.
+  % This is not executed immediately but only after all options have been processed so that you do not need to pay special attention to pass `env` before `contains subobjects`.
+  指明此对象包含有子对象，参见\cref{subobject-environment}。
+  只有设置了`env`后，才与其相关。
+  `env`的值被应用于子对象，而不是这个对象。
+  这不是立即执行，而是在所有选项被处理后才执行，
+  所以在`contains subobjects`前无需要特别注意`env`的处理。
+
+  % If this is *not* given (or more precisely: if this is false)
+  % and the value of `env` is *not* empty I look ahead whether the object contains a subobject.
+  如果没有指定该选项(或者更准确地说：如果这个键值取`false`)，
+  并且`env`的值非空，
+  就会提前查看对象是否包含个子对象。
+  % If I find a subobject I pretend you had passed this option and print a warning.
+  如果有子对象，则假装使用了该键，
+  然后，然后输出一个警告。
+  % I insist on you explicitly passing this option because the lookahead does not work in all situations.
+  因为lookahead并不总是有效，因此，
+  需要明确使用该选项。
+  % It ignores space and `\par` tokens but if there is any other token before the subobject,
+  % for example a `\small` to fit two tables side by side which are a little too wide
+  % (which may not be the best solution but an easy quick fix)
+  % or a `\typeout` for debugging,
+  % the lookahead does not find the subobject (possibly) resulting in unpredictable errors.
+  该键忽略空格和`\par`标记，
+  但如果子对象前有任何其他标记，
+  例如，由于两个表格有点宽，为了使用两个表格并排而使用的`\small`
+  (这可能不是最好的解决方案，但很容易使用)，
+  或者为了调试而使用的`\typeout`，
+  lookahead就找不到子对象(可能)，
+  从而导致不可预知的错误。
+  % For example if you set `env=tabular` it will most likely complain about an \errormessage{Illegal pream-token}
+  % or about a \errormessage{Missing number, treated as zero} with `env=tabular*` because the required arguments are missing.
+  例如，如果设置了`env=tabular`，
+  而因为缺省必要的参数，
+  很可能会输出\errormessage{Illegal pream-token}或带有`env=tabular*`的\errormessage{Missing number, treated as zero}警告信息。
+\endkeydoc
+
+
+% All `(<env>) arg(s) (+)` options apply to subobjects as well.
+所有`(<env>) arg(s) (+)`选项也都会传递给子对象。
+
+% Additionally the following options are passed through to the corresponding options of all subobjects inside of this object, they are all \keytype[forwarding key]{forwarding keys}.
+另外，下面的选项也会传递到这个对象内部所有子对象的相应选项，
+它们都是\keytype[forwarding key]{forwarding keys}。
+\newcommand{\TargetKey}[2]{/subobject/\stripsubobject #2\relax}%
+\def\stripsubobject subobject #1\relax{\stripoptplus{#1}}%
+% See \env{subobject} environment.
+参见\env{subobject}环境。
+\forwardingkeydoc{subobject linewidth = <dimen>}
+\forwardingkeydoc{subobject sep = <code>}
+\forwardingkeydoc{subobject hor =? <code>}
+\forwardingkeydoc{subobject hor sep (+)= <code>}
+\forwardingkeydoc{subobject ver =? <code>}
+\forwardingkeydoc{subobject ver sep (+)= <code>}
+\forwardingkeydoc{subobject exec (+)= <code>}
+\forwardingkeydoc{subobject env = <env>}
+\forwardingkeydoc[target=/subobject/subcaptionbox]{subcaptionbox}
+\forwardingkeydoc[target=/subobject/subcaptionbox inner pos]{subcaptionbox inner pos = c | l | r | s | <empty>}
+\forwardingkeydoc[target=/subobject/subpage]{subpage}
+\forwardingkeydoc[target=/subobject/subpage outer pos]{subpage outer pos = c | t | b | T | B | auto | Auto | <empty>}
+\forwardingkeydoc[target=/subobject/subpage height]{subpage height = <dimen>}
+\forwardingkeydoc[target=/subobject/subpage inner pos]{subpage inner pos = c | t | b | s | <empty>}
+\forwardingkeydoc[target=/subobject/subpage align]{subpage align = <code>}
+
+\forwardingkeydoc{subobject warn no caption =? true | false}
+\forwardingkeydoc{subobject warn no label =? true | false}
+\endkeydoc
+\endgroup
+
+
+% \subsubsection{`figureobject` environment}
+\subsubsection{`figureobject`环境}
+\label{figureobject-environment}
+\DescribeEnv{figureobject}
+% Is used for inserting figures.
+% Takes the same options like the \env{object} environment.
+% It differs in the following initial values:
+用于插入图片，与\env{object}使用相同的选项，
+只是如下初始值不同：
+\begin{itemize}
+\item `type=figure`
+\end{itemize}
+
+% \subsubsection{`tableobject` environment}
+\subsubsection{`tableobject`环境}
+\label{tableobject-environment}
+\DescribeEnv{tableobject}
+% Is used for inserting tables.
+% Takes the same options like the \env{object} environment.
+% It differs in the following initial values:
+用于插入表格，与\env{object}使用相同的选项，
+只是如下初始值不同：
+\begin{itemize}
+\item `type=table`
+\end{itemize}
+
+
+% \subsubsection{`subobject` environment}
+\subsubsection{`subobject`环境}
+\label{subobject-environment}
+\begingroup
+\keydocpath{/subobject}
+\DescribeEnv{subobject}
+% To be used inside of an `*object` environment if you want to place several images\slash tables\slash whatever together.
+% See also \cmd{\includegraphicsubobject}.
+用于在一个`*object`中将多个图片\slash 表格\slash 其它对象(子对象)组合成一个对象(容器对象)，
+参见\cmd{\includegraphicsubobject}。
+
+% I recommend to *not* put anything between the subobjects manually so that you can control their positioning with the `hor` and `ver` options.
+% (Spaces after a subobject are ignored but empty lines are not.)
+强烈建议不要在子对象之间手动插入任何内容，
+以便使用`hor`和`ver`选项实现对子对象位置控制
+(子对象后的空格会被忽略，但无法忽略空行)。
+
+% Unlike the `object` environment, `\caption` and `\label` *cannot* be used inside of the subobject environment.
+% Use the \key{caption} and `label` options instead.
+与`object`环境不同，无法在子对象中使用`\caption`和`\label`命令。
+需要使用\key{caption}和`label`选项。
+
+% There are two different backends available, both provided by the \pkg{subcaption} package.
+% See the `subcaptionbox` and `subpage` keys.
+\pkg{subcaption}宏包提供两种子对象后台处理方式，详见`subcaptionbox`和`subpage`选项。
+
+% The `subobject` environment has exactly one mandatory argument, a comma separated list of the following options.
+`subobject`环境只需要1个必选参数，该参数是由如下选项构成的用逗号分隔的参数列表。
+
+% The following options correspond to those of an `object`.
+以下选项与`object`的选项一致，
+% See \cref{object-environment}.
+参见 \cref{object-environment}。
+\newcommand{\TargetKey}[2]{/object/#2}%
+\correspondingkeydoc{label = <label>}{storing key}
+
+\correspondingkeydoc{caption = <text>}{storing key}
+
+\correspondingkeydoc{list caption = <text>}{storing key}
+
+  % (The \pkg{subcaption} package disables subcaptions in the list of figures\slash tables\slash whatever by default.
+  %  To enable them use `\captionsetup[sub]{list=true}`.)
+默认情况下，\pkg{subcaption}宏包的图/表格/其它的目录条目中的标题是禁用的，
+可以使用`\captionsetup[sub]{list=true}`启用它们。
+\correspondingkeydoc{details = <text>}{storing key}
+
+\correspondingkeydoc{details sep = <text>}{storing key}
+
+\correspondingkeydoc{exec = <code>}{storing key} /
+\correspondingkeydoc{exec += <code>}{executed key}
+
+\correspondingkeydoc{graphic <option> = <value>}{unknown key handler}
+
+  % (This key is completely useless.
+  %  It only has a meaning in the context of \cmd{\includegraphicsubobject} but there these options can be used directly without the prefix `graphic`.
+  %  I am allowing it anyway in order to support the same key like in \cmd{\objectset} which is supported by \cmd{\includegraphicobject} as well.)
+  这个键是完全没有用的，
+  它只有在\cmd{\includegraphicsubobject}的上下文中才有意义，
+  但在这种情况下，这些选项可以不需要`graphic`前缀而直接使用。
+  允许这个键的目的是保持与\cmd{\objectset}中语法的一致，
+  在\cmd{\includegraphicobject}也支持同样的键。
+\correspondingkeydoc{env = <env>}{storing key}
+
+  % (See also the `contains subobjects` option of the \env{object} environment.)
+参见\env{object}中的`contains subobjects`选项。
+\correspondingkeydoc{(<env>) arg(s) (+) = <value>}{unknown key handler}
+
+  % (All values passed to the corresponding keys of the \env{object} environment apply to this option, too.)
+  所有传递给\env{object}环境中相应键的值也适用于这个选项。
+
+\correspondingkeydoc{warn no caption =? true | false}{boolean key}
+
+\correspondingkeydoc{warn no label =? true | false}{boolean key}
+
+\forwardingkeydoc[target=/object]{warn other env =? true | false}
+
+\forwardingkeydoc[target=/object]{show env args =? true | false}
+
+\endkeydoc
+
+% The following options are unique for the `subobject` environment:
+以下是`subobject`环境独有的选项：
+\keydoc[initial value=`.5\linewidth`]{linewidth = <dimen>}{storing key}
+  % The horizontal space available for the subobject.
+  % The content of the subobject is centered within this width.
+  % If two subobjects displayed side by side have a small width they may appear too far apart from each other with the initial value.
+  % Then you can decrease this value so that they come closer together.
+  % (With `subcaptionbox` this value may be empty.
+  %  In that case the subobject takes as much space as it needs
+  %  and `\linewidth` inside of the subobject is the same like in the parent object.)
+  子对象宽度，
+  子对象在此宽度内水平居中。
+  当两个子对象的宽度较小时，若使用初始值，则可能相距太远。
+  此时，可以减少这个值，以使它们水平距离更近。
+  (对于`subcaptionbox`，这个值可能是空的。
+  在这种情况下，子对象需要多少空间就占多少空间，
+  子对象内部的`\linewidth`与父对象相同。)
+
+  % If you want to place more than two subobjects side by side you must decrease this value accordingly.
+  % Keep in mind that you need to consider the width of `hor sep` as well if you changed it.
+  如果需要并排布置两个以上的子对象，
+  则必须相应减少这个值。
+  需要注意，如果改变宽度，则也需要考虑`hor sep`的宽度。
+
+  % Dimensions can be given relative to other dimensions or in numbers.
+  % Aside from absolute units like `pt` or `cm` \TeX\ also recognizes units relative to the current font size: `em` and `ex`.
+  % For more information on dimensions see \mycite[chapter~10]{texbook} or \mycite[chapter~8]{texbytopic}.
+  尺寸可以是相对尺寸，也可以是绝对尺寸。
+  尺寸单位可以是`pt`或`cm`这样的绝对单位，也可以是与字体大小相关的`em`或`ex`的相对单位。
+  关于尺寸的细节，请参阅\mycite[第10章]{texbook}或\mycite[第8章]{texbytopic}
+
+\keydoc{sep = <code>}{storing key}
+  % A separator which is inserted before each subobject except for the first subobject inside of the current parent object.
+  当前父对象中除了第1个子对象外，其它子对象前的分隔符。
+
+\keydoc[default value=empty]{hor =? <code>}{executed key}
+  % Set the value of `sep` to the value of `hor sep` so that the subobjects are placed side by side.
+  % If you pass a value the value will be appended to `sep` after setting it to `hor sep`.
+  将`sep` 的值设置为 `hor sep` 的值，以使子对象并排布置。
+  如果传入一个值，那么这个值会在设置为 `hor sep` 后追加到 `sep` 中。
+
+  % Please note that options are only valid until the end of a group.
+  % Therefore if you use this inside of a subobject it does *not* apply for the following subobject.
+  % Instead use `subobject hor` on the parent object.
+  请注意，选项仅在当前组结束前有效。
+  因此，如果在一个子对象内使用这个选项，
+  它并不适用于后续子对象。
+  可以在父对象上使用`subobject hor`，
+  以作用于当前父对象下的所有子对象。
+
+\keydoc[initial value=empty]{hor sep = <code>}{storing key} /
+\keydoc{hor sep += <code>}{executed key}
+  % The separator to be used if the subobjects are suppossed to be placed side by side.
+  子对象水平并排布置时，使用的分隔符。
+
+  % Please note that `hor` must be used *after* setting this key, otherwise this option will not take effect.
+  请注意，必须在使用了该键后使用`hor`，
+  否则，该键无效。
+
+\keydoc[default value=empty]{ver =? <code>}{executed key}
+  % Set the value of `sep` to the value of `ver sep` so that the subobjects are placed below each other.
+  % If you pass a value the value will be appended to `sep` after setting it to `ver sep`.
+  将`sep` 的值设置为 `ver sep` 的值，以使子对象垂直布置。
+  如果传入一个值，那么这个值会在设置为 `ver sep` 后追加到 `sep` 中。
+
+  % Please note that options are only valid until the end of a group.
+  % Therefore if you use this inside of a subobject it does *not* apply for the following subobject.
+  % Instead use `subobject ver` on the parent object.
+  请注意，选项仅在当前组结束前有效。
+  因此，如果在一个子对象内使用这个选项，
+  它并不适用于后续子对象。
+  可以在父对象上使用`subobject hor`，
+  以作用于当前父对象下的所有子对象。
+
+\keydoc[initial value=`\par\bigskip`]{ver sep = <code>}{storing key} /
+\keydoc{ver sep += <code>}{executed key}
+  % The separator to be used if the subobjects are suppossed to be placed below each other.
+  子对象垂直布置时，使用分隔符。
+
+  % Please note that `ver` must be used *after* setting this key, otherwise this option will not take effect.
+  请注意，必须在使用了该键后使用`ver`，
+  否则，该键无效。
+
+\bigpar
+
+\keydoc{subcaptionbox}{executed key}
+  % The \pkg{subcaption} package provides several possibilities to insert subobjects.
+  % This option tells the subobject environment to use the `\subcaptionbox` command instead of the `subfigure` or `subtable` environment, see option `subpage`.
+  % (This key does *not* take a value.)
+  \pkg{subcaption}宏包提供了多种插入子对象的方法。
+  这个选项告诉子对象环境使用`\subcaptionbox`命令，
+  而不是`subfigure`或`subtable`环境，
+  参见选项`subpage`(此键不取值)。
+
+  % This option allows to pass an empty value to `linewidth`.
+  % It can be useful if you have subobjects with a small width
+  % so that you don't need to try different `subobject linewidth`s.
+  % The example in \cref{subobjects-2} could be rewritten as following:
+  这个选项允许给`linewidth`传递一个空值。
+  如果有一个宽度非常小的的子对象，这可能会很有用，
+  这样就不需要尝试不同`subobject linewidth`。
+  \cref{subobjects-2}中的例子可以改写如下：
+
+  \begin{examplecode}
+  \documentclass{article}
+  \usepackage{easyfloats}
+  
+  \objectset[table]{%
+        env = tabular,
+        subcaptionbox,
+        subobject linewidth =,
+        subobject hor = \qquad,
+  }
+  \captionsetup[sub]{list=true}
+  
+  \begin{document}
+  \begin{tableobject}{contains subobjects,
+                caption = Two test tables,
+                label = tabs abc 123,
+        }
+        \begin{subobject}{caption=Abc \& 123, arg=rl}
+                \toprule
+                abc & 123 \\
+                de  & 45  \\
+                f   & 6   \\
+                \bottomrule
+        \end{subobject}
+        \begin{subobject}{caption=123 \& abc, arg=lr}
+                \toprule
+                123 & abc \\
+                45  & de  \\
+                6   & f   \\
+                \bottomrule
+        \end{subobject}
+  \end{tableobject}
+  \end{document}
+  \end{examplecode}
+
+  % Note that this works only if the subobject captions are very short.
+  % If they are wider than the subobjects the line breaks which looks ugly.
+  请注意，只有当子对象标题非常短时，该选项才有效。
+  如果它们比子对象的宽，则换行会看起来很丑。
+
+  % If you want to use this option with `env=tabular` (or similar) you must pass the column specification with the option `arg=lr` (instead of as a separate argument).
+  % Otherwise you will get the error message \errormessage{Package array Error: Illegal pream-token (\BODY): `c' used.}
+  如果想与`env=tabular`(或类似的)一起使用该选项，
+  则必须用`arg=lr`选项来传递列格式(不能作为独立参数)。
+  否则会得到\errormessage{Package array Error: Illegal pream-token (\BODY): `c' used.}错误信息。
+
+  % This option is *not* compatible with `env=tabularx` and does not allow verbatim content inside of the subobject.
+  该选项与`env=tabularx`不兼容，
+  并且不能在子对象中存在verbatim内容。
+
+\keydoc{subcaptionbox inner pos = c | l | r | s | <empty>}{storing key}
+  % The horizontal position of the content in the box.
+  % Also allowed is any justification defined with `\DeclareCaptionJustification`
+  % (see the \pkg{caption} package documentation).
+  % An empty value means that this optional argument is
+  % *not* passed to the `\subcaptionbox` command.
+  % This option has no effect if `linewidth` is empty.
+  % I discourage using this option because it destroys
+  % the alignment of (sub)object and (sub)caption.
+  当前盒子中的水平对齐方式。
+  允许使用`\DeclareCaptionJustification`定义的任何说明符(参见\pkg{caption}宏包文档)。
+  空值意味着该可选参数不会传递给`\subcaptionbox`命令。
+  如果`linewidth`为空，则该选项无效。
+  不建议使用该选项，
+  因为它破坏了(sub)object和(sub)caption的对齐方式。
+
+\bigpar
+
+\keydoc{subpage}{executed key}
+  % This is (after `subcaptionbox`) the second and nowadays initial backend for the `subobject` environment.
+  % It uses the `subfigure`\slash `subtable` environment defined by the \pkg{subcaption} package.
+  % (This key does *not* take a value.)
+  这是第二个(继`subcaptionbox`之后)，
+  也是现在最初的`subobject`环境的后台。
+  它使用由\pkg{subcaption}包定义的`subfigure`\slash `subtable`环境。
+  (这个键不难赋值)。
+
+  % The `subfigure` and `subtable` environments are minipages and take the same arguments
+  % which can be set with `linewidth`, `subpage outer pos`, `subpage height` and `subpage inner pos`.
+  `subfigure`和`subtable`环境都是minipages，
+  并采用同样的参数，
+  可以设置`linewidth`、 `subpage outer pos`、
+  `subpage height`和 `subpage inner pos`.
+
+\keydoc[initial value=`auto`]{subpage outer pos = c | t | b | T | B | auto | Auto | <empty>}{storing key}
+  % The vertical position of the minipage on the baseline.
+  基线上的minipage的位置。
+
+  % Additionally to the values `t`, `c` and `b` supported by the minipage environment
+  % the \pkg{subcaption} package v1.2 adds the allowed values `T` and `B`
+  % and this key also allows the values `auto`, `Auto` and empty.
+  除了minipage环境支持的`t`、 `c`和`b`外，
+  \pkg{subcaption}宏包(v1.2)的增加了`T`和`B`，
+  并且该键还允许使用`auto`、 `Auto`和 empty
+
+  % While `t` and `b` align the top\slash bottom *baseline* of the content
+  % `T` and `B` align the very top\slash bottom of the content.
+  `t`和`b`按内容的*baseline*顶端\slash 底端进行对齐，
+  `T`和`B`按内容的顶端\slash 底端进行对齐。
+
+  % `c` aligns the center of the content.
+  `c`按内容的中心对齐。
+
+  % `auto` means `t` if the caption is displayed at the top
+  % or `b` if the caption is displayed at the bottom
+  % so that the captions are aligned
+  % (same behavior like `subcaptionbox`).
+  如果标题在上方，则`auto`与`t`等价，
+  如果标题在下方，则`auto`与`b`等价。
+  (与`subcaptionbox`一致).
+
+  % If a subobject has neither caption nor label `auto` may not work as expected.
+  % Instead `Auto` can be used which is based on `T` and `B` instead of `t` and `b`.
+  % Note that `Auto` requires version 1.2 or newer of the \pkg{subcaption} package.
+  如果一个子对象既没有标题也没有交叉引用标签，
+  那么`auto`可能无法按预期工作。
+  取而代之的是，使用`Auto`，
+  它是基于`T`和`B`而不是`t`和`b`。
+  请注意，`Auto`需要1.2版本或更新的\pkg{subcaption}宏包。
+
+  % Empty is equivalent to `c`.
+  空与`c`等价。
+
+  % Invalid values are silently ignored and are equivalent to `c`.
+  无效的值能够被忽略并用`c`值代替。
+
+
+\keydoc[initial value=empty]{subpage height = <dimen>}{storing key}
+  % The height of the minipage.
+  % An empty value means that this optional argument is
+  % *not* passed to the `subfigure`\slash `subtable` environment.
+  minipage高度，
+  空值意味着该值不传给`subfigure`\slash `subtable`环境。
+
+  % Dimensions can be given relative to other dimensions or in numbers.
+  % Aside from absolute units like `pt` or `cm` \TeX\ also recognizes units relative to the current font size: `em` and `ex`.
+  % For more information on dimensions see \mycite[chapter~10]{texbook} or \mycite[chapter~8]{texbytopic}.
+  尺寸可以是相对尺寸，也可以是数字给出的绝对尺寸。
+  尺寸单位可以是`pt`或`cm`这样的绝对单位，也可以是与字体大小相关的`em`或`ex`的相对单位。
+  关于尺寸的细节，请参阅\mycite[第10章]{texbook}或\mycite[第8章]{texbytopic}
+
+\keydoc[initial value=empty]{subpage inner pos = c | t | b | s | <empty>}{storing key}
+  % The vertical position of the content on the minipage.
+  % Empty means that this optional argument is
+  % *not* passed to the `subfigure`\slash `subtable` environment.
+  % This option has no effect if `subpage height` is empty.
+  minipage中内容的垂直位置。
+  空值表示不传给`subfigure`\slash `subtable`环境。
+  如果`subpage height`为空，则该选项无效。
+
+\keydoc[initial value=`\centering`]{subpage align = <code>}{storing key}
+
+  % \TeX\ code which is inserted at the beginning of the `subfigure`\slash `subtable` environment.
+  在`subfigure`\slash `subtable`环境的开头插入的\TeX{}代码。
+\endkeydoc
+
+% If you want to change the numbering of subobjects please refer to the \pkg{subcaption} package documentation~\autocite[section~5 \sectionname{The `\DeclareCaptionSubType` command}]{subcaption}.
+% The \pkg{subcaption} package is loaded automatically by this package.
+如果需要改变子对象的编号方式，
+请参阅\pkg{subcaption}宏包说明文档
+\autocite[第5节 \sectionname{`\DeclareCaptionSubType`命令}]{subcaption}。
+该宏包会自动加载\pkg{subcaption}宏包。
+\endgroup
+
+
+% \subsection{Commands}
+\subsection{命令}
+\label{commands}
+
+% In this section I am describing the commands defined by this package.
+这一节将讨论该宏包定义的命令。
+
+
+% \subsubsection{`\includegraphicobject` command}
+\subsubsection{`\includegraphicobject`命令}
+\label{includegraphicobject-command}
+\begingroup
+\keydocpath{/graphicobject}
+\DescribeMacro{\includegraphicobject}
+`\includegraphicobject{<filename>}` \\
+`\includegraphicobject[<options>]{<filename>}` \\
+`\includegraphicobject[<style>][<options>]{<filename>}`
+
+% Is used for inserting graphics from a different file.
+该命令用于通过文件插入图片。
+% It is very similar to \pkg{graphicx}' `\includegraphics` command, except that the graphic is automatically set in a \env{figureobject} environment.
+除了在\env{figureobject}环境中完成自动设置外，
+它与\pkg{graphicx}宏包的 `\includegraphics`命令的操作非常相似。
+% You can change this by setting the object style with \cmd{\graphicobjectstyle} or an additional optional argument given *before* the usual optional argument.
+可以使用\cmd{\graphicobjectstyle}命令或在通用参数前使用额外的可选参数改变样式。
+% The mandatory argument is the same: The name of the graphics file to include *without* the file extension.
+必选参数是相同的：不需要扩展名的图片文件的文件名。
+% The optional argument accepts---aside from all the options defined by \pkg{graphicx}\slash \pkg{graphbox}---also all options of the \env{figureobject} environment.
+其可选参数除了可以接受\pkg{graphicx}\slash \pkg{graphbox}定义的选项外，
+还可以接受\env{figureobject}环境的选项。
+% Additionally there are the following unique options:
+此外，该命令还有以下独有的选项：
+\keydoc[initial value=`true`, default value=`true`]{auto caption =? true | false}{boolean key}
+   % If no \key{caption} is given the file name is used as caption.
+   % All underscores in the file name are replaced by `\textunderscore`.
+   % This option is intended to be used on a global level but works in the optional argument of this command as well.
+   如果没有给出\key{caption}，则使用文件名作为标题。
+   文件名中的所有下划线都被`\textunderscore`替换。
+   这个选项是为了在全局范围内使用，
+   但在这个命令的可选参数中也可以使用。
+\keydoc[initial value=`false`, default value=`true`]{auto caption strip path =? true | false}{boolean key}
+   % If `auto caption` is true and the file name is used as caption
+   % a possibly leading path is stripped (everything before and including the last slash in `<filename>`).
+   % This is initially false because I am assuming that in most cases where the path should not be displayed `\graphicspath{{path/}}` would be used.
+   如果`auto caption`为`true`，并且用文件名作为标题，
+   那么一个可能的前导路径就会被删除
+   (在`<filename>`之前的所有内容，包括最后的斜杠)。
+   其初值为假，因为在多数情况下，
+   是不应该显示路径，
+   而应该使用`\graphicspath{{path/}}`命令设置搜索路径。
+\keydoc[initial value=`true`, default value=`true`]{auto label =? true | false}{boolean key}
+   % If no `label` is given the file name is used as label.
+   % This option is intended to be used on a global level but works in the optional argument of this command as well.
+   如果没有给出`label`，则使用文件名代替。
+   这个选项是为了在全局范围内使用，
+   但在这个命令的可选参数中也可以使用。
+\keydoc[initial value=`false`, default value=`true`]{auto label strip path =? true | false}{boolean key}
+   % If `auto label` is true and the file name is used as label
+   % a possibly leading path is stripped (everything before and including the last slash in `<filename>`).
+   % This is initially false because I am assuming that in most cases where the filename without path is unique `\graphicspath{{path/}}` would be used.
+   如果`auto label`为`true`，并且用文件名作为交叉引用标签，
+   那么一个可能的前导路径就会被删除
+   (在`<filename>`之前的所有内容，包括最后的斜杠)。
+   其初值为假，因为在多数情况下，
+   是不应该显示路径，
+   而应该使用`\graphicspath{{path/}}`命令设置搜索路径。
+\keydoc[initial value=`true`, default value=`true`]{warn env =? true | false}{boolean key}
+   % Give a warning if `env` is not empty.
+   如果`env`为空，则给出一个警告。
+\keydoc[initial value=`true`, default value=`true`]{no env =? true | false}{boolean key}
+   % Reset `env` to an empty value.
+   % This happens after evaluating `warn env`.
+   将`env`重置为空值。
+   在取得了`warn env`后，也会进行这个操作。
+\endkeydoc
+
+% You may not use this command inside of an `*object` environment.
+% Otherwise you will get an \errormessage{object environment may not be nested} error.
+% See also \cmd{\includegraphicsubobject}.
+不可以用该命令替代`*object`环境，
+否则，会出现\errormessage{object environment may not be nested}错误。
+参见\cmd{\includegraphicsubobject}命令。
+\endgroup
+
+% \subsubsection{`\includegraphicsubobject` command}
+\subsubsection{`\includegraphicsubobject`命令}
+\label{includegraphicsubobject-command}
+\DescribeMacro{\includegraphicsubobject}
+`\includegraphicsubobject{<filename>}` \\
+`\includegraphicsubobject[<options>]{<filename>}`
+
+% To be used if you want to place several graphics from different files in one object.
+如需将来自不同文件的多个图片组合成一个对象，则可使用该命令实现这一操作。
+
+% It takes the same options like \cmd{\includegraphicobject} except that it takes options for the \env{subobject} environment instead of options for the `object` environment.
+% Also it does *not* take the optional `<style>` argument.
+除了采用了\env{subobject}环境的选项而不是`object`环境的选项外，
+其它选项与\cmd{\includegraphicobject}命令相同。
+同时，该命令不使用`<style>`选项。
+
+% You may not use this command outside of an `*object` environment.
+% Otherwise you will get a \errormessage{subobject environment may not be used outside of an object} error.
+% See also \cmd{\includegraphicobject}.
+如果在`*object`环境中使用该命令，
+则会产生\errormessage{subobject environment may not be used outside of an object}错误。
+参见\cmd{\includegraphicobject}命令。
+
+
+% \subsubsection{Setting options globally}
+\subsubsection{设置全局选项}
+\label{setting-options-globally}
+
+\DescribeMacro{\objectset}
+`\objectset{<options>}` \\
+`\objectset[<styles>]{<options>}`
+
+% Sets the passed options for all following objects until the end of the current group.
+% All options of the \env{object} environment are allowed.
+该命令用于为后续所有对象设置指定选项，
+直到当前组结束。
+可以用该命令设置\env{object}环境允许的所有选项。
+
+% A comma separated list of styles or style groups can be given in an optional argument.
+% In that case the options are not set immediately but appended to the specified style(s).
+% The options are set locally for any following object of the specified style(s) in the same group.
+% Although setting the options is delayed the options are checked immediately so that error messages and warnings point to the line where the option is specified in the code, not where it is technically set.
+% (In order for that to work properly it is important that options are specified with the key name only and not with the full path, see \cref{key-name-vs-key-path}.)
+% However, the value can usually *not* be checked immediately, only whether it is required or not.
+% Therefore if you pass a wrong value the error message will not appear where you set this option but at the object where it is applied.
+% An exception is the key `env` where the value is checked immediately for plausibility whether it might be the name of an environment.
+可选参数可以是一组用逗号分隔的浮动体类型或类型组。
+此时，选项不会被立即设置，而是附加在指定浮动体类型中。
+同组类型中的后续任何对象的选项也可以局部设置。
+虽然设置的选项被延迟执行，但选项会立即被检查，
+因此，错误信息和警告指出的代码行是指定选项的那一行，
+而不是指向从技术上讲的要执行的行。
+(为了使其正常工作，重要的是在选项中只指定键名，
+而不是完整的键路径，见\cref{key-name-vs-key-path}。)
+但是，通常并不立即检查健值，而是根据需要决定是否检查。
+因此，如果传递了一个错误的键值，
+那么 错误信息不会出现在设置这个选项的地方，
+而是出现在应用该选项的对象的地方。
+一个例外是`env`键，其值被立即检查，
+以确定是否是一个环境名称。
+
+% If `<styles>` is empty or an empty group the options are not applied.
+% No error or warning is printed.
+如果 `<styles>`为空或为空组，则不为其应用选项。
+也不会输出错误或警告信息。
+
+% There is a style group called `all` which all styles belong to.
+% `\objectset{<options>}` and `\objectset[all]{<options>}` are mostly equivalent
+% except that the former (without optional argument) is more efficient because it sets the options immediately
+% and the latter (with the optional argument given) is able to override options set for a style.
+有一个名为`all`类型组，所有类型都属于这个组。
+设置命令`\objectset{<options>}` 和`\objectset[all]{<options>}`在大多情况下是等价的，
+只是由于前者(没有可选参数)能够立即设置选项，所以效率更高。
+而后者(给出可选参数)能够覆盖一个样式已设置的选项。
+
+\DescribeMacro{\graphicobjectstyle}
+% `\graphicobjectstyle{<style>}` can be used to change the object style used by \cmd{\includegraphicobject}.
+% For example, if you have a single table in a file called \filename{catcodes.pdf} you can insert it as following.
+% Alternatively, you can use the optional `<style>` argument.
+`\graphicobjectstyle{<style>}`可以用来改变\cmd{\includegraphicobject}命令使用的类型。
+例如，如果在\filename{catcodes.pdf}中只有一个表格，
+则可以按如下方式插入该表格：
+另外，也可以使用`<style>`选项。
+
+
+\begin{examplecode}
+\begingroup
+\graphicobjectstyle{table}
+\includegraphicobject[caption=Catcodes]{catcodes}
+\endgroup
+\end{examplecode}
+
+
+\DescribeMacro{\graphicspath}
+% `\graphicspath{{path/}}`: see \pkg{graphicx} package documentation~\autocite[section~4.5]{graphicx}.
+`\graphicspath{{path/}}`：参见\pkg{graphicx}宏包手册的\autocite[4.5小节]{graphicx}。
+
+
+% \subsubsection{New object styles and types}
+\subsubsection{定义新对象和类型}
+\label{new-object-styles-and-types}
+
+% This section explains how to define a new object `<style>` in the sense of \cref{styles}.
+% It is *not* about how to define a new `<floatstyle>` which can be used as value for the `float style` key.
+这一节解释了如何定义一个新的浮动体对象类型`<style>`(\cref{styles})，
+它不是关于如何定义一个可以作为`float style`键的`<floatstyle>`值。
+
+\DescribeMacro{\NewObjectStyle}
+% `\NewObjectStyle{<style>}{<options>}`
+% defines a new environment called `<style>object` analogous to `figureobject` and `tableobject`.
+% `<options>` are set for the new object style as if you had used `\objectset[<style>]{<options>}`.
+% You must always specify the `type`.
+% If this package is loaded without `allowstandardfloats`
+% the float environment which is passed to `type` is redefined to issue a warning that `<style>object` should be used instead.
+% This warning should not influence the environment's usual behavior.
+% If the float environment was already passed as `type` to a previous call of `\NewObjectStyle` it is not redefined again but `<style>object` is appended to the list of replacement suggestions.
+`\NewObjectStyle{<style>}{<options>}`定义了一个称为`<style>object`的新环境，
+该环境类似于`figureobject`和`tableobject`环境。
+同时，将`<options>`设置为一个新对象类型，
+并可以用于`\objectset[<style>]{<options>}`。
+在此，必须指定`type`。
+如果在没有使用`allowstandardfloats`的情况下加载该宏包，
+那么传递给`type`的float环境会被重新定义，
+从而导致一个应使用`<style>object`代替的警告。
+这个警告不会影响该环境的普通行为。
+如果float环境已经作为`type`传递给以前调用过的`\NewObjectStyle`，
+它则不会被再次重定义，而是将`<style>object`附加到替换建议列表中。
+
+% If you define a new object style you may also want to define a new float type.
+% The \pkg{float} package (which is automatically loaded by this package) defines the following command for doing so:
+如果定义了一个新的对象类型，
+则可能还想定义一个新的浮动类型。
+\pkg{float}宏包(自动加载)定义了以下命令来实现这一目的：
+
+\DescribeMacro{\newfloat}
+`\newfloat{<type>}{<placement>}{<ext>}[<within>]`
+% \begin{itemize}
+% \item `<type>` is the floating environment to be defined.
+%   This value is also used as the float name which is displayed in front of the caption, therefore it should be capitalized.
+%   Alternatively the name can be changed using `\floatname{<type>}{<name>}`.
+% \item `<placement>` is the value to be used if the `placement` key is not given (or has an empty value).
+%   This is initially `tbp` for the standard float types.
+% \item `<ext>` is the extension of a file used to save the list of `<type>`s.
+%   This is `lof` (list of figures) for `type=figure` and `lot` (list of tables) for `type=table`.
+%   This file extension should be unique.
+% \item `<within>` is a counter whose value is prepended to the `<type>` counter. The `<type>` counter is reset every time the `<within>` counter is incremented.
+% \item Make sure an appropriate default float style is active when using `\newfloat`.
+%   The default float style can be activated using `\floatstyle{<floatstyle>}`, see the \pkg{float} package documentation~\autocite{float}.
+%   It should be `plain` for something like an image or `plaintop` for something like a table.
+%   The reasoning is explained in~\autocite{texexchange_caption_position}.
+%   Alternatively you can specify the float style using the `float style` key in the `<options>` of `\NewObjectStyle`.
+% \end{itemize}
+\begin{itemize}
+\item `<type>` 是要定义的浮动环境。
+	这个值也被用作浮动环境的名称，显示在标题前，因此应该大写。
+	另外，还可以使用`\floatname{<type>}{<name>}`更改名称。
+\item `<placement>` 是指如果没有给出`placement`键(或为空值)时要使用的值。
+	对于标准float类型来讲，其初值为`tbp`。
+\item `<ext>` 是用于保存`<type>`目录列表的文件扩展名。
+	对于`type=figure`是`lof`(插图列表)，对于`type=table`是`lot`(表格列表)。
+	这个文件扩展名应该是唯一的。
+\item `<within>` 是一个计数器，它是`<type>`(图、表或其它)计数器的父计数器。
+	在`<within>`计数器每次递增时，`<type>`计数器都会被重置。
+\item 当使用`\newfloat`时，确保默认激活了一个浮点浮动体新式。
+	默认浮点样式可用`\floatstyle{<floatstyle>}`进行激活。
+	参见\pkg{float}宏包文档\autocite{float}。
+	对于插图浮动体，应该用`plain`，
+	对于表格浮动体，应该用`plaintop`，
+	其原因可参见\autocite{texexchange_caption_position}。
+	另外，也可以通过在`\NewObjectStyle` 命令的 `<options>` 指定 `float style` 键激活浮动体类型。
+\end{itemize}
+
+% `\NewObjectStyle` automatically defines the corresponding environment needed for `subobject` if possible, i.e.\ if the \pkg{caption} package is new enough.
+如果可能的话，`\NewObjectStyle`命令会自动定义`subobject`所需要的对应环境，
+当然，这需要\pkg{caption}宏包要足够新。
+% If the \pkg{caption} package is older than August~30, 2020 and you want to use subobjects you need to define the subtype manually by putting the following line *before* loading this package \autocite{texexchange_subtype_workaround}:
+如果\pkg{caption}宏包早于2020.08.30，并且想使用子对象，
+则需要在载入该宏包之前用如下命令自定义子类型：
+\begin{examplecode}
+\AtBeginDocument{\DeclareCaptionSubType{<type>}}
+\end{examplecode}
+
+\DescribeMacro{\trivfloat}
+% The \pkg{trivfloat} package provides the `\trivfloat{<type>}` command which is an easier alternative to `\newfloat`.
+\pkg{trivfloat}宏包提供了能够简便切换到`\newfloat`的`\trivfloat{<type>}`命令。
+% If you use it you should be aware that it does not define the new float type environment immediately but at `\begin{document}`.
+如果需要使用之个命令，则需明确它并不是立即定义一个新的浮动体类型，
+而仅仅是在`\begin{document}`前插入代码。
+% This does *not* affect `\NewObjectStyle` (you can still use it directly afterwards)
+这并不影响`\NewObjectStyle`(仍然可以在后续代码中直接使用该命令)。
+% but it means that the float style active at `\begin{document}` is applied and not the float style active at `\trivfloat`.
+但这意味着在`\begin{document}`处激活的浮动体类型，而不是在`\trivfloat`处激活。
+% Therefore I recommend to pass the `float style` option to `\NewObjectStyle`,
+% then it does not matter which float style was active when the float type was defined because it is restyled before each use of an object where this option applies.
+% `\trivfloat` must be used before `\AtBeginDocument{\DeclareCaptionSubType{<type>}}`.
+因此，建议通过为`\NewObjectStyle`传入`float style`键的方式激活浮动体类型，
+那么在定义浮动体类型时，哪种浮动体类型是激活的并不重要，
+因为在每次使用这个选项的对象之前，它都会被重置。
+注意，需要在`\AtBeginDocument{\DeclareCaptionSubType{<type>}}`之前使用`\trivfloat`。
+
+\DescribeMacro{\DeclareFloatingEnvironment}
+% The \pkg{newfloat} package provides the `\DeclareFloatingEnvironment[<options>]{<type>}` command which is a newer alternative to `\newfloat` and `\trivfloat`.
+% With it's key=value options it is more intuitive than `\newfloat` and more flexible than `\trivfloat`.
+% Unlike `\newfloat` and `\trivfloat` it automatically capitalizes `<type>` before using it as float name.
+% It seems to ignore `\floatstyle` so you need to specify that in the options.
+% The \pkg{newfloat} package is written by the same author like the \pkg{subcaption} package so you don't need to worry about defining subtypes manually.
+\pkg{newfloat}宏包提供了`\DeclareFloatingEnvironment[⟨options⟩]{<type>}`命令，
+它是`\newfloat`和`\trivfloat`替代命令。
+它使用key=value选项，它比`\newfloat`更直观，但比`\trivfloat`更灵活。
+与`\newfloat`和`\trivfloat`不同的是，
+它在使用`<type>`作为浮动体名称之前，会自动将其大写。
+它似乎忽略了`\floatstyle`，所以需要在选项中指定它。
+\pkg{newfloat}宏包和\pkg{subcaption}宏包一样是由同一个作者编写的，
+所以无需担心手动定义子类型的问题。
+
+
+% \subsubsection{New object style groups}
+\subsubsection{新对象类型组}
+\label{new-object-style-groups}
+
+% Several object styles can be combined to a group.
+% You can set options for all styles contained in a group using `\objectset[<group>]{<options>}`.
+可以将多种浮动体类型合并为一个类型组。在后续代码中，就可以使用
+`\objectset[<group>]{<options>}`为一组类型中所有浮动体类型进行选项设置。
+
+\DescribeMacro{\NewObjectStyleGroup}
+% `\NewObjectStyleGroup{<group>}{<styles*>}`
+% defines a new style group consisting of the styles `<styles*>`.
+% `<styles*>` is a comma separated list of styles.
+% In contrast to `<styles>` it may *not* contain style groups.
+`\NewObjectStyleGroup{<group>}{<styles*>}`定义了一由`<styles*>`构成的类型组。
+`<styles*>`中的各个类型用逗号分隔。
+这与`<styles>`相反，`<styles>`可能不包含类型组。
+
+\DescribeMacro{\AddObjectStyleToGroup}
+`\AddObjectStyleToGroup{<group>}{<style>}`
+% adds an existing style to an existing group.
+为已存在的类型组添加一个存在的类型。
+
+
+% \subsubsection{Hooks}
+\subsubsection{钩子}
+\label{hooks}
+
+% This package provides several commands similar to `\AtBeginDocument`
+% which take one argument, \TeX\ code which is executed at a later point in time.
+该宏包提供了几个类似于`\AtBeginDocument`的命令，
+这些命令仅需一个参数，
+该参数是一个在稍后可执行的\TeX{}代码。
+
+
+\DescribeMacro{\AtBeginObject}
+`\AtBeginObject{<code>}`
+  % runs `<code>` every time at the begin of an \env{object} environment
+  % (including \env{figureobject}, \env{tableobject} and \cmd{\includegraphicobject}).
+  % This hook is inside of the group but before any options are processed.
+  在一个\env{object}环境开始时每次要执行的`<code>`
+  (包括\env{figureobject}、\env{tableobject}和\cmd{\includegraphicobject})。
+  这个钩子在组里面，但在处理任何选项之前被执行。
+
+\DescribeMacro{\AtBeginSubobject}
+`\AtBeginSubobject{<code>}`
+  % runs `<code>` every time at the begin of a \env{subobject} environment
+  % (including \cmd{\includegraphicsubobject}).
+  % This hook is inside of the group but before any options are processed.
+  在一个\env{subobject}环境开始时每次要执行的`<code>`
+  (包括\cmd{\includegraphicsubobject})。
+  这个钩子在组里面，但在处理任何选项之前被执行。
+
+\DescribeMacro{\AtBeginGraphicObject}
+`\AtBeginGraphicObject{<code>}`
+  % runs `<code>` every time in \cmd{\includegraphicobject} and \cmd{\includegraphicsubobject}.
+  % This hook is after the object\slash subobject hook but before any options are processed.
+  在一个插图命令每次开始前要执行的`<code>`
+  (包括\cmd{\includegraphicobject}和\cmd{\includegraphicsubobject})。
+  这个钩子在object\slash{}subobject的钩子之后，但在处理任何选项之前被执行。
+
+
+% \subsection{Initialization}
+\subsection{初始化}
+\label{initialization}
+
+% This package uses the \pkg{float} package to restyle \env{table} to `plaintop` and `figure` to `plain`
+% so that captions of tables appear always above the table and captions of figures always below the figure.
+% The reasoning is explained in~\autocite{texexchange_caption_position}.
+% If you really want to place captions differently you can do that with `\restylefloat` (see \pkg{float} package documentation~\autocite{float}) or by setting the `float style` option.
+% However, I would advice to rethink why you would want to do that.
+该宏包使用\pkg{float}宏包将\env{table}复位到`plaintop`，将`figure`复位到`plain`，
+所以将表格的标题置于表格上方，将插图的标题布置于插图的下方，
+其原因见\autocite{texexchange_caption_position}。
+如果确实需要不同的标题样式，
+则可以通过`\restylefloat` 命令进行设置(见\pkg{float}宏包文档的\autocite{float})。
+然而，强烈建议在做这样的操作前要认真思考为什么要这么做。
+
+% Unless this package is loaded with the \pkgoptn{allowstandardfloats} option
+% it redefines the \env{table} and `figure` environments to issue a warning if they are used directly.
+% This warning should not influence their usual behavior, though.
+% Instead of \env{table}\slash `figure` you should use \env{tableobject}\slash \env{figureobject} or \cmd{\includegraphicobject},
+% otherwise this package cannot help you.
+除非使用了\pkgoptn{allowstandardfloats}选项，
+该宏包重新定义了\env{table}和`figure`环境，
+当直接使用这些环境里，则会导致一个警告。
+当然，这些警告并不影响其基本行为。
+应该使用\env{tableobject}\slash \env{figureobject}或\cmd{\includegraphicobject}环境
+代替\env{table}\slash `figure`环境，
+否则，则无法使用该宏包提供的功能。
+
+% Unless this package is loaded with the \pkgoptn{nographic} option
+% it loads the \pkg{graphicx} package in order to include graphics.
+% It also guarantees that the paper size of the generated pdf matches \LaTeX' point of view (instead of depending on the system settings).
+除非使用\pkgoptn{nographic}选项，
+该宏包会通过载入\pkg{graphicx}宏包以插入图片。
+同时，也保证了生成的页面尺寸
+与\LaTeX{}的点相匹配(而不是依赖于系统设置)。
+
+% Unless this package is loaded with the \pkgoptn{noarray} option
+% it loads the \pkg{array} package which defines additional column specification features like `>{<prefix>}`, `<{<suffix>}` and `!{<addcolsep>}`
+% and the `\newcolumntype{<col>}[<args>]{<spec>}` command.
+% It also changes the implementation of how lines (rules) are drawn
+% but that is irrelevant if you use the recommendations given in the \pkg{booktabs} package documentation~\autocite[section~2 \sectionname{The layout of formal tables}]{booktabs}.
+% Loading the \pkg{array} package is merely for convenience. This package does not use any of it's features.
+除非使用\pkgoptn{noarray}选项，
+该宏包会载入\pkg{array}宏包，它定义了如：
+`>{<prefix>}`、`<{<suffix>}`和`!{<addcolsep>}`列格式
+及`\newcolumntype{<col>}[<args>]{<spec>}`定义列格式命令。
+它也修改了表线绘制的实现方法，
+但如果使用了\pkg{booktabs}宏包文档的\autocite[第2节 \sectionname{The layout of formal tables}]{booktabs}给出的，那就无关紧要了。
+加载数\pkg{array}宏包只是为了方便，该宏包没有使用它的任何功能。
+
+% Unless this package is loaded with the \pkgoptn{nobooktabs} option
+% it loads the \pkg{booktabs} package which defines commands for formatting tables, most importantly `\toprule`, `\midrule` and `\bottomrule`.
+% These are used by the `table head` key unless you redefine it using `table head style`.
+除非使用\pkgoptn{nobooktabs}选项，
+该宏包会载入\pkg{booktabs}宏包，它定义了格式化表格的一引动命令，
+其中最为重要的是：`\toprule`、 `\midrule`和`\bottomrule`命令。
+除非用`table head style`进行了重定义，
+这此命令都是通过`table head`键来使用的。
+
+
+% Other packages loaded by this package are listed in \cref{used-packages}.
+在\cref{used-packages}列出了该宏包载入的其它宏包。
+
+
+% \subsection{Package options}
+\subsection{宏包选项}
+\label{package-options}
+
+% The package options are implemented using the standard \LaTeX\ package options handling functionality as described in~\autocite{clsguide}.
+% Therefore they do *not* take any values but consist of keys only.
+% Instead I usually provide two separate keys, one which enables an option and another which disables the option.
+% The keys with a~\radioon\ are active by default and the keys with a~\radiooff\ are inactive by default.
+宏包选项是通过\autocite{clsguide}中描述的\LaTeX{}宏包标准选项的处理方法实现的。
+因此，选项仅有键名称，而没有键值。
+因此，在此使用两种独立的键，一种是启用选项，一种是禁用选项。
+默认情况下\radioon{}激活一个键，\radiooff{}禁用一个键。
+
+% \pkgoptndoc*{graphicx} use the \pkg{graphicx} package as backend for \cmd{\includegraphicobject}.
+\pkgoptndoc*{graphicx} 用\pkg{graphicx}宏包作为\cmd{\includegraphicobject}命令的后台。
+% \pkgoptndoc{graphbox} use the \pkg{graphbox} package as backend for \cmd{\includegraphicobject}.
+\pkgoptndoc{graphbox} 用\pkg{graphbox}宏包作为\cmd{\includegraphicobject}命令的后台。
+% \pkgoptndoc{nographic} do not load \pkg{graphicx} or \pkg{graphbox}.
+\pkgoptndoc{nographic} 不使用\pkg{graphicx}或\pkg{graphbox}宏包。
+   % If you use this option \cmd{\includegraphicobject} and \cmd{\includegraphicsubobject} are not defined.
+   如果使用了该选项，则不再定义\cmd{\includegraphicobject}和\cmd{\includegraphicsubobject}命令。
+
+   % Warning: Without driver specific packages like \pkg{graphicx}, \pkg{geometry} or \pkg{hyperref} the paper size of the resulting pdf depends on the system settings, independent of what you set in \LaTeX. \autocite{texexchange_papersize}
+   警告：如果未使用诸如\pkg{graphicx}、\pkg{geometry}或\pkg{hyperref}宏包指定的引擎，
+   则生成的pdf页面尺寸依赖于操作系统的设置， 
+   与在\LaTeX{}中的设置无关\autocite{texexchange_papersize}。
+
+% \pkgoptndoc*{array} load the \pkg{array} package.
+\pkgoptndoc*{array} 载入\pkg{array}宏包。
+  % There is no difference between using this package option or a separate `\usepackage{array}`.
+  与单独使用`\usepackage{array}`直接载入宏包的作用完全相同。
+% \pkgoptndoc{noarray} do *not* load the \pkg{array} package.
+\pkgoptndoc{noarray} 不载入\pkg{array}宏包。
+
+% \pkgoptndoc*{booktabs} load the \pkg{booktabs} package.
+\pkgoptndoc*{booktabs} 载入\pkg{booktabs}宏包。
+  % There is no difference between using this package option or a separate `\usepackage{booktabs}`.
+  与单独使用`\usepackage{booktabs}`直接载入宏包的作用完全相同。
+% \pkgoptndoc{nobooktabs} do *not* load the \pkg{booktabs} package.
+\pkgoptndoc{nobooktabs} 不载入 \pkg{booktabs} 宏包。
+  % Please note that the `table head` key initially relies on the booktabs package.
+  % If you want to use it with this package option you need to redefine it with `table head style`.
+  请注意，`table head`键依赖于booktabs包。
+  如果想用这个包选项来使用它，
+  则需用`table head style`对其进行重新定义。
+
+% \pkgoptndoc{longtable} load the \pkg{longtable} package.
+\pkgoptndoc{longtable} 载入 \pkg{longtable}宏包。
+  % There is no difference between using this package option or a separate `\usepackage{longtable}`.
+  与单独使用`\usepackage{longtable}`直接载入宏包的作用完全相同。
+% \pkgoptndoc*{nolongtable} do *not* load the \pkg{longtable} package.
+\pkgoptndoc*{nolongtable} 不载入\pkg{longtable}宏包。
+
+% \pkgoptndoc{allowstandardfloats} do not redefine the \env{table} and `figure` environments.
+\pkgoptndoc{allowstandardfloats} 不允许重定义\env{table}和`figure`环境。
+  % Without this option they are redefined to issue a warning if they are used directly.
+  % This warning should not influence their usual behavior.
+  % Instead of \env{table}\slash `figure` you should use \env{tableobject}\slash \env{figureobject} or \cmd{\includegraphicobject},
+  % otherwise this package cannot help you.
+  如果没有这个选项，直接使用这些环境，会产生一个重定义警告。
+  这个警告不会影响这些环境的正常行为。
+  应该使用\env{tableobject}\slash \env{figureobject}环境 或 \cmd{\includegraphicobject}命令
+  来代替\env{table}\slash `figure`，
+  否则这个包无法使用特有的功能。
+\endpkgoptndoc
+
+
+% \subsection{Help}
+\subsection{帮助}
+\label{help}
+
+% If you get an error message and don't understand where it comes from
+% or the output is different from what you expected
+% the following features may give you a better understanding of what this package is doing.
+% These features are based on the \TeX\ primitive `\show`.
+如果得到一个错误信息，并且不清楚该错误来自哪里，
+或者输出与预期不同，
+下面的功能可能会更好地了解这个包所做的事情。
+这些功能是基于\TeX{}的`\show`基础命令实现的 。
+\DescribeMacro{\show}
+% `\show` shows (among other information) the parameter text and the replacement text of a macro on the terminal and in the log file.
+% If you use one of the following features you most likely want to know the replacement text which is the part between `->` and the last `.` on the line.
+% In errorstopmode mode (i.e.\ without `--interaction=nonstopmode` which most IDEs pass by default) \TeX\ stops after `\show` and waits until you confirm that you have read the information and it may proceed by pressing enter.
+% For more information see \mycite[section~34.1]{texbytopic}.
+`\show`能够在在终端和日志文件中输出一个宏的参数文本和替换文本(也包含其它信息)。
+如果使用了下面的某个功能，则很可能需要知道替换文本，
+也就是一行中`->`和最后一个`.`之间的部分。
+在errorstopmode模式下(多数IDE工具默认都未设置的`--interaction=nonstopmode`编译参数)，
+\TeX{}会在`\show`之后停止，并且直到确认了已经阅读的信息，
+它才会按回车键继续。
+更多信息参见TEX的主题\mycite[34.1小节]{texbytopic}。
+
+\DescribeHandler{.show value}
+% The `.show value` handler can be used to show the value of a \keytype{storing key}
+% (see \pkg{pgfkeys} documentation~\autocite[section~87.4.9 \sectionname{Handlers for Key Inspection}]{tikz}).
+% For example:
+`.show value`处理程序能够显示\keytype{storing key}的值。
+(参见\pkg{pgfkeys} 文档\autocite[第87.4.9小节 \sectionname{Handlers for Key Inspection}]{tikz}).
+例如：
+
+\begin{examplecode}
+\includegraphicsubobject[sep/.show value]{<filename>}
+\end{examplecode}
+
+\DescribeHandler{.show boolean}
+% This package also defines a new handler called `.show boolean` which can be used to show the value of a \keytype{boolean key}.
+% For example:
+该宏包定义了一个`.show boolean`处理程序，
+用于显示 \keytype{boolean key}的值。
+例如：
+
+\begin{examplecode}
+\objectset{warn other env/.show boolean}
+\end{examplecode}
+
+\DescribeMacro{\ShowObjectStylesInGroup}
+% `\ShowObjectStylesInGroup{<group>}` shows all object styles which are contained in the given group.
+% The styles are wrapped in curly braces so that I can iterate over them with the \LaTeX\ command `\@tfor`.
+`\ShowObjectStylesInGroup{<group>}`用于显示指定组内的所有浮动体类型。
+为能够使用\LaTeX{}的命令`\@tfor`迭代处理，需要用大括号包围这些类型。
+
+\DescribeMacro{\ShowObjectStyleOptions}
+% `\ShowObjectStyleOptions{<style>}` shows the options set for a specific style.
+% Please note that this does *not* show directly set options (i.e.\ options set by `\objectset` without the optional argument and options in the options argument of the object).
+`\ShowObjectStyleOptions{<style>}`用于显示指定浮动体类型的选项设置。
+注意，它无法显示直接设置选项(也就是未使用选项参数的`\objectset`命令和对象选项参数中的选项)。
+
+\DescribeKey{show env args}
+% See also the `show env args` key of the \env{object} and \env{subobject} environments.
+显示\env{object}和\env{subobject}环境的`show env args`键。

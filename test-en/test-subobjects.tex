@@ -1,0 +1,81 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass[a4paper]{article}
+\usepackage{easyfloats}
+\usepackage{placeins}
+
+\graphicspath{{graphics/}}
+\captionsetup[sub]{list=true}
+\objectset{%
+	subobject warn no caption = false,
+	subobject warn no label = false,
+	graphic width = .8\linewidth,
+}
+\objectset[table]{%
+	env = tabular,
+}
+
+\AtBeginSubobject{\objectset{graphic warn env=false}}
+
+\begin{document}
+
+\begin{tableobject}{contains subobjects, subcaptionbox, subobject linewidth=, subobject hor=\qquad, caption=Test tables squared, label=tabbox}
+	\begin{subobject}{arg=rl}
+		\toprule
+		abc & 123 \\
+		de  & 45  \\
+		f   & 6   \\
+		\bottomrule
+	\end{subobject}
+	\begin{subobject}{arg=lr}
+		\toprule
+		123 & abc \\
+		45  & de  \\
+		6   & f   \\
+		\bottomrule
+	\end{subobject}
+	\begin{subobject}{ver, arg=rl}
+		\toprule
+		abc & 123 \\
+		de  & 45  \\
+		f   & 6   \\
+		\bottomrule
+	\end{subobject}
+	\begin{subobject}{arg=lr}
+		\toprule
+		123 & abc \\
+		45  & de  \\
+		6   & f   \\
+		\bottomrule
+	\end{subobject}
+\end{tableobject}
+
+\begin{figureobject}{sub, subpage, env=tabular, label=rulespage, caption=These rule a page}
+	\begin{subobject}{caption=Foo, details=Not bar., label=foopage, arg=|c|}
+		\hline
+		\verb|I'm a verb ^^| \\
+		\hline
+	\end{subobject}
+	\begin{subobject}{caption=Bar, label=barpage, arg=|c|}
+		\hline
+		\rule{.8\linewidth}{.3\linewidth}
+		\\\hline
+	\end{subobject}
+\end{figureobject}
+
+% `sub` is not required because `env` is empty for figureobject
+\begin{figureobject}{subcaptionbox, label=lionsbox, caption=Two lions in a box}
+	\includegraphicsubobject{ctan_lion}
+	\includegraphicsubobject[label=box2]{ctan_lion}
+\end{figureobject}
+\begin{tableobject}{sub, subpage, label=catspage, caption=Two cats\ldots}
+	\includegraphicsubobject[auto label=false]{catcodes}
+	\includegraphicsubobject{catcodes}
+\end{tableobject}
+
+\FloatBarrier
+\listoffigures
+\listoftables
+\end{document}

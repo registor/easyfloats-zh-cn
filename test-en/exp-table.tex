@@ -1,0 +1,18 @@
+% !TeX program = pdflatex
+
+\documentclass{article}
+\usepackage{easyfloats}
+\objectset{warn no label=false}
+
+\begin{document}
+\begin{tableobject}{caption=Some catcodes, env=tabular}{cl}
+	\toprule
+		Catcode & Meaning          \\
+	\midrule
+		0       & Escape Character \\
+		1       & Begin Group      \\
+		2       & End Group        \\
+		\vdots  & \quad \vdots     \\
+	\bottomrule
+\end{tableobject}
+\end{document}

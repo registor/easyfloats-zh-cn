@@ -1,0 +1,21 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass[a4paper]{article}
+\usepackage{easyfloats}
+
+\begin{document}
+\begin{tableobject}{caption=Phantom zeros, label=tab1, env=tabular, arg=lr,
+	% inspired by https://tex.stackexchange.com/a/16418/120953
+	exec=
+		\catcode`_\active
+		\scantokens{\def_{\phantom0}},
+}
+	\toprule
+	abc & 123  \\
+	de  & 45_  \\
+	f   & _6_  \\
+	\bottomrule
+\end{tableobject}
+\end{document}

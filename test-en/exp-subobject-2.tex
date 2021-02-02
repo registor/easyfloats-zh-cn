@@ -1,0 +1,31 @@
+% !TeX program = pdflatex
+
+\input{preamble/testmarkup}
+
+\documentclass{article}
+\usepackage{easyfloats}
+
+\begin{document}
+\begin{tableobject}{caption=Category and character codes, label=codes, env=tabular, sub}
+	\begin{subobject}{caption=Category codes, label=catcodes}{cl}
+		\toprule
+			Catcode & Category         \\
+		\midrule
+			0       & Escape Character \\
+			1       & Begin Group      \\
+			2       & End Group        \\
+			\vdots  & \quad \vdots     \\
+		\bottomrule
+	\end{subobject}
+	\begin{subobject}{caption=Character codes, label=charcodes}{cr<{\hspace{1.3em}}}
+		\toprule
+			Character & \multicolumn1c{Charcode} \\
+		\midrule
+			\verb|\|  & \number`\\               \\
+			\verb|{|  & \number`\{               \\
+			\verb|}|  & \number`\}               \\
+			\vdots    & \vdots \phantom{0}       \\
+		\bottomrule
+	\end{subobject}
+\end{tableobject}
+\end{document}
